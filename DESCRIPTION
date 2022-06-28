@@ -1,16 +1,31 @@
 Package: CellFunMap
-Title: What the Package Does (One Line, Title Case)
+Title: Cell-Type Inference and Functional Annotation for Single-Cell Transcriptomics Using Functional Signatures
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Shanni",
+           family = "Cao",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           email = "xiaobaicainiao@163.com")
+Maintainer: Shanni Cao <xiaobaicainiao@163.com>
+Description: CellFunMap enables rapid, automated, effective cell type annotation transfer across scRNA-seq datasets and species. 
+    In addition, CellFunMap provides a variety of meaningful visualization methods for functional annotation of single-cell transcriptomics.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Imports:
+    Seurat,
+    clusterProfiler,
+    dplyr,
+    foreach,
+    AnnotationDbi,
+    AnnotationHub,
+    DOSE,
+    RColorBrewer,
+    ReactomePA,
+    msigdbr,
+    biomaRt
+Depends: 
+    R (>= 2.10)
