@@ -2,8 +2,7 @@
 % Please edit documentation in R/Plots.R
 \name{emapplot2}
 \alias{emapplot2}
-\title{Network of pathway
-Code for plotting is a modified version of \code{enrichplot::emapplot()}.}
+\title{Network of pathway}
 \usage{
 emapplot2(
   SeuratObj,
@@ -43,7 +42,6 @@ emapplot2(
 
 }
 \description{
-Network of pathway
 Code for plotting is a modified version of \code{enrichplot::emapplot()}.
 }
 \examples{

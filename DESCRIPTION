@@ -9,8 +9,7 @@ Authors@R:
 Maintainer: Shanni Cao <xiaobaicainiao@163.com>
 Description: CellFunMap enables rapid, automated, effective cell type annotation transfer across scRNA-seq datasets and species. 
     In addition, CellFunMap provides a variety of meaningful visualization methods for functional annotation of single-cell transcriptomics.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

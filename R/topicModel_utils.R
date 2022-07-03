@@ -425,8 +425,6 @@ wordcloud_topic <- function(betaDF, pws, topic, topn=20) {
 #' @rdname wordcloud_topic
 #' @export
 #'
-#' @importFrom wordcloud2 wordcloud2
-#'
 #'
 wordcloud_topic_3D <- function(betaDF, pws, topic, topn=20) {
   pal2 <- colorRampPalette(brewer.pal(9,"Set1"))(20)
@@ -434,7 +432,7 @@ wordcloud_topic_3D <- function(betaDF, pws, topic, topn=20) {
   # suppressWarnings(wordcloud(pws[dd$term],dd$beta, scale=c(2,.1), min.freq=0,
   #           max.words=20, random.order=F, rot.per=.15, colors=pal2, ordered.colors=T))
   # # JS 3D wordcloud
-  wordcloud2(dd %>% mutate(descrip=unname(pws[term])) %>% dplyr::select(descrip, beta), size = 0.1,color= "random-dark")
+  wordcloud2::wordcloud2(dd %>% mutate(descrip=unname(pws[term])) %>% dplyr::select(descrip, beta), size = 0.1,color= "random-dark")
 }
 
 
@@ -472,6 +470,7 @@ plot_sankey <- function(gammaDF, topn=1, plotHeight=600) {
 
 
 #' UMAP on cluster-topic probability matrix
+#'
 #' each point represents clusters
 #'
 #' @param ldaOut topic modeling result
@@ -530,6 +529,7 @@ cluster_topic_hmp <- function(ldaOut, cluster_rows = T, cluster_cols = T) {
 
 
 #' Heatmap showing cosine similarity between topics
+#'
 #' calculated by topic~term probability matrix
 #'
 #' @param ldaOut topic modeling result
@@ -553,6 +553,7 @@ cosineheatmap <- function(ldaOut) {
 
 
 #' Network showing cosine similarity between clusters
+#'
 #' Network of cosine similarity between clusters, calculated by cluster~topic probability matrix. Width of edge shows cosine similarity between clusters, node pie shows topic probability distribution of each cluster.
 #'
 #' @param ldaOut topic modeling result
@@ -613,10 +614,13 @@ cosine_network_cluster <- function(ldaOut,
 
 
 #' Network of cosine similarity between terms
-#' Network showing cosine similarity between terms, calculated by topic~term probability matrix or GSEA result
+#'
+#' Links showing cosine similarity between terms, calculated by topic~term probability matrix or GSEA result.
+#' Node pie shows topic distribution of each term or enrichment score distribution of each term.
 #'
 #' @param SeuratObj Object of class "Seurat"
-#' @param cosine_cal_by calculate cosine similarity by topic~term probability matrix or GSEA result
+#' @param cosine_cal_by calculate cosine similarity by topic~term probability matrix or GSEA result. "Topic modeling", "GSEA result".
+#' @param pie_by what node pie shows. topic distribution or enrichment score distribution of each term. "Topic modeling", "GSEA result".
 #' @param GSEA_by using which GSEA result to run topic modeling, one of "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"
 #' @param topn top n terms of each topic or each cluster
 #' @param layout network layout
@@ -634,13 +638,16 @@ cosine_network_cluster <- function(ldaOut,
 #' @export
 #'
 #' @examples
-#' cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", GSEA_by = "GO",
+#' cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", pie_by = "Topic modeling", GSEA_by = "GO",
 #'    topn = 10, layout = "fr", cos_sim_thresh = 0.8, radius = 0.1, text_size = 2)
-#' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", GSEA_by = "GO")
+#' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "GSEA result", GSEA_by = "GO")
+#' # edge(cosine similarity calculation) and node pie information could be different.
+#' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "Topic modeling", GSEA_by = "GO")
 #'
 #'
 cosine_network_term <- function(SeuratObj,
                                 cosine_cal_by = "Topic modeling",
+                                pie_by = "Topic modeling",
                                 GSEA_by = "GO",
                                 topn = 10,
                                 layout = "fr",
@@ -651,13 +658,15 @@ cosine_network_term <- function(SeuratObj,
                                 text_size = 2)
 {
   cosine_cal_by <- match.arg(cosine_cal_by, choices = c("Topic modeling", "GSEA result"))
-  ldaOut <- slot(object = SeuratObj, name = 'misc')[["ldaOut"]]
-  mm <- posterior(ldaOut)$terms  # topic~term probability matrix
+  pie_by <- match.arg(pie_by, choices = c("Topic modeling", "GSEA result"))
+
+  # calculate cosine similarity
   if (cosine_cal_by == "Topic modeling") { # calculate cosine similarity with topic~term probability matrix
+    ldaOut <- slot(object = SeuratObj, name = 'misc')[["ldaOut"]]
+    mmc <- posterior(ldaOut)$terms  # topic~term probability matrix
     # show top terms of every topic
     betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
     tt <- betaDF %>% dplyr::group_by(topic) %>% slice_max(order_by = beta, n=topn, with_ties=F) %>% dplyr::pull(term) %>% unique()
-    mmc <- mm
   } else { # calculate cosine similarity with GSEA result
     # show top terms of every cluster
     GSEA_by <- match.arg(GSEA_by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
@@ -678,27 +687,38 @@ cosine_network_term <- function(SeuratObj,
   nodes <- data.frame(name=unique(c(links$source, links$target)), stringsAsFactors = F)
   nodes$descrip <- GOfuncR::get_names(nodes$name)$go_name
 
-  mm <- mm[, tt]
-  clusColor <- setNames(scPalette2(nrow(mm)), rownames(mm))
-  if (cosine_cal_by == "Topic modeling") {
-    links$color <- apply(links, 1, function(x){names(which.max(c(mm[, x[1]], mm[, x[2]])))})
+  # node pie information
+  if (pie_by == "Topic modeling") {
+    ldaOut <- slot(object = SeuratObj, name = 'misc')[["ldaOut"]]
+    mmp <- posterior(ldaOut)$terms  # topic~term probability matrix
+  } else if (pie_by == "GSEA result") {
+    GSEA_by <- match.arg(GSEA_by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
+    GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", GSEA_by)]]
+    GSEAresult %<>% dplyr::mutate(FDR=-log10(p.adjust))
+    mmp <- reshape2::acast(GSEAresult, cluster~ID, value.var = "FDR")
+    mmp[is.na(mmp)] <- 0
+  }
+  mmp <- mmp[, tt]
+  clusColor <- setNames(scPalette2(nrow(mmp)), rownames(mmp))
+  if (cosine_cal_by == pie_by) { # 饼图展示和余弦相似度计算一致的话则显示edge的颜色
+    links$color <- apply(links, 1, function(x){names(which.max(c(mmp[, x[1]], mmp[, x[2]])))})
     links$color <- grDevices::adjustcolor(clusColor[links$color], 0.5)
   }
   gg <- graph_from_data_frame(d=links, vertices=nodes, directed=F)
   set.seed(SEED)
   p <- ggraph(gg, layout = layout)
-  if (cosine_cal_by == "Topic modeling") {
+  if (cosine_cal_by == pie_by) {
     p <- p + geom_edge_link(alpha=0.5, aes_(width=~width, edge_colour=~I(color))) + scale_edge_width_continuous(range = width_range)
   } else {
     p <- p + geom_edge_link(alpha=0.5, aes_(width=~width)) + scale_edge_width_continuous(range = width_range)
   }
   ## Get the matrix data for the pie plot
-  ID_Cluster_mat <- as.data.frame(t(mm[, nodes$name]))
+  ID_Cluster_mat <- as.data.frame(t(mmp[, nodes$name]))
   ID_Cluster_mat <- cbind(ID_Cluster_mat[p$data$name, ], p$data[, c("x", "y")])
   ID_Cluster_mat$radius <- radius
   p <- p + ggnewscale::new_scale_fill() + geom_scatterpie(aes_(x=~x,y=~y,r=~radius), data=ID_Cluster_mat,
                                                           cols=colnames(ID_Cluster_mat)[1:(ncol(ID_Cluster_mat)-3)],color=NA, alpha=1, sorted_by_radius=T) +
-    scale_fill_manual(name="topic", values=clusColor) +
+    scale_fill_manual(name=ifelse(pie_by == "Topic modeling", "topic", "cluster"), values=clusColor) +
     coord_fixed() + theme_void()# + theme(legend.position = "none")
   p <- p + ggrepel::geom_text_repel(aes_(x =~ x, y =~ y, label =~ descrip), size = text_size, show.legend = FALSE,
                                     segment.size = 0.3, force=3,force_pull=2, max.overlaps=30)

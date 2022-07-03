@@ -14,7 +14,7 @@ clustercorplot(
   label.edge = FALSE,
   edge.curved = 0.2,
   shape = "circle",
-  layout = in_circle(),
+  layout = igraph::in_circle(),
   margin = 0.1,
   vertex.size.cex = 1,
   link_threshold = 0.5,
@@ -97,7 +97,7 @@ clustercorplot_jaccard(
 }
 \description{
 Helps to infer the relationship between clusters. Link width shows Pearson correlation or
-Jaccard coefficient between clusters, calculated with GSEA result.
+Jaccard coefficient between clusters, calculated with GSEA result. Node size indicates cell number of each cluster.
 }
 \examples{
 # show Pearson correlation between clusters

@@ -2,7 +2,7 @@
 % Please edit documentation in R/RunGSEA.R
 \name{RunGSEA}
 \alias{RunGSEA}
-\title{Gene Set Enrichment Analysis (GSEA)}
+\title{Perform Gene Set Enrichment Analysis (GSEA) on Seurat object}
 \usage{
 RunGSEA(
   SeuratObj,
@@ -33,7 +33,7 @@ RunGSEA(
 
 }
 \description{
-Gene Set Enrichment Analysis (GSEA)
+Perform Gene Set Enrichment Analysis (GSEA) on Seurat object. GSEA is implemented using clusterProfiler package.
 }
 \examples{
 \dontrun{

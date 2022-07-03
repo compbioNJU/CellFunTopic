@@ -1,5 +1,5 @@
-#' Title
-#' detect what gene ID type that rownames(counts) belongs to
+#' Detect the gene ID type of Seurat object
+#'
 #' @param SeuratObj Seurat object
 #' @importFrom AnnotationDbi keys
 #' @importFrom dplyr `%>%`
@@ -7,7 +7,7 @@
 #' @export
 #'
 #' @examples
-#' #' \dontrun{
+#' \dontrun{
 #' SeuratObj <- DetectGeneIDtype(SeuratObj)
 #' GeneIDtype <- slot(object = SeuratObj, name = 'misc')[["featureData"]][['GeneIDtype']]
 #' }
@@ -47,15 +47,15 @@ DetectGeneIDtype <- function(SeuratObj) {
 #' @importFrom biomaRt useMart searchDatasets useDataset getBM
 #' @importFrom dplyr `%>%`
 #' @importFrom Seurat PercentageFeatureSet
-#' @importFrom clusterProfiler bitr
 #' @return
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' SeuratObj <- CalMTpercent(SeuratObj, by = 'use_internal_data')
 #' SeuratObj <- CalMTpercent(SeuratObj, by = 'AnnotationHub')
 #' SeuratObj <- CalMTpercent(SeuratObj, by = 'biomaRt')
-#'
+#' }
 #'
 CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
   by <- match.arg(by, choices = c('use_internal_data', 'AnnotationHub', 'biomaRt'))
@@ -79,7 +79,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
     } else {
       # gene ID transition
       OrgDb <- getOrgDb(species)
-      bitrDF <- bitr(genes, fromType = GeneIDtype, toType = "ENTREZID", OrgDb = OrgDb, drop = TRUE)
+      bitrDF <- clusterProfiler::bitr(genes, fromType = GeneIDtype, toType = "ENTREZID", OrgDb = OrgDb, drop = TRUE)
       MTgenes <- bitrDF[bitrDF$ENTREZID %in% txid_gene_MT$ENTREZID, GeneIDtype]
     }
     rm(txid_gene_MT, envir = .GlobalEnv)
@@ -147,7 +147,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
       stop("Please install biomaRt from Bioconductor at first")
     }
     species <- slot(object = SeuratObj, name = 'misc')[['species']]
-    ensembl=useMart("ensembl")
+    ensembl <- useMart("ensembl")
     string <- strsplit(tolower(species), split = ' ')[[1]]
     pattern <- paste0(substr(string[1], 1, 1), string[2])
     searchResult <- searchDatasets(mart = ensembl, pattern = pattern)
@@ -182,7 +182,6 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
 
 
 
-#' Title
 #' quality control according to 'nCount_RNA', 'nFeature_RNA', 'percent.mt', 'CellsPerGene'
 #'
 #' @param SeuratObj Seurat object
@@ -198,25 +197,31 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' SeuratObj <- ScFunQC(SeuratObj, plot = TRUE)
+#' }
 #'
 ScFunQC <- function(SeuratObj,
                     minCountsPerCell = NULL,
                     maxCountsPerCell = NULL,
                     minFeaturesPerCell = NULL,
                     maxFeaturesPerCell = NULL,
-                    maxPercent.mt = NULL) {
+                    maxPercent.mt = NULL,
+                    plot = TRUE) {
 
   # Visualization before QC
-  if (!dir.exists(paths = "./CellFunMap_output/plots")) {
+  if (plot & !dir.exists(paths = "./CellFunMap_output/plots")) {
     dir.create("./CellFunMap_output/plots", recursive = TRUE)
   }
-  pdf(file = "./CellFunMap_output/plots/beforeQC.pdf")
-  vp <- VlnPlot(SeuratObj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
-  print(vp)
-  plot1 <- FeatureScatter(SeuratObj, feature1 = "nCount_RNA", feature2 = "percent.mt")
-  plot2 <- FeatureScatter(SeuratObj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
-  print(plot1 + plot2)
-  dev.off()
+  if (plot) {
+    pdf(file = "./CellFunMap_output/plots/beforeQC.pdf")
+    vp <- VlnPlot(SeuratObj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+    print(vp)
+    plot1 <- FeatureScatter(SeuratObj, feature1 = "nCount_RNA", feature2 = "percent.mt")
+    plot2 <- FeatureScatter(SeuratObj, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+    print(plot1 + plot2)
+    dev.off()
+  }
 
   # Filter cells
   meta.data <- slot(object = SeuratObj, name = 'meta.data')
@@ -253,10 +258,12 @@ ScFunQC <- function(SeuratObj,
   SeuratObj <- subset(SeuratObj, cells = cells, features = features)
 
   # Visualization after QC
-  pdf(file = "./CellFunMap_output/plots/afterQC.pdf")
-  vp <- VlnPlot(SeuratObj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
-  print(vp)
-  dev.off()
+  if (plot) {
+    pdf(file = "./CellFunMap_output/plots/afterQC.pdf")
+    vp <- VlnPlot(SeuratObj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+    print(vp)
+    dev.off()
+  }
 
   return(SeuratObj)
 }

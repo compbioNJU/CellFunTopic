@@ -2,8 +2,7 @@
 % Please edit documentation in R/QualityControl.R
 \name{ScFunQC}
 \alias{ScFunQC}
-\title{Title
-quality control according to 'nCount_RNA', 'nFeature_RNA', 'percent.mt', 'CellsPerGene'}
+\title{quality control according to 'nCount_RNA', 'nFeature_RNA', 'percent.mt', 'CellsPerGene'}
 \usage{
 ScFunQC(
   SeuratObj,
@@ -11,7 +10,8 @@ ScFunQC(
   maxCountsPerCell = NULL,
   minFeaturesPerCell = NULL,
   maxFeaturesPerCell = NULL,
-  maxPercent.mt = NULL
+  maxPercent.mt = NULL,
+  plot = TRUE
 )
 }
 \arguments{
@@ -31,9 +31,11 @@ ScFunQC(
 
 }
 \description{
-Title
 quality control according to 'nCount_RNA', 'nFeature_RNA', 'percent.mt', 'CellsPerGene'
 }
 \examples{
+\dontrun{
+SeuratObj <- ScFunQC(SeuratObj, plot = TRUE)
+}
 
 }

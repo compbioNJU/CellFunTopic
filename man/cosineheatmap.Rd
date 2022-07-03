@@ -2,8 +2,7 @@
 % Please edit documentation in R/topicModel_utils.R
 \name{cosineheatmap}
 \alias{cosineheatmap}
-\title{Heatmap showing cosine similarity between topics
-calculated by topic~term probability matrix}
+\title{Heatmap showing cosine similarity between topics}
 \usage{
 cosineheatmap(ldaOut)
 }
@@ -11,7 +10,6 @@ cosineheatmap(ldaOut)
 \item{ldaOut}{topic modeling result}
 }
 \description{
-Heatmap showing cosine similarity between topics
 calculated by topic~term probability matrix
 }
 \examples{

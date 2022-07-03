@@ -4,12 +4,10 @@
 \alias{GOcircleplot}
 \title{show pathways and genes in chord diagram}
 \usage{
-GOcircleplot(SeuratObj, Orgdb = org.Hs.eg.db, genes = NULL)
+GOcircleplot(SeuratObj, genes = NULL)
 }
 \arguments{
 \item{SeuratObj}{Seurat object}
-
-\item{Orgdb}{Orgdb of specific species}
 
 \item{genes}{genes to draw}
 }
@@ -20,6 +18,6 @@ GOcircleplot(SeuratObj, Orgdb = org.Hs.eg.db, genes = NULL)
 show pathways and genes in chord diagram
 }
 \examples{
-GOcircleplot(SeuratObj, Orgdb=org.Hs.eg.db, genes=NULL)
+GOcircleplot(SeuratObj, genes=NULL)
 
 }

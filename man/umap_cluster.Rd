@@ -2,8 +2,7 @@
 % Please edit documentation in R/topicModel_utils.R
 \name{umap_cluster}
 \alias{umap_cluster}
-\title{UMAP on cluster-topic probability matrix
-each point represents clusters}
+\title{UMAP on cluster-topic probability matrix}
 \usage{
 umap_cluster(ldaOut)
 }
@@ -14,7 +13,6 @@ umap_cluster(ldaOut)
 
 }
 \description{
-UMAP on cluster-topic probability matrix
 each point represents clusters
 }
 \examples{

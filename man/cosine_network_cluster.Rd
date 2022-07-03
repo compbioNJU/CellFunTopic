@@ -2,8 +2,7 @@
 % Please edit documentation in R/topicModel_utils.R
 \name{cosine_network_cluster}
 \alias{cosine_network_cluster}
-\title{Network showing cosine similarity between clusters
-Network of cosine similarity between clusters, calculated by cluster~topic probability matrix. Width of edge shows cosine similarity between clusters, node pie shows topic probability distribution of each cluster.}
+\title{Network showing cosine similarity between clusters}
 \usage{
 cosine_network_cluster(
   ldaOut,
@@ -32,7 +31,6 @@ cosine_network_cluster(
 ggplot object
 }
 \description{
-Network showing cosine similarity between clusters
 Network of cosine similarity between clusters, calculated by cluster~topic probability matrix. Width of edge shows cosine similarity between clusters, node pie shows topic probability distribution of each cluster.
 }
 \examples{

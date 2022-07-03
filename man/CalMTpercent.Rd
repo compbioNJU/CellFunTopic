@@ -18,9 +18,10 @@ CalMTpercent(SeuratObj, by = "use_internal_data")
 Calculate the proportion of transcripts mapping to mitochondrial genes
 }
 \examples{
+\dontrun{
 SeuratObj <- CalMTpercent(SeuratObj, by = 'use_internal_data')
 SeuratObj <- CalMTpercent(SeuratObj, by = 'AnnotationHub')
 SeuratObj <- CalMTpercent(SeuratObj, by = 'biomaRt')
-
+}
 
 }

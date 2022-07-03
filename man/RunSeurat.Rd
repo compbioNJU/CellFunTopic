@@ -4,7 +4,7 @@
 \alias{RunSeurat}
 \title{basic single cell analysis with Seurat}
 \usage{
-RunSeurat(SeuratObj, nPCs = 10, resolution = 0.5)
+RunSeurat(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE)
 }
 \arguments{
 \item{SeuratObj}{Seurat object}
@@ -12,6 +12,8 @@ RunSeurat(SeuratObj, nPCs = 10, resolution = 0.5)
 \item{nPCs}{Dimensions of reduction to use as input}
 
 \item{resolution}{Value of the resolution parameter, use a value above (below) 1.0 if you want to obtain a larger (smaller) number of communities.}
+
+\item{plot}{draw plots or not. If TRUE, plots will be produced and saved in working directory.}
 }
 \value{
 Seurat object
@@ -21,7 +23,7 @@ basic single cell analysis with Seurat
 }
 \examples{
 \dontrun{
-SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 0.5)
+SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE)
 }
 
 

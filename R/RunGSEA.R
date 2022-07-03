@@ -1,5 +1,7 @@
 
-#' Gene Set Enrichment Analysis (GSEA)
+#' Perform Gene Set Enrichment Analysis (GSEA) on Seurat object
+#'
+#' Perform Gene Set Enrichment Analysis (GSEA) on Seurat object. GSEA is implemented using clusterProfiler package.
 #'
 #' @param SeuratObj Seurat object
 #' @param by GO KEGG Reactome MSigDb WikiPathways DO NCG DGN. May be a character vector. Will be ignored if parameter "TERM2GENE" is not NULL.
@@ -238,17 +240,6 @@ RunGSEA_sub <- function(SeuratObj,
   } else {
     slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]] <- result
   }
-  topPath <- result %>% dplyr::mutate(logFDR=-log10(p.adjust)) %>%
-    dplyr::group_by(cluster) %>% dplyr::top_n(n=10, wt=enrichmentScore)
-  mat <- -log10(reshape2::acast(result, Description~cluster, value.var='p.adjust'))
-  ## mat <- reshape2::acast(result, Description~cluster, value.var='NES')
-  mat[is.na(mat)] <- 0
-  mat <- mat[unique(topPath$Description), ]
-  slot(object = SeuratObj, name = 'misc')[["GSEAmatrix"]] <- mat
-  if (!dir.exists(paths = "./scFunMap_output/plots")) {
-    dir.create("./scFunMap_output/plots", recursive = TRUE)
-  }
-  ph <- pheatmap::pheatmap(mat, fontsize_row = 2, color = colorRampPalette(c('white', brewer.pal(n=7,name="Greens")))(100), filename = "./scFunMap_output/plots/GSEAheatmap.pdf")
-  slot(object = SeuratObj, name = 'misc')[["ph"]] <- ph
+
   return(SeuratObj)
 }

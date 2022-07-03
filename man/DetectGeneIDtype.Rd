@@ -2,8 +2,7 @@
 % Please edit documentation in R/QualityControl.R
 \name{DetectGeneIDtype}
 \alias{DetectGeneIDtype}
-\title{Title
-detect what gene ID type that rownames(counts) belongs to}
+\title{Detect the gene ID type of Seurat object}
 \usage{
 DetectGeneIDtype(SeuratObj)
 }
@@ -14,11 +13,10 @@ DetectGeneIDtype(SeuratObj)
 
 }
 \description{
-Title
-detect what gene ID type that rownames(counts) belongs to
+Detect the gene ID type of Seurat object
 }
 \examples{
-#' \dontrun{
+\dontrun{
 SeuratObj <- DetectGeneIDtype(SeuratObj)
 GeneIDtype <- slot(object = SeuratObj, name = 'misc')[["featureData"]][['GeneIDtype']]
 }

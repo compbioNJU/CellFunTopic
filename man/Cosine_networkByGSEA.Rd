@@ -6,8 +6,10 @@
 \usage{
 Cosine_networkByGSEA(
   SeuratObj,
+  by = "GO",
   layout = layout_nicely,
   cos_sim_thresh = 0.6,
+  p.adjust_thresh = 0.05,
   SEED = 123,
   node.cex = 5,
   width_range = c(0.8, 4),
@@ -18,10 +20,14 @@ Cosine_networkByGSEA(
 \arguments{
 \item{SeuratObj}{Seurat object}
 
+\item{by}{GO KEGG Reactome MSigDb WikiPathways DO NCG DGN.}
+
 \item{layout}{layout_nicely, layout_with_fr, etc. Either a function or a numeric matrix.
 It specifies how the vertices will be placed on the plot.}
 
 \item{cos_sim_thresh}{only draw links of cosine similarity bigger than this}
+
+\item{p.adjust_thresh}{threshold of p.adjust to filter pathways used to calculate cosine similarity}
 
 \item{SEED}{seed}
 
@@ -30,6 +36,8 @@ It specifies how the vertices will be placed on the plot.}
 \item{width_range}{range of width of links}
 
 \item{text_size}{size of text}
+
+\item{vertex.label.dist}{}
 }
 \value{
 
@@ -38,8 +46,8 @@ It specifies how the vertices will be placed on the plot.}
 Network showing cosine similarity between clusters according to GSEA result
 }
 \examples{
-Cosine_networkByGSEA(SeuratObj, layout=layout_nicely, cos_sim_thresh=0.6, SEED=123, node.cex=3, width_range=c(0.1, 0.8))
-Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8, SEED=123, node.cex=5, width_range=c(0.8, 4))
+Cosine_networkByGSEA(SeuratObj, layout=layout_nicely, cos_sim_thresh=0.6, p.adjust_thresh=0.05, SEED=123, node.cex=3, width_range=c(0.1, 0.8))
+Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8, p.adjust_thresh=0.05, SEED=123, node.cex=5, width_range=c(0.8, 4))
 
 
 }

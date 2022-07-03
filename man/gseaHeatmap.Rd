@@ -12,7 +12,9 @@ gseaHeatmap(
   topPath = 10,
   colour = "Greens",
   scale = "none",
-  fontsize_row = 10
+  fontsize_row = 10,
+  cluster_rows = TRUE,
+  cluster_cols = TRUE
 )
 }
 \arguments{
@@ -32,9 +34,13 @@ gseaHeatmap(
 Corresponding values are "row", "column" and "none"}
 
 \item{fontsize_row}{fontsize for rownames}
+
+\item{cluster_rows}{boolean values determining if rows should be clustered.}
+
+\item{cluster_cols}{boolean values determining if columns should be clustered.}
 }
 \value{
-a pheatmap object
+A Heatmap-class object.
 }
 \description{
 Heatmap of GSEA result

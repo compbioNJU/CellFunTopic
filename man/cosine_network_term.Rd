@@ -2,12 +2,12 @@
 % Please edit documentation in R/topicModel_utils.R
 \name{cosine_network_term}
 \alias{cosine_network_term}
-\title{Network of cosine similarity between terms
-Network showing cosine similarity between terms, calculated by topic~term probability matrix or GSEA result}
+\title{Network of cosine similarity between terms}
 \usage{
 cosine_network_term(
   SeuratObj,
   cosine_cal_by = "Topic modeling",
+  pie_by = "Topic modeling",
   GSEA_by = "GO",
   topn = 10,
   layout = "fr",
@@ -21,7 +21,9 @@ cosine_network_term(
 \arguments{
 \item{SeuratObj}{Object of class "Seurat"}
 
-\item{cosine_cal_by}{calculate cosine similarity by topic~term probability matrix or GSEA result}
+\item{cosine_cal_by}{calculate cosine similarity by topic~term probability matrix or GSEA result. "Topic modeling", "GSEA result".}
+
+\item{pie_by}{what node pie shows. topic distribution or enrichment score distribution of each term. "Topic modeling", "GSEA result".}
 
 \item{GSEA_by}{using which GSEA result to run topic modeling, one of "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"}
 
@@ -43,13 +45,15 @@ cosine_network_term(
 ggplot object
 }
 \description{
-Network of cosine similarity between terms
-Network showing cosine similarity between terms, calculated by topic~term probability matrix or GSEA result
+Links showing cosine similarity between terms, calculated by topic~term probability matrix or GSEA result.
+Node pie shows topic distribution of each term or enrichment score distribution of each term.
 }
 \examples{
-cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", GSEA_by = "GO",
+cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", pie_by = "Topic modeling", GSEA_by = "GO",
    topn = 10, layout = "fr", cos_sim_thresh = 0.8, radius = 0.1, text_size = 2)
-cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", GSEA_by = "GO")
+cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "GSEA result", GSEA_by = "GO")
+# edge(cosine similarity calculation) and node pie information could be different.
+cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "Topic modeling", GSEA_by = "GO")
 
 
 }

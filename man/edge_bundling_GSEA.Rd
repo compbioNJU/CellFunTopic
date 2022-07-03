@@ -9,6 +9,7 @@ edge_bundling_GSEA(
   by = "GO",
   link_threshold = 0.6,
   link_width = 0.9,
+  p.adjust_thresh = 0.05,
   method = "cosine similarity",
   node.by = "cluster",
   group.by = "cellType"
@@ -23,6 +24,8 @@ edge_bundling_GSEA(
 
 \item{link_width}{width of links}
 
+\item{p.adjust_thresh}{threshold of p.adjust to filter pathways used to calculate cosine similarity/correlation}
+
 \item{method}{one of \code{c('cosine similarity', 'pearson', 'spearman')}}
 
 \item{node.by}{draw each node as \code{node.by}, column of \code{SeuratObj@meta.data}}
@@ -36,7 +39,7 @@ edge_bundling_GSEA(
 Hierarchical edge bundling plots helps visualizing correlation or similarity between clusters
 }
 \examples{
-edge_bundling_GSEA(SeuratObj, link_threshold=0.6, method='cosine similarity', node.by='cluster', group.by='cellType')
-edge_bundling_GSEA(SeuratObj, link_threshold=0.6, method='pearson', node.by='cluster', group.by='cellType')
+edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05, method='cosine similarity', node.by='cluster', group.by='cellType')
+edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05, method='pearson', node.by='cluster', group.by='cellType')
 
 }
