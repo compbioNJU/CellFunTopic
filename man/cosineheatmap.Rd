@@ -13,8 +13,9 @@ cosineheatmap(ldaOut)
 calculated by topic~term probability matrix
 }
 \examples{
+\dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
-# ldaOut <- topicmodels::LDA(dtm, k = 10, method = "VEM", control = list(seed = 1234))
 cosineheatmap(ldaOut)
+}
 
 }

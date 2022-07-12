@@ -2,7 +2,7 @@
 % Please edit documentation in R/topicModel_utils.R
 \name{plot_sankey}
 \alias{plot_sankey}
-\title{Sankey diagram showing best assigned topic of each cluster}
+\title{Sankey diagram showing the best assigned topic of each cluster}
 \usage{
 plot_sankey(gammaDF, topn = 1, plotHeight = 600)
 }
@@ -17,12 +17,14 @@ plot_sankey(gammaDF, topn = 1, plotHeight = 600)
 
 }
 \description{
-Sankey diagram showing best assigned topic of each cluster
+Create a D3 JavaScript Sankey diagram which shows the best assigned topic of each cluster.
 }
 \examples{
+\dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 gammaDF <- tidytext::tidy(ldaOut, matrix = "gamma")
 plot_sankey(gammaDF, topn=1)
-plot_sankey(gammaDF, topn=2)
+plot_sankey(gammaDF, topn=2) \%>\% networkD3::saveNetwork(file = "plot_sankey.html")
+}
 
 }

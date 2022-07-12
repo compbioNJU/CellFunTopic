@@ -18,8 +18,10 @@ plotnw2(betaDF, topn)
 network showing top terms of topics
 }
 \examples{
+\dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 plotnw2(betaDF, topn=10)
+}
 
 }

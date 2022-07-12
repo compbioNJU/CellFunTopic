@@ -22,10 +22,12 @@ wordcloud_topic_3D(betaDF, pws, topic, topn = 20)
 word cloud of top terms of topic
 }
 \examples{
+\dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 pws <- SeuratObj@misc$GSEAresult_GO \%>\% dplyr::select(ID, Description) \%>\% unique \%>\% tibble::deframe()
 wordcloud_topic(betaDF, pws, topic=1, topn=20)
 wordcloud_topic_3D(betaDF, pws, topic=1, topn=20)
+}
 
 }

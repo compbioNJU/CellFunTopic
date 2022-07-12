@@ -21,10 +21,27 @@ Imports:
     foreach,
     AnnotationDbi,
     AnnotationHub,
-    DOSE,
     RColorBrewer,
-    ReactomePA,
+    biomaRt,
+    ggplot2,
+    igraph,
+    ggraph,
+    topicmodels,
+    tidytext,
+    GO.db,
+    magrittr,
+    modeltools
+Suggests:
+    circlize,
+    simplifyEnrichment,
+    plyr,
     msigdbr,
-    biomaRt
+    DOSE,
+    ReactomePA,
+    cowplot,
+    echarts4r,
+    networkD3,
+    scatterpie,
+    widyr
 Depends: 
     R (>= 2.10)

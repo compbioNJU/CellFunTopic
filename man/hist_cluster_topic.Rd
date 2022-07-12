@@ -18,8 +18,10 @@ ggplot object
 barplot to show probability of assigned topics in clusters
 }
 \examples{
+\dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 gammaDF <- tidytext::tidy(ldaOut, matrix = "gamma")
 hist_cluster_topic(gammaDF, clusters=head(Seurat::Idents(SeuratObj)))
+}
 
 }

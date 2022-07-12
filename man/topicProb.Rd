@@ -22,6 +22,8 @@ topicProb(SeuratObj, reduction = "umap", topic = 1, pointSize = 0.1)
 Show topic activity on UMAP/TSNE cell map
 }
 \examples{
+\dontrun{
 topicProb(SeuratObj, reduction="umap", topic=3, pointSize=0.1)
+}
 
 }

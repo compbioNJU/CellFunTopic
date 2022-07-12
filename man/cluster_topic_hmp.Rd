@@ -16,8 +16,10 @@ cluster_topic_hmp(ldaOut, cluster_rows = T, cluster_cols = T)
 Heatmap showing probability between topics and clusters
 }
 \examples{
+\dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 cluster_topic_hmp(ldaOut)
 cluster_topic_hmp(ldaOut,  cluster_cols = F)
+}
 
 }

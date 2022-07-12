@@ -27,8 +27,8 @@ ldaOut <- SeuratObj@misc$ldaOut
 betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 pws <- SeuratObj@misc$GSEAresult_GO \%>\% dplyr::select(ID, Description) \%>\% unique \%>\% tibble::deframe()
 betaDF \%<>\% dplyr::mutate(descrip=unname(pws[term]))
-hist_topic_term(betaDF, topics=1, topn=20, axis.text.y.size=10)
-hist_topic_term(betaDF, topics=c(1,2,3,4), topn=20, axis.text.y.size=10)
+hist_topic_term(betaDF, topics=1, topn=20, axis.text.y.size=5)
+hist_topic_term(betaDF, topics=c(1,2,3,4), topn=20, axis.text.y.size=5)
 }
 
 

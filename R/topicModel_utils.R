@@ -71,18 +71,19 @@ plotindex <- function(ldas) {
 #'
 #' @param SeuratObj Object of class "Seurat"
 #' @param by using which GSEA result to run topic modeling, one of "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"
-#' @param k can be a specific k, if NULL, calculate best k automatically(time-consuming)
+#' @param k number of topics. Can be a specific k, if NULL, calculate best k automatically(time-consuming)
 #' @param method The method to be used for fitting a LDA model; currently method = "VEM" or method= "Gibbs" are supported.
 #' @param SEED seed
-#' @param plot plot metrics or not
+#' @param plot whether or not to plot metrics used to decide the number of topics
 #'
-#' @return a Seurat object with topic modeling result stored in the \code{SeuratObj@misc}
+#' @return a Seurat object with topic modeling result stored in the \code{SeuratObj@misc$ldaOut}
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' k <- 10
 #' SeuratObj <- runLDA(SeuratObj, by = "GO", k = k, method = "VEM", SEED = 1234, plot = T)
+#' SeuratObj@misc$ldaOut # where the topic modeling result is stored
 #' }
 #'
 #'
@@ -92,8 +93,9 @@ runLDA <- function(SeuratObj, by = "GO", k=NULL, method='VEM', SEED=1234, plot=T
   #create a DocumentTermMatrix
   dd <- GSEAresult %>% dplyr::mutate(score = as.integer(-log2(p.adjust)))
   dtm <- tidytext::cast_dtm(data = dd, document = cluster, term = ID, value = score)
-  rowTotals <- apply(dtm,1,sum) #Find the sum of words in each Document
-  dtm <- dtm[rowTotals>0,]
+  rowTotals <- apply(dtm, 1, sum)
+  colTotals <- apply(dtm, 2, sum)
+  dtm <- dtm[rowTotals > 0, colTotals > 0] # remove pathways and clusters that shows no enrichment (word frequency as 0)
   # dtm <- dtm[slam::row_sums(dtm) > 0,] # code of same effect
   if (is.null(k)) {
     max.k <- length(unique(GSEAresult$cluster))
@@ -131,8 +133,8 @@ runLDA <- function(SeuratObj, by = "GO", k=NULL, method='VEM', SEED=1234, plot=T
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 #' pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
 #' betaDF %<>% dplyr::mutate(descrip=unname(pws[term]))
-#' hist_topic_term(betaDF, topics=1, topn=20, axis.text.y.size=10)
-#' hist_topic_term(betaDF, topics=c(1,2,3,4), topn=20, axis.text.y.size=10)
+#' hist_topic_term(betaDF, topics=1, topn=20, axis.text.y.size=5)
+#' hist_topic_term(betaDF, topics=c(1,2,3,4), topn=20, axis.text.y.size=5)
 #' }
 #'
 #'
@@ -165,9 +167,11 @@ hist_topic_term <- function(betaDF, topics, topn=5, axis.text.y.size=5) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' gammaDF <- tidytext::tidy(ldaOut, matrix = "gamma")
 #' hist_cluster_topic(gammaDF, clusters=head(Seurat::Idents(SeuratObj)))
+#' }
 #'
 hist_cluster_topic <- function(gammaDF, clusters) {
   if (is.null(clusters)) clusters <- head(unique(gammaDF$document), 3)
@@ -198,9 +202,11 @@ hist_cluster_topic <- function(gammaDF, clusters) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 #' plotnw1(betaDF, topn=10)
+#' }
 #'
 plotnw1 <- function(betaDF, topn) {
   df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F)
@@ -230,13 +236,15 @@ plotnw1 <- function(betaDF, topn) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 #' plotnw2(betaDF, topn=10)
+#' }
 #'
 plotnw2 <- function(betaDF, topn) {
-  df <- betaDF %>% dplyr::group_by(topic) %>% slice_max(order_by = beta, n=topn, with_ties=F)
-  edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, everything()) %>%
+  df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F) %>% dplyr::ungroup()
+  edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta) %>%
     setNames(c("source", "target", "weight"))# %>%
   # dplyr::mutate(width=2*(weight-min(weight))/(max(weight)-min(weight))+1)   # 这样好像不对，会出现NaN
   ww <- edgedf$weight
@@ -269,13 +277,15 @@ plotnw2 <- function(betaDF, topn) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 #' plotnw3(betaDF, topn=10)
+#' }
 #'
 plotnw3 <- function(betaDF, topn) {
-  df <- betaDF %>% dplyr::group_by(topic) %>% slice_max(order_by = beta, n=topn, with_ties=F)
-  edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, everything()) %>%
+  df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F) %>% dplyr::ungroup()
+  edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta) %>%
     setNames(c("source", "target", "weight"))
   ww <- edgedf$weight
   edgedf$width <- 2*(ww-min(ww))/(max(ww)-min(ww))+1
@@ -401,11 +411,13 @@ plotnw3 <- function(betaDF, topn) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 #' pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
 #' wordcloud_topic(betaDF, pws, topic=1, topn=20)
 #' wordcloud_topic_3D(betaDF, pws, topic=1, topn=20)
+#' }
 #'
 wordcloud_topic <- function(betaDF, pws, topic, topn=20) {
   pp <- betaDF %>% filter(.data$topic == .env$topic) %>% slice_max(order_by = beta, n=topn, with_ties=F) %>% mutate(term=pws[term]) %>%
@@ -436,23 +448,27 @@ wordcloud_topic_3D <- function(betaDF, pws, topic, topn=20) {
 }
 
 
-#' Sankey diagram showing best assigned topic of each cluster
+#' Sankey diagram showing the best assigned topic of each cluster
+#'
+#' Create a D3 JavaScript Sankey diagram which shows the best assigned topic of each cluster.
 #'
 #' @param gammaDF cluster~topic probability data.frame
 #' @param topn top n terms of each topic
 #' @param plotHeight height of plot
 #'
 #' @importFrom networkD3 sankeyNetwork
-#' @importFrom dplyr group_by slice_max ungroup mutate
+#' @importFrom dplyr group_by slice_max ungroup mutate n
 #'
 #' @return
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' gammaDF <- tidytext::tidy(ldaOut, matrix = "gamma")
 #' plot_sankey(gammaDF, topn=1)
-#' plot_sankey(gammaDF, topn=2)
+#' plot_sankey(gammaDF, topn=2) %>% networkD3::saveNetwork(file = "plot_sankey.html")
+#' }
 #'
 plot_sankey <- function(gammaDF, topn=1, plotHeight=600) {
   links <- gammaDF %>% group_by(document) %>% slice_max(order_by = gamma, n=topn) %>% ungroup() %>%
@@ -471,7 +487,7 @@ plot_sankey <- function(gammaDF, topn=1, plotHeight=600) {
 
 #' UMAP on cluster-topic probability matrix
 #'
-#' each point represents clusters
+#' Each point represents clusters. Point color indicates the topic with the highest probability of each cluster.
 #'
 #' @param ldaOut topic modeling result
 #'
@@ -481,9 +497,10 @@ plot_sankey <- function(gammaDF, topn=1, plotHeight=600) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
-#' # ldaOut <- topicmodels::LDA(dtm, k = 10, method = "VEM", control = list(seed = 1234))
 #' umap_cluster(ldaOut)
+#' }
 #'
 #'
 umap_cluster <- function(ldaOut) {
@@ -499,7 +516,7 @@ umap_cluster <- function(ldaOut) {
   pp <- ggplot(emdf, aes(UMAP_1, UMAP_2, color=topic)) +
     geom_point(size=1) + theme_classic() +
     scale_color_manual(name="topic", values=setNames(scPalette2(ncol(mat)), colnames(mat))) +
-    guides(color=guide_legend(title = "topic", override.aes = list(size=2))) +
+    guides(color=guide_legend(title = "topic", override.aes = list(size=3))) +
     # geom_text(inherit.aes = T, aes(label=cluster), size=3) + #coord_fixed() +
     ggrepel::geom_text_repel(aes(label=cluster), max.overlaps = 20, segment.colour="black") +
     ggtitle("UMAP on cluster-topic probability matrix")
@@ -517,9 +534,11 @@ umap_cluster <- function(ldaOut) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' cluster_topic_hmp(ldaOut)
 #' cluster_topic_hmp(ldaOut,  cluster_cols = F)
+#' }
 #'
 cluster_topic_hmp <- function(ldaOut, cluster_rows = T, cluster_cols = T) {
   mm <- posterior(ldaOut)$topics
@@ -539,9 +558,10 @@ cluster_topic_hmp <- function(ldaOut, cluster_rows = T, cluster_cols = T) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
-#' # ldaOut <- topicmodels::LDA(dtm, k = 10, method = "VEM", control = list(seed = 1234))
 #' cosineheatmap(ldaOut)
+#' }
 #'
 cosineheatmap <- function(ldaOut) {
   mm <- posterior(ldaOut)$terms  # topic~term probability matrix
@@ -566,14 +586,17 @@ cosineheatmap <- function(ldaOut) {
 #' @importFrom igraph graph_from_data_frame
 #' @importFrom ggraph ggraph geom_edge_link scale_edge_width_continuous
 #' @importFrom scatterpie geom_scatterpie
+#' @importFrom modeltools posterior
 #'
 #' @return ggplot object
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' cosine_network_cluster(ldaOut, layout="circle", cos_sim_thresh=0.2, SEED=123, radius=0.12, width_range=c(0.1, 0.8))
 #' cosine_network_cluster(ldaOut, layout="fr", cos_sim_thresh=0.2, SEED=123, radius=0.12, width_range=c(0.1, 0.8))
+#' }
 #'
 cosine_network_cluster <- function(ldaOut,
                                    layout="circle",
@@ -633,16 +656,19 @@ cosine_network_cluster <- function(ldaOut,
 #' @importFrom igraph graph_from_data_frame
 #' @importFrom ggraph ggraph geom_edge_link scale_edge_width_continuous
 #' @importFrom scatterpie geom_scatterpie
+#' @importFrom modeltools posterior
 #'
 #' @return ggplot object
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", pie_by = "Topic modeling", GSEA_by = "GO",
 #'    topn = 10, layout = "fr", cos_sim_thresh = 0.8, radius = 0.1, text_size = 2)
 #' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "GSEA result", GSEA_by = "GO")
 #' # edge(cosine similarity calculation) and node pie information could be different.
 #' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "Topic modeling", GSEA_by = "GO")
+#' }
 #'
 #'
 cosine_network_term <- function(SeuratObj,
@@ -733,11 +759,15 @@ cosine_network_term <- function(SeuratObj,
 #' @param topic which topic to show
 #' @param pointSize 0.1 default.
 #'
+#' @importFrom modeltools posterior
+#'
 #' @return
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' topicProb(SeuratObj, reduction="umap", topic=3, pointSize=0.1)
+#' }
 #'
 topicProb <- function(SeuratObj, reduction="umap", topic=1, pointSize=0.1) {
   if (!reduction %in% names(SeuratObj@reductions)) {
@@ -745,7 +775,7 @@ topicProb <- function(SeuratObj, reduction="umap", topic=1, pointSize=0.1) {
   }
   ldaOut <- SeuratObj@misc$ldaOut
   em <- SeuratObj@meta.data
-  em <- cbind(em, magrittr::set_colnames(Embeddings(SeuratObj, reduction = reduction)[rownames(em), 1:2],
+  em <- cbind(em, magrittr::set_colnames(Seurat::Embeddings(SeuratObj, reduction = reduction)[rownames(em), 1:2],
                                          c('Component_1', 'Component_2')))
   mm <- posterior(ldaOut)$topics  # cluster~topic probability matrix
   em$gamma <- mm[, as.character(topic)][as.character(em$seurat_clusters)]

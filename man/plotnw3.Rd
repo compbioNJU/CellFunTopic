@@ -15,8 +15,10 @@ plotnw3(betaDF, topn)
 echart4r network showing top terms of topics
 }
 \examples{
+\dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
 plotnw3(betaDF, topn=10)
+}
 
 }

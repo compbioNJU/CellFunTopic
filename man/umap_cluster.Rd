@@ -13,12 +13,13 @@ umap_cluster(ldaOut)
 
 }
 \description{
-each point represents clusters
+Each point represents clusters. Point color indicates the topic with the highest probability of each cluster.
 }
 \examples{
+\dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
-# ldaOut <- topicmodels::LDA(dtm, k = 10, method = "VEM", control = list(seed = 1234))
 umap_cluster(ldaOut)
+}
 
 
 }

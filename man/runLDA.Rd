@@ -18,16 +18,16 @@ runLDA(
 
 \item{by}{using which GSEA result to run topic modeling, one of "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"}
 
-\item{k}{can be a specific k, if NULL, calculate best k automatically(time-consuming)}
+\item{k}{number of topics. Can be a specific k, if NULL, calculate best k automatically(time-consuming)}
 
 \item{method}{The method to be used for fitting a LDA model; currently method = "VEM" or method= "Gibbs" are supported.}
 
 \item{SEED}{seed}
 
-\item{plot}{plot metrics or not}
+\item{plot}{whether or not to plot metrics used to decide the number of topics}
 }
 \value{
-a Seurat object with topic modeling result stored in the \code{SeuratObj@misc}
+a Seurat object with topic modeling result stored in the \code{SeuratObj@misc$ldaOut}
 }
 \description{
 Run topic modeling with GSEA result
@@ -36,6 +36,7 @@ Run topic modeling with GSEA result
 \dontrun{
 k <- 10
 SeuratObj <- runLDA(SeuratObj, by = "GO", k = k, method = "VEM", SEED = 1234, plot = T)
+SeuratObj@misc$ldaOut # where the topic modeling result is stored
 }
 
 
