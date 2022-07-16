@@ -11,13 +11,10 @@
 #' @param category MSigDB collection abbreviation, such as H, C1, C2, C3, C4, C5, C6, C7. If NULL, all gene sets.
 #' @param subcategory MSigDB sub-collection abbreviation, such as CGP or BP.
 #'
-#' @importFrom ReactomePA gsePathway
 #' @importFrom clusterProfiler GSEA gseGO gseKEGG bitr read.gmt
 #' @importFrom DOSE gseDO gseNCG gseDGN
-#' @importFrom dplyr `%>%`
+#' @importFrom magrittr `%>%`
 #' @importFrom foreach foreach `%do%`
-#' @importFrom msigdbr msigdbr_show_species
-#' @importFrom RColorBrewer brewer.pal
 #' @return
 #' @export
 #'
@@ -66,8 +63,19 @@ RunGSEA_sub <- function(SeuratObj,
                         subcategory = NULL) {
 
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
+  if (!"species" %in% names(slot(object = SeuratObj, name = 'misc'))) {
+    stop("Please run 'readData()' and specify the 'species' parameter.")
+  }
+  if (!"Allmarkers" %in% names(slot(object = SeuratObj, name = 'misc'))) {
+    stop("Please run 'RunSeurat()' or 'Seurat::FindAllMarkers()', differentially expressed genes at
+         SeuratObj@misc$Allmarkers are required to perform GSEA.")
+  }
+  if (!"featureData" %in% names(slot(object = SeuratObj, name = 'misc'))) {
+    stop("Please run 'DetectGeneIDtype()' to determine the gene ID type of your data.")
+  }
   species <- slot(object = SeuratObj, name = 'misc')[["species"]]
   Allmarkers <- slot(object = SeuratObj, name = 'misc')[["Allmarkers"]]
+  Allmarkers$cluster <- as.character(Allmarkers$cluster)
   GeneIDtype <- slot(object = SeuratObj, name = 'misc')[["featureData"]][['GeneIDtype']]
   # gene ID transition
   if (GeneIDtype != "ENTREZID") {
@@ -78,8 +86,8 @@ RunGSEA_sub <- function(SeuratObj,
 
 
   if (!is.null(TERM2GENE)) {
-    out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-      submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+    out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+      submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
       geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
       res <- GSEA(geneList     = geneList,
                   TERM2GENE    = TERM2GENE,
@@ -91,8 +99,8 @@ RunGSEA_sub <- function(SeuratObj,
   } else {
     if (by == 'GO') {
       OrgDb <- getOrgDb(species)
-      out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-        submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+      out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+        submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
         geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
         res <- gseGO(geneList     = geneList,
                      OrgDb        = OrgDb,
@@ -110,8 +118,8 @@ RunGSEA_sub <- function(SeuratObj,
 
     if (by == 'KEGG') {
       kegg_code <- get_kegg_code(species)
-      out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-        submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+      out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+        submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
         geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
         res <- gseKEGG(geneList          = geneList,
                        organism          = kegg_code,
@@ -130,10 +138,10 @@ RunGSEA_sub <- function(SeuratObj,
 
     if (by == 'Reactome') {
       organism <- speToOrg(species)
-      out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-        submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+      out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+        submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
         geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
-        res <- gsePathway(geneList     = geneList,
+        res <- ReactomePA::gsePathway(geneList     = geneList,
                           organism     = organism,
                           nPerm        = 1000,
                           minGSSize    = 10,
@@ -146,14 +154,14 @@ RunGSEA_sub <- function(SeuratObj,
     }
 
     if (by == 'MSigDb') {
-      if (!species %in% msigdbr_show_species()) {
+      if (!species %in% msigdbr::msigdbr_show_species()) {
         stop("This species is not supported by MSigDb.")
       }
-      MSigDb_df <- msigdbr(species = species, category = category, subcategory = subcategory)
+      MSigDb_df <- msigdbr::msigdbr(species = species, category = category, subcategory = subcategory)
       TERM2GENE <- MSigDb_df %>% dplyr::select(gs_name, entrez_gene)
       if (!is.null(TERM2GENE)) {
-        out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-          submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+        out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+          submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
           geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
           res <- GSEA(geneList     = geneList,
                       TERM2GENE    = TERM2GENE,
@@ -175,8 +183,8 @@ RunGSEA_sub <- function(SeuratObj,
       wp2gene <- wp2gene %>% tidyr::separate(ont, c("name","version","wpid","org"), "%")
       wpid2gene <- wp2gene %>% dplyr::select(wpid, gene) #TERM2GENE
       wpid2name <- wp2gene %>% dplyr::select(wpid, name) #TERM2NAME
-      out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-        submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+      out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+        submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
         geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
         res <- GSEA(geneList     = geneList,
                     TERM2GENE    = wpid2gene,
@@ -189,8 +197,8 @@ RunGSEA_sub <- function(SeuratObj,
     }
 
     if (by == 'DO') {
-      out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-        submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+      out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+        submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
         geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
         res <- gseDO(geneList,
                      nPerm         = 100,
@@ -204,8 +212,8 @@ RunGSEA_sub <- function(SeuratObj,
     }
 
     if (by == 'NCG') {
-      out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-        submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+      out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+        submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
         geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
         res <- gseNCG(geneList,
                       nPerm         = 100,
@@ -219,8 +227,8 @@ RunGSEA_sub <- function(SeuratObj,
     }
 
     if (by == 'DGN') {
-      out <- foreach(cls=levels(Allmarkers$cluster)) %do% {
-        submarkers <- Allmarkers %>% filter(cluster==cls & pct.1 >= minpct)
+      out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
+        submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
         geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
         res <- gseDGN(geneList,
                       nPerm         = 100,

@@ -7,6 +7,8 @@
 #' @param plot draw plots or not. If TRUE, plots will be produced and saved in working directory.
 #'
 #' @importFrom dplyr group_by top_n
+#' @import Seurat
+#'
 #' @return Seurat object
 #' @export
 #'
@@ -19,7 +21,6 @@
 #'
 RunSeurat <- function(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE) {
 
-  suppressMessages(require("Seurat", quietly=TRUE))
   SeuratObj <- NormalizeData(SeuratObj, normalization.method = "LogNormalize", scale.factor = 10000)
   SeuratObj <- FindVariableFeatures(SeuratObj, selection.method = "vst", nfeatures = 2000)
   # Visualize  the 10 most highly variable genes

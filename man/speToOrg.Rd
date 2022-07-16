@@ -2,8 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{speToOrg}
 \alias{speToOrg}
-\title{get 'organism' that ReactomePA::gsePathway needs.
-change latin name of species to trivial name}
+\title{get 'organism' that ReactomePA::gsePathway needs.}
 \usage{
 speToOrg(species)
 }
@@ -14,6 +13,5 @@ speToOrg(species)
 
 }
 \description{
-get 'organism' that ReactomePA::gsePathway needs.
 change latin name of species to trivial name
 }

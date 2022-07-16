@@ -98,6 +98,7 @@ clustercorplot_jaccard(
 \description{
 Helps to infer the relationship between clusters. Link width shows Pearson correlation or
 Jaccard coefficient between clusters, calculated with GSEA result. Node size indicates cell number of each cluster.
+If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 }
 \examples{
 # show Pearson correlation between clusters

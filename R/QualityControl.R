@@ -62,7 +62,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
   if (by == 'use_internal_data') {
     # Calculate nCount and nFeature
     if (!"nCount_RNA" %in% names(slot(object = SeuratObj, name = 'meta.data'))) {
-      n.calc <- CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
+      n.calc <- Seurat:::CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
       if (!is.null(x = n.calc)) {
         names(x = n.calc) <- paste(names(x = n.calc), 'RNA', sep = '_')
         slot(object = SeuratObj, name = 'meta.data')[,names(x = n.calc)] <- n.calc
@@ -71,7 +71,6 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
     SeuratObj <- DetectGeneIDtype(SeuratObj)
     genes <- rownames(x = SeuratObj)
     # find mitochondrial genes
-    utils::data(list="txid_gene_MT", package="CellFunMap")
     GeneIDtype <- slot(object = SeuratObj, name = 'misc')[["featureData"]][['GeneIDtype']]
     species <- slot(object = SeuratObj, name = 'misc')[["species"]]
     if (GeneIDtype == "ENTREZID") {
@@ -82,17 +81,12 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
       bitrDF <- clusterProfiler::bitr(genes, fromType = GeneIDtype, toType = "ENTREZID", OrgDb = OrgDb, drop = TRUE)
       MTgenes <- bitrDF[bitrDF$ENTREZID %in% txid_gene_MT$ENTREZID, GeneIDtype]
     }
-    rm(txid_gene_MT, envir = .GlobalEnv)
     spes <- c("Homo sapiens", "Mus musculus", "Arabidopsis thaliana")
     if (species %in% spes) {
-      utils::data(list="MTGENE", package="CellFunMap")
       MTgenes <- c(MTgenes, unlist(sapply(MTGENE[[species]], function(x){genes[genes %in% x]})))
-      rm(MTGENE, envir = .GlobalEnv)
     } else {
-      utils::data(list="txid_species_gene_MT", package="CellFunMap")
       sss <- unique(txid_species_gene_MT[grep(species, txid_species_gene_MT$species, ignore.case = TRUE), c("ENTREZID", "SYMBOL")])
       MTgenes <- c(MTgenes, unlist(sapply(as.list(sss), function(x){genes[genes %in% x]})))
-      rm(txid_species_gene_MT, envir = .GlobalEnv)
     }
     # Calculate the proportion of transcripts mapping to mitochondrial genes
     SeuratObj <- PercentageFeatureSet(SeuratObj, features = unique(MTgenes), col.name = "percent.mt")
@@ -127,7 +121,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
     featureData[['geneTable']] <- geneTable
     # Calculate nCount and nFeature
     if (!"nCount_RNA" %in% names(slot(object = SeuratObj, name = 'meta.data'))) {
-      n.calc <- CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
+      n.calc <- Seurat:::CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
       if (!is.null(x = n.calc)) {
         names(x = n.calc) <- paste(names(x = n.calc), 'RNA', sep = '_')
         slot(object = SeuratObj, name = 'meta.data')[,names(x = n.calc)] <- n.calc
@@ -165,7 +159,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
     slot(object = SeuratObj, name = 'misc')[["featureData"]][['geneTable']] <- geneTable
     # Calculate nCount and nFeature
     if (!"nCount_RNA" %in% names(slot(object = SeuratObj, name = 'meta.data'))) {
-      n.calc <- CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
+      n.calc <- Seurat:::CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
       if (!is.null(x = n.calc)) {
         names(x = n.calc) <- paste(names(x = n.calc), 'RNA', sep = '_')
         slot(object = SeuratObj, name = 'meta.data')[,names(x = n.calc)] <- n.calc

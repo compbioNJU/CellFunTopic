@@ -26,3 +26,32 @@
 #' @source level information were obtained from \code{getGOLevel()} of \code{clusterProfiler} package.
 "GO2level"
 
+
+#' built-in reference topic model derived from HCL.
+#'
+#' built-in reference topic model derived from human cell landscape (HCL).
+#' citation: Han, X., Zhou, Z., Fei, L. et al. Construction of a human cell landscape at single-cell level. Nature 581, 303–309 (2020).
+#' (\url{https://doi.org/10.1038/s41586-020-2157-4})
+#'
+#' @format A LDA_VEM topic model with 63 topics.
+#'
+#' @source single-cell data comes from \url{https://figshare.com/articles/dataset/HCL_DGE_Data/7235471}
+"HCL_ldaOut"
+
+
+#' built-in reference topic model derived from MCA.
+#'
+#' built-in reference topic model derived from Mouse Cell Atlas (MCA).
+#' citation: \url{https://doi.org/10.1016/j.cell.2018.02.001}.
+#'
+#' @format A LDA_VEM topic model with 52 topics.
+#'
+#' @source single-cell data comes from \url{https://figshare.com/articles/dataset/HCL_DGE_Data/7235471}
+"MCA_ldaOut"
+
+
+
+
+
+
+

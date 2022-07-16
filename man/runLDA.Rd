@@ -20,7 +20,7 @@ runLDA(
 
 \item{k}{number of topics. Can be a specific k, if NULL, calculate best k automatically(time-consuming)}
 
-\item{method}{The method to be used for fitting a LDA model; currently method = "VEM" or method= "Gibbs" are supported.}
+\item{method}{method used for fitting a LDA model; currently "VEM" or "Gibbs" are supported.}
 
 \item{SEED}{seed}
 

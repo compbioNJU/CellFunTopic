@@ -33,7 +33,8 @@ embeddedplot(
 
 }
 \description{
-embedded histogram or pie chart show pathway GSEA score on each clusters
+embedded histogram or pie chart show pathway GSEA score on each clusters.
+If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 }
 \examples{
 embeddedplot(SeuratObj, type = "pie")

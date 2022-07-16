@@ -43,6 +43,7 @@ emapplot2(
 }
 \description{
 Code for plotting is a modified version of \code{enrichplot::emapplot()}.
+If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 }
 \examples{
 emapplot2(SeuratObj)

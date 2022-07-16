@@ -4,7 +4,6 @@
 #' @param species such as "Homo sapiens"
 #'
 #' @return
-#' @export
 #'
 getOrgDb <- function(species) {
   spes <- c("Anopheles gambiae",
@@ -45,7 +44,6 @@ getOrgDb <- function(species) {
 #' @importFrom AnnotationHub AnnotationHub query
 #'
 #' @return
-#' @export
 #'
 getOrgDb_AH <- function(species) {
 
@@ -69,7 +67,6 @@ getOrgDb_AH <- function(species) {
 #' @importFrom AnnotationHub AnnotationHub query
 #'
 #' @return
-#' @export
 #'
 getEnsDb_AH <- function(species) {
   if (!requireNamespace('AnnotationHub', quietly = TRUE)) {
@@ -91,11 +88,10 @@ getEnsDb_AH <- function(species) {
 #' @param species
 #'
 #' @return
-#' @export
 #'
 requireOrgDb <- function(species) {
   OrgDb <- org2db(species)
-  require(OrgDb, character.only = TRUE)
+  suppressPackageStartupMessages(require(OrgDb, character.only = TRUE))
   OrgDb <- eval(parse(text=OrgDb))
   return(OrgDb)
 }
@@ -105,7 +101,6 @@ requireOrgDb <- function(species) {
 #' @param species
 #'
 #' @return
-#' @export
 #'
 org2db <- function(species) {
   OrgDb <- switch(species,
@@ -136,11 +131,11 @@ org2db <- function(species) {
 }
 
 #' get 'organism' that ReactomePA::gsePathway needs.
+#'
 #' change latin name of species to trivial name
 #' @param species
 #'
 #' @return
-#' @export
 #'
 speToOrg <- function(species) {
   species <- gsub(" ", "_", species)
@@ -178,7 +173,6 @@ speToOrg <- function(species) {
 #' @importFrom clusterProfiler search_kegg_organism
 #'
 #' @return
-#' @export
 #'
 get_kegg_code <- function(species) {
   result <- search_kegg_organism(species, by='scientific_name')

@@ -72,7 +72,7 @@ plotindex <- function(ldas) {
 #' @param SeuratObj Object of class "Seurat"
 #' @param by using which GSEA result to run topic modeling, one of "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"
 #' @param k number of topics. Can be a specific k, if NULL, calculate best k automatically(time-consuming)
-#' @param method The method to be used for fitting a LDA model; currently method = "VEM" or method= "Gibbs" are supported.
+#' @param method method used for fitting a LDA model; currently "VEM" or "Gibbs" are supported.
 #' @param SEED seed
 #' @param plot whether or not to plot metrics used to decide the number of topics
 #'
@@ -205,10 +205,10 @@ hist_cluster_topic <- function(gammaDF, clusters) {
 #' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-#' plotnw1(betaDF, topn=10)
+#' topicNW1(betaDF, topn=10)
 #' }
 #'
-plotnw1 <- function(betaDF, topn) {
+topicNW1 <- function(betaDF, topn) {
   df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F)
   ll <- split(df$term, df$topic) %>% lapply(embed, dimension = 2)
   edgedf <- do.call(rbind, ll)[, 2:1] %>% as.data.frame(stringsAsFactors = F) %>%
@@ -239,10 +239,10 @@ plotnw1 <- function(betaDF, topn) {
 #' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-#' plotnw2(betaDF, topn=10)
+#' topicNW2(betaDF, topn=10)
 #' }
 #'
-plotnw2 <- function(betaDF, topn) {
+topicNW2 <- function(betaDF, topn) {
   df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F) %>% dplyr::ungroup()
   edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta) %>%
     setNames(c("source", "target", "weight"))# %>%
@@ -280,10 +280,10 @@ plotnw2 <- function(betaDF, topn) {
 #' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-#' plotnw3(betaDF, topn=10)
+#' topicNW3(betaDF, topn=10)
 #' }
 #'
-plotnw3 <- function(betaDF, topn) {
+topicNW3 <- function(betaDF, topn) {
   df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F) %>% dplyr::ungroup()
   edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta) %>%
     setNames(c("source", "target", "weight"))
@@ -542,6 +542,7 @@ umap_cluster <- function(ldaOut) {
 #'
 cluster_topic_hmp <- function(ldaOut, cluster_rows = T, cluster_cols = T) {
   mm <- posterior(ldaOut)$topics
+  colnames(mm) <- paste0('Topic ', colnames(mm))
   pheatmap::pheatmap(mm, cluster_rows = cluster_rows, cluster_cols = cluster_cols, angle_col = "0", main = "probability between topic and cluster",
                      color = colorRampPalette(c('white', brewer.pal(n=9,name="OrRd")))(100))
 }
@@ -778,7 +779,7 @@ topicProb <- function(SeuratObj, reduction="umap", topic=1, pointSize=0.1) {
   em <- cbind(em, magrittr::set_colnames(Seurat::Embeddings(SeuratObj, reduction = reduction)[rownames(em), 1:2],
                                          c('Component_1', 'Component_2')))
   mm <- posterior(ldaOut)$topics  # cluster~topic probability matrix
-  em$gamma <- mm[, as.character(topic)][as.character(em$seurat_clusters)]
+  em$gamma <- mm[, as.character(topic)][as.character(Seurat::Idents(SeuratObj))]
   # scatter plot
   pp <- ggplot(em, aes(x=Component_1, y=Component_2, color=gamma)) +
     geom_point(size=pointSize) + theme_classic() +

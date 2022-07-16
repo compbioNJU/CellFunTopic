@@ -135,6 +135,7 @@ circleplot <- function(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = N
 #'
 #' Helps to infer the relationship between clusters. Link width shows Pearson correlation or
 #' Jaccard coefficient between clusters, calculated with GSEA result. Node size indicates cell number of each cluster.
+#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 #'
 #' @param SeuratObj Seurat object
 #' @param by which GSEA result to use for calculation
@@ -189,10 +190,8 @@ clustercorplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = 
     topPath <- rownames(mat)[rowSums(mat > -log10(0.05)) > 0]
     if ((by == "GO") & is.null(pathwayIDs)) {
       # 层级level 5，6的GO
-      utils::data(list="GO2level", package="CellFunMap")
       GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
       topPath <- topPath[topPath %in% GO_level_5_6]
-      rm(GO2level, envir = .GlobalEnv)
     }
   }
   mat <- mat[topPath, ]
@@ -283,10 +282,8 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
     topPath <- rownames(mat)[rowSums(mat > -log10(0.05)) > 0]
     if ((by == "GO") & is.null(pathwayIDs)) {
       # 层级level 5，6的GO
-      utils::data(list="GO2level", package="CellFunMap")
       GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
       topPath <- topPath[topPath %in% GO_level_5_6]
-      rm(GO2level, envir = .GlobalEnv)
     }
   }
   mat <- mat[topPath, ]
@@ -355,7 +352,8 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
 
 #' show relationship between clusters and pathways
 #'
-#' Hierarchical clustering of clusters and pathways according to GSEA result
+#' Hierarchical clustering of clusters and pathways according to GSEA result.
+#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 #'
 #' @param SeuratObj Object of class "Seurat"
 #' @param by which GSEA result to show
@@ -391,10 +389,8 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 
   if ((by == "GO") & is.null(pathwayIDs)) {
     # GO of level 5，6
-    utils::data(list="GO2level", package="CellFunMap")
     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
-    rm(GO2level, envir = .GlobalEnv)
   }
 
   if (!is.null(pathwayIDs)) {
@@ -532,10 +528,8 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 #   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
 #   if ((by == "GO") & is.null(pathwayIDs)) {
 #     # GO of level 5，6
-#     utils::data(list="GO2level", package="CellFunMap")
 #     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
 #     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
-#     rm(GO2level, envir = .GlobalEnv)
 #   }
 #
 #   if (!is.null(pathwayIDs)) {
@@ -626,7 +620,8 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 
 #' show embedded histogram or pie chart on UMAP/TSNE plot
 #'
-#' embedded histogram or pie chart show pathway GSEA score on each clusters
+#' embedded histogram or pie chart show pathway GSEA score on each clusters.
+#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 #'
 #' @param SeuratObj Object of class "Seurat"
 #' @param by which GSEA result to show
@@ -658,10 +653,8 @@ embeddedplot <- function(SeuratObj,
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
   if ((by == "GO") & is.null(pathwayIDs)) {
     # GO of level 5，6
-    utils::data(list="GO2level", package="CellFunMap")
     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
-    rm(GO2level, envir = .GlobalEnv)
   }
 
   if (!is.null(pathwayIDs)) {
@@ -851,6 +844,7 @@ prepare_pie_category <- function(y, pie = "-log10FDR") {
 #'
 #' links show jaccard similarity coefficient (overlap of genes) between pathways.
 #' Pie charts show GSEA score of the pathway in clusters. Code for plotting is a modified version of \code{enrichplot::emapplot()}.
+#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 #'
 #' @param SeuratObj Object of class "Seurat"
 #' @param by which GSEA result to show
@@ -882,10 +876,8 @@ emapplotPie <- function(SeuratObj, by = "GO", pathwayIDs = NULL, showCategory = 
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
   if ((by == "GO") & is.null(pathwayIDs)) {
     # GO of level 5，6
-    utils::data(list="GO2level", package="CellFunMap")
     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
-    rm(GO2level, envir = .GlobalEnv)
   }
 
   if (!is.null(pathwayIDs)) {
@@ -991,6 +983,7 @@ emapplotPie <- function(SeuratObj, by = "GO", pathwayIDs = NULL, showCategory = 
 #' Network of pathway
 #'
 #' Code for plotting is a modified version of \code{enrichplot::emapplot()}.
+#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 #'
 #' @param SeuratObj Object of class "Seurat"
 #' @param cluster GSEA result of which cluster to show
@@ -1026,10 +1019,8 @@ emapplot2 <- function(SeuratObj, cluster = NULL, by = "GO", pathwayIDs = NULL, s
   }
   if ((by == "GO") & is.null(pathwayIDs)) {
     # GO of level 5，6
-    utils::data(list="GO2level", package="CellFunMap")
     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
-    rm(GO2level, envir = .GlobalEnv)
   }
   y <- GSEAresult[GSEAresult$cluster == cluster, ]
   if (!is.null(pathwayIDs)) {
