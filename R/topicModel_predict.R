@@ -393,12 +393,12 @@ oversample_ref <- function(reference_SeuratObj, number_clusters = NULL,
                                     group_by = group_by, cluster_by = cluster_by)
   reference_SeuratObj <- readData(data = reference_SeuratObj, type = 'Seurat', species = species)
   reference_SeuratObj <- CalMTpercent(reference_SeuratObj, by = "use_internal_data")
-  reference_SeuratObj <- ScFunQC(reference_SeuratObj, plot = F)
+  reference_SeuratObj <- QCfun(reference_SeuratObj, plot = F)
   # We don't need to re-clustering the reference_SeuratObj
   Seurat::Idents(reference_SeuratObj) <- reference_SeuratObj@meta.data[[cluster_by]]
   reference_SeuratObj <- Seurat::NormalizeData(reference_SeuratObj, normalization.method = "LogNormalize", scale.factor = 10000)
   reference_SeuratObj <- Seurat::ScaleData(reference_SeuratObj, features = rownames(reference_SeuratObj))
-  message("Calculating differentially expressed genes for reference data......")
+  message("Calculating differentially expressed genes for clusters in reference data......")
   SeuratObj.markers <- Seurat::FindAllMarkers(reference_SeuratObj, only.pos = TRUE, min.pct = 0.0001, logfc.threshold = 0.0001, return.thresh=0.9)
   slot(object = reference_SeuratObj, name = 'misc')[["Allmarkers"]] <- SeuratObj.markers
   message("Performing GSEA on reference data......")
@@ -420,6 +420,8 @@ oversample_ref <- function(reference_SeuratObj, number_clusters = NULL,
 #'
 #' @param query_SeuratObj  query data
 #' @param reference_SeuratObj  reference data
+#' @param group_by the column of \code{reference_SeuratObj@meta.data} that indicates cell type
+#' @param cluster_by the column of \code{reference_SeuratObj@meta.data} that indicates cluster
 #' @param species species of the reference data
 #' @param by  database used to perform GSEA on reference data. This parameter works when \code{reference_SeuratObj} does not contain topic model.
 #' @param k  number of topics. This parameter works when \code{reference_SeuratObj} does not contain topic model.
@@ -432,12 +434,14 @@ oversample_ref <- function(reference_SeuratObj, number_clusters = NULL,
 #'
 #' @examples
 #' \dontrun{
-#' predictFun(query_SeuratObj, reference_SeuratObj, species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM")
+#' predictFun(query_SeuratObj, reference_SeuratObj, group_by = 'cellType', cluster_by = 'seurat_clusters',
+#' species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM")
 #' }
 #'
 #'
-predictFun <- function(query_SeuratObj, reference_SeuratObj, species = "Homo sapiens",
-                       by = 'GO', k = NULL, LDAmethod = "VEM") {
+predictFun <- function(query_SeuratObj, reference_SeuratObj,
+                       group_by = 'cellType', cluster_by = 'seurat_clusters',
+                       species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM") {
 
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   if (!"ldaOut" %in% names(slot(object = reference_SeuratObj, name = 'misc'))) {
@@ -450,7 +454,8 @@ predictFun <- function(query_SeuratObj, reference_SeuratObj, species = "Homo sap
       }
       if (!"Allmarkers" %in% names(slot(object = reference_SeuratObj, name = 'misc'))) {
         # We don't need to re-clustering the reference_SeuratObj
-        message("Calculating differentially expressed genes for reference data......")
+        message("Calculating differentially expressed genes for clusters in reference data......")
+        Seurat::Idents(reference_SeuratObj) <- reference_SeuratObj@meta.data[[cluster_by]]
         SeuratObj.markers <- Seurat::FindAllMarkers(reference_SeuratObj, only.pos = TRUE, min.pct = 0.0001, logfc.threshold = 0.0001, return.thresh=0.9)
         slot(object = reference_SeuratObj, name = 'misc')[["Allmarkers"]] <- SeuratObj.markers
       }
@@ -459,7 +464,7 @@ predictFun <- function(query_SeuratObj, reference_SeuratObj, species = "Homo sap
     }
     message("Performing topic modelling on reference data......")
     if (is.null(k)) {
-      k <- length(unique(Seurat::Idents(reference_SeuratObj)))
+      k <- length(unique(reference_SeuratObj@meta.data[[group_by]]))
     }
     reference_SeuratObj <- runLDA(reference_SeuratObj, by = by, k = k, method = LDAmethod, SEED = 1234, plot = F)
   }
@@ -473,7 +478,8 @@ predictFun <- function(query_SeuratObj, reference_SeuratObj, species = "Homo sap
   colnames(training) <- colnames(testing) <- paste0("Topic_", colnames(training))
   training <- as.data.frame(training, stringsAsFactors = F)
   testing <- as.data.frame(testing, stringsAsFactors = F)
-  training$Class<- factor(rownames(training))
+  ct <- unique(reference_SeuratObj@meta.data[, c(cluster_by, group_by)]) %>% tibble::deframe()
+  training$Class <- factor(ct[rownames(training)], levels=unique(ct[rownames(training)]))
   # train a svm classifier
   ctrl <- trainControl(method = "repeatedcv", number=10, repeats = 3, search = "random")
   set.seed(123)

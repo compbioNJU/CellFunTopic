@@ -1,33 +1,8 @@
 
 
-#' Heatmap of GSEA result
-#'
-#' @param SeuratObj Seurat object
-#' @param by which GSEA result to show, one of "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"
-#' @param pathwayIDs pathway IDs to show. Default:NULL. If not NULL, parameter \code{topPath} becomes invalid.
-#' @param toshow which GSEA score to show, "-logFDR", "enrichmentScore", "NES", "pvalue", "p.adjust"
-#' @param topPath number of top pathways of each cluster to show
-#' @param colour color of heatmap, see \code{RColorBrewer::brewer.pal.info}
-#' @param scale if the values should be centered and scaled in either the row direction or the column direction, or none.
-#' Corresponding values are "row", "column" and "none"
-#' @param fontsize_row fontsize for rownames
-#' @param cluster_rows boolean values determining if rows should be clustered.
-#' @param cluster_cols boolean values determining if columns should be clustered.
-#'
-#'
-#' @return A Heatmap-class object.
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' gseaHeatmap(SeuratObj, by = "GO", toshow = "-logFDR", topPath = 10, colour = "Greens")
-#' }
-#'
-#'
 gseaHeatmap <- function(SeuratObj, by = "GO", pathwayIDs = NULL, toshow = "-logFDR", topPath = 10,
-                        colour = "Greens", scale = "none", fontsize_row = 10,
-                        cluster_rows = TRUE, cluster_cols = TRUE) {
-
+                        colour = "Greens", scale = "none", fontsize_row = 10) {
+  
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]] %>% dplyr::mutate(`-logFDR`=-log10(p.adjust))
   if (!is.null(pathwayIDs)) {
@@ -38,59 +13,25 @@ gseaHeatmap <- function(SeuratObj, by = "GO", pathwayIDs = NULL, toshow = "-logF
   } else {
     # topath <- GSEAresult %>% dplyr::group_by(cluster) %>% dplyr::top_n(n=topPath, wt=toshow)
     # topath <- GSEAresult %>% dplyr::group_by(cluster) %>% dplyr::slice_max(order_by = toshow, n = topPath, with_ties = F) # 对input$topPath参数没反应
+    # topath <- plyr::ddply(.data = GSEAresult, .variables = .(cluster), .fun = function(df){
+    #   df %>% dplyr::arrange(desc(toshow)) %>% head(topPath)
+    # })
     topath <- GSEAresult %>% dplyr::group_by(cluster) %>% dplyr::arrange(desc(toshow), .by_group = TRUE) %>% dplyr::slice_head(n = topPath)
   }
-
+  
   mat <- reshape2::acast(GSEAresult, Description~cluster, value.var=toshow)
   mat[is.na(mat)] <- 0
   mat <- mat[unique(topath$Description), ]
   rownames(mat) <- ifelse(nchar(rownames(mat)) > 60, paste(strtrim(rownames(mat), 60), "..."), rownames(mat))
-  # ph <- ggplotify::as.ggplot(pheatmap::pheatmap(mat, fontsize_row = fontsize_row, color = colorRampPalette(c('white', brewer.pal(n=7,name=colour)))(100),
-  #                                    scale = scale, angle_col = 315 , silent = T,
-  #                                    cluster_rows = cluster_rows, cluster_cols = cluster_cols))
-  # return(ph)
-
-  if (scale == "row") {
-    mat <- t(scale(t(mat), center = T, scale=T))
-  } else if (scale == "column") {
-    mat <- scale(mat, center = T, scale=T)
-  }
-  col_fun = circlize::colorRamp2(seq(min(mat), max(mat), length.out = 8), c("white", brewer.pal(n = 7, name = colour)))
-  ht <- ComplexHeatmap::Heatmap(mat, name = ifelse(toshow == "-logFDR", "-log10(p.adjust)", toshow),
-                col = col_fun, column_names_rot = -90, row_names_gp = grid::gpar(fontsize = fontsize_row),
-                cluster_rows = cluster_rows, cluster_columns = cluster_cols, rect_gp = grid::gpar(col = "grey60"), border = TRUE)
-  # draw(ht)
-  ht
-
+  # ph <- pheatmap::pheatmap(mat, fontsize_row = fontsize_row, color = colorRampPalette(c('white', brewer.pal(n=7,name=colour)))(100),
+  #                          scale = scale, angle_col = 315)
+  # ph
+  ph <- as.ggplot(pheatmap::pheatmap(mat, fontsize_row = fontsize_row, color = colorRampPalette(c('white', brewer.pal(n=7,name=colour)))(100),
+                                     scale = scale, angle_col = 315))
+  return(ph)
 }
 
-
-
-
-#' circle plot of clusters
-#'
-#' Link width shows number of intersection of pathways between clusters, link color is
-#' in concordance with cluster which has higher enrichment score on intersection pathways.
-#'
-#' @param SeuratObj Seurat object
-#' @param by which GSEA result to use, one of "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"
-#' @param pvaluecutoff calculate link width with pathways lower than pvaluecutoff
-#' @param pathwayIDs pathway IDs to calculate link width
-#' @param link_threshold only show links whose intersection number bigger than this threshold
-#'
-#' @importFrom circlize chordDiagram circos.clear
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' circleplot(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = NULL)
-#' }
-#'
-#'
-circleplot <- function(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = NULL,
-                       link_threshold = 10) {
+circleplot <- function(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = NULL) {
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
   if (!is.null(pathwayIDs)) {
@@ -102,7 +43,7 @@ circleplot <- function(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = N
     # 阈值 pvalue <= 0.01
     GSEAresult %<>% dplyr::filter(pvalue <= pvaluecutoff)
   }
-
+  
   if (length(unique(GSEAresult$cluster)) < 2) {
     stop(">=2 clusters are required to generate plot.")
   }
@@ -114,9 +55,9 @@ circleplot <- function(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = N
     gg2 <- GSEAresult[GSEAresult$cluster == x[2], "ID"]
     length(intersect(gg1,gg2))
   })
-  df <- df[df$width > link_threshold, ]
+  df <- df[df$width>0, ]
   if (nrow(df) < 1) {
-    stop("No intersection of pathways between clusters was shown under such parameter settings.")
+    stop("No intersection of pathways between clusters.")
   }
   # sector颜色
   sectorc <- setNames(scPalette2(length(unique(GSEAresult$cluster))), unique(GSEAresult$cluster))
@@ -130,63 +71,23 @@ circleplot <- function(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = N
     ifelse(mean(pp1) <= mean(pp2), sectorc[[x[1]]], sectorc[[x[2]]])
   })
 
-  chordDiagram(df, grid.col = sectorc, col=linkc, transparency = 0.7)
+  chordDiagram(df, grid.col = sectorc, col=linkc, transparency = 0.7) 
   circos.clear()
 }
 
 
-#' circle plot of clusters
-#'
-#' Helps to infer the relationship between clusters. Link width shows Pearson correlation or
-#' Jaccard coefficient between clusters, calculated with GSEA result. Node size indicates cell number of each cluster.
-#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
-#'
-#' @param SeuratObj Seurat object
-#' @param by which GSEA result to use for calculation
-#' @param pathwayIDs IDs of pathways to use for calculation
-#' @param color.use used to color nodes, can be a named vector
-#' @param weight.scale scale the width or not
-#' @param label.edge label edges or not
-#' @param edge.curved The degree of edge bending
-#' @param shape shape of nodes, 'circle' by default
-#' @param layout network layout, circle by default
-#' @param margin margin of plot
-#' @param vertex.size.cex node size
-#' @param vertex.label.cex size of node label
-#' @param vertex.label.color color of label of nodes, 'black' by default
-#' @param arrow.width width of arrow
-#' @param arrow.size size of arrow
-#' @param edge.label.color color of label of edge, 'black' by default
-#' @param edge.label.cex size of edge label
-#' @param edge.max.width width of edge
-#' @param vertex.label.dist distance between label and nodes
-#' @param link_threshold only show links whose correlation/Jaccard-index bigger than this threshold
-#'
-#' @import igraph
-#'
-#' @return
-#' @rdname clustercorplot
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # show Pearson correlation between clusters
-#' clustercorplot(SeuratObj, by = "GO")
-#' }
-#'
-#'
-clustercorplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = NULL,
-                           weight.scale = TRUE,label.edge = FALSE,edge.curved=0.2,shape='circle',
-                           layout = igraph::in_circle(),margin=0.1, vertex.size.cex=1, link_threshold=0.5,
-                           vertex.label.cex=1.5,vertex.label.color = "black",
+clustercorplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = NULL, 
+                           weight.scale = FALSE,label.edge = FALSE,edge.curved=0.2,shape='circle',
+                           layout=in_circle(),margin=0.1, vertex.size.cex=1,
+                           vertex.label.cex=1.5,vertex.label.color= "black",
                            arrow.width=1,arrow.size = 0.2,edge.label.color='black',
                            edge.label.cex=0.5,edge.max.width=8,vertex.label.dist=2) {
-
+  
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
   mat <- -log10(reshape2::acast(data = GSEAresult, formula = ID ~ cluster, value.var = 'p.adjust'))
-  mat[is.na(mat)] <- 0
-
+  mat[is.na(mat)] <- 0  
+  
   if (!is.null(pathwayIDs)) {
     if (sum(pathwayIDs %in% GSEAresult$ID) < 1) {
       stop("pathwayIDs provided are not found in GSEA result of Seurat object.")
@@ -197,22 +98,22 @@ clustercorplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = 
     topPath <- rownames(mat)[rowSums(mat > -log10(0.05)) > 0]
     if ((by == "GO") & is.null(pathwayIDs)) {
       # 层级level 5，6的GO
+      GO2level <- readRDS("Data/GO2level.rds")
       GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
       topPath <- topPath[topPath %in% GO_level_5_6]
     }
   }
   mat <- mat[topPath, ]
-
+  
   correlation <- cor(mat, method = "pearson")
   diag(correlation) <- 0
-  correlation[correlation < link_threshold] <- 0
-
+  
   cellnumbers <- as.data.frame(table(SeuratObj@active.ident))
   rownames(cellnumbers) <- cellnumbers[,1]
-
+  
   ###################### circle network
   g <- graph_from_adjacency_matrix(correlation, mode = "undirected", weighted = T)
-  coords <- layout_(g, layout)
+  coords<-layout_(g,layout)
   if(nrow(coords)!=1){
     coords_scale=scale(coords)
   }else{
@@ -223,10 +124,10 @@ clustercorplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = 
   } else if (is.null(attr(color.use, which = "names"))) {
     color.use = setNames(color.use, names(V(g)))
   }
-
+  
   vertex.size <- cellnumbers[names(V(g)), 2]
   vertex.size <- (vertex.size/max(vertex.size)*15+5)*vertex.size.cex
-
+  
   V(g)$size<-vertex.size
   V(g)$color<-color.use[names(V(g))]
   V(g)$frame.color <- color.use[names(V(g))]
@@ -241,13 +142,13 @@ clustercorplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = 
   }else{
     E(g)$width<-0.3+edge.max.width*ww
   }
-
+  
   E(g)$arrow.width<-arrow.width
   E(g)$arrow.size<-arrow.size
   E(g)$label.color<-edge.label.color
   E(g)$label.cex<-edge.label.cex
   E(g)$color <- ifelse(E(g)$weight > 0, "#FF7F0099", "#377EB899")  # 正相关和负相关的边用不同颜色表示
-
+  
   radian.rescale <- function(x, start=0, direction=1) {
     c.rotate <- function(x) (x + start) %% (2 * pi) * direction
     c.rotate(scales::rescale(x, c(0, 2 * pi), range(x)))
@@ -257,23 +158,13 @@ clustercorplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = 
   par(mai=c(0.1,0.1,0.1,0.1))
   plot(g,edge.curved=edge.curved,vertex.shape=shape,layout=coords_scale,margin=margin, vertex.label.dist=label.dist,
        vertex.label.degree=label.locs)
-
+  
 }
 
 
-#'
-#' @rdname clustercorplot
-#' @export
-#' @examples
-#' \dontrun{
-#' # show Jaccard coefficient between clusters
-#' clustercorplot_jaccard(SeuratObj, by = "GO")
-#' }
-#'
-#'
-clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = NULL,
-                                   weight.scale = TRUE,label.edge = FALSE,edge.curved=0.2,shape='circle',
-                                   layout=in_circle(),margin=0.1, vertex.size.cex=1, link_threshold=0.4,
+clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, color.use = NULL, 
+                                   weight.scale = FALSE,label.edge = FALSE,edge.curved=0.2,shape='circle',
+                                   layout=in_circle(),margin=0.1, vertex.size.cex=1,
                                    vertex.label.cex=1.5,vertex.label.color= "black",
                                    arrow.width=1,arrow.size = 0.2,edge.label.color='black',
                                    edge.label.cex=0.5,edge.max.width=8,vertex.label.dist=2) {
@@ -281,7 +172,7 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
   mat <- -log10(reshape2::acast(data = GSEAresult, formula = ID ~ cluster, value.var = 'p.adjust'))
-  mat[is.na(mat)] <- 0
+  mat[is.na(mat)] <- 0  
   if (!is.null(pathwayIDs)) {
     if (sum(pathwayIDs %in% GSEAresult$ID) < 1) {
       stop("pathwayIDs provided are not found in GSEA result of Seurat object.")
@@ -292,6 +183,7 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
     topPath <- rownames(mat)[rowSums(mat > -log10(0.05)) > 0]
     if ((by == "GO") & is.null(pathwayIDs)) {
       # 层级level 5，6的GO
+      GO2level <- readRDS("Data/GO2level.rds")
       GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
       topPath <- topPath[topPath %in% GO_level_5_6]
     }
@@ -304,11 +196,10 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
   ddd <- proxy::dist(t(mat), method = "Jaccard")  #Jaccard距离
   ddd <- 1-ddd  #Jaccard系数
   jaccardMatrix <- as.matrix(ddd)
-  jaccardMatrix[jaccardMatrix < link_threshold] <- 0
-
+  
   cellnumbers <- as.data.frame(table(SeuratObj@active.ident))
   rownames(cellnumbers) <- cellnumbers[,1]
-
+  
   ###################### circle network
   g <- graph_from_adjacency_matrix(jaccardMatrix, mode = "undirected", weighted = T)
   coords<-layout_(g,layout)
@@ -322,10 +213,10 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
   } else if (is.null(attr(color.use, which = "names"))) {
     color.use = setNames(color.use, names(V(g)))
   }
-
+  
   vertex.size <- cellnumbers[names(V(g)), 2]
   vertex.size <- (vertex.size/max(vertex.size)*15+5)*vertex.size.cex
-
+  
   V(g)$size<-vertex.size
   V(g)$color<-color.use[names(V(g))]
   V(g)$frame.color <- color.use[names(V(g))]
@@ -339,13 +230,13 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
   }else{
     E(g)$width<-0.3+edge.max.width*E(g)$weight
   }
-
+  
   E(g)$arrow.width<-arrow.width
   E(g)$arrow.size<-arrow.size
   E(g)$label.color<-edge.label.color
   E(g)$label.cex<-edge.label.cex
   E(g)$color <- "grey"
-
+  
   radian.rescale <- function(x, start=0, direction=1) {
     c.rotate <- function(x) (x + start) %% (2 * pi) * direction
     c.rotate(scales::rescale(x, c(0, 2 * pi), range(x)))
@@ -360,51 +251,22 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
 
 
 
-#' show relationship between clusters and pathways
-#'
-#' Hierarchical clustering of clusters and pathways according to GSEA result.
-#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
-#'
-#' @param SeuratObj Object of class "Seurat"
-#' @param by which GSEA result to show
-#' @param pathwayIDs IDs of pathways to show
-#' @param topaths top n pathway of each cluster
-#' @param cluster_cutree_k the clusters are divided into k, based on the hierarchical clustering (using cutree)
-#' @param pathway_cutree_k the pathways are divided into k, based on the hierarchical clustering (using cutree)
-#' @param color.use.cluster used to color the cluster nodes, a named vector or a vector
-#' @param color.use.pathway used to color the pathway nodes
-#' @param weight.scale scale the width or not
-#' @param vertex.size.cex node size
-#' @param vertex.label.cex size of node label
-#' @param edge.max.width width of edge
-#' @param vertex.label.color color of label of nodes, 'black' by default
-#' @param alpha.edge transparency of edge color
-#'
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' hierarchyplot_tree(SeuratObj, by = "GO", topaths = 10, cluster_cutree_k = 5, pathway_cutree_k = 20)
-#' }
-#'
-#'
-hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths = 5,
+hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths = 5, 
                                cluster_cutree_k = NULL, pathway_cutree_k = NULL,
-                               color.use.cluster = NULL, color.use.pathway = NULL, weight.scale = TRUE,
+                               color.use.cluster = NULL, color.use.pathway = NULL, weight.scale = TRUE, 
                                vertex.size.cex=1, vertex.label.cex=0.9, edge.max.width=3,
                                vertex.label.color= "black", alpha.edge = 0.6) {
 
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
-
+  
   if ((by == "GO") & is.null(pathwayIDs)) {
     # GO of level 5，6
+    GO2level <- readRDS("Data/GO2level.rds")
     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
   }
-
+  
   if (!is.null(pathwayIDs)) {
     if (sum(pathwayIDs %in% GSEAresult$ID) < 1) {
       stop("pathwayIDs provided are not found in GSEA result of Seurat object.")
@@ -450,7 +312,7 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
   out.id <- cutree(out.hclust,k=pathway_cutree_k)
   tt2 <- table(out.id)[unique(out.id[out.hclust$order])]
   pathway_sorted <- out.hclust$labels[out.hclust$order]
-
+  
   # 边的信息
   edgess <- topath %>% dplyr::mutate(FDR = -log10(p.adjust)) %>% dplyr::select(cluster, Description, FDR)
   # 节点的信息
@@ -461,7 +323,7 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
   p_nodes <- data.frame(node = unique(topath$Description), size = min(c_nodes$size)/2)
   c_nodes <- c_nodes[match(cluster_sorted, c_nodes$node), ]
   p_nodes <- p_nodes[match(pathway_sorted, p_nodes$node), ]
-
+  
   # 节点和边的颜色
   if (is.null(color.use.cluster)) {
     color.use.cluster <- setNames(scPalette(length(cluster_sorted)), cluster_sorted)
@@ -495,12 +357,12 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
   par(op)
   op <- par(mar=c(3,0,3,0))
   plot(NA, bty="n", axes=FALSE, xlim=c(0,1), ylim=c(1,l1), ylab="", xlab="")
+  text(x=1, y=1:l1, labels=cluster_sorted, pos=2, cex=vertex.label.cex+0.3, col = vertex.label.color)
   # 左边的矩形
   rr <- c(0, Reduce(f = sum, x = tt1, accumulate = TRUE))
   rectcolor = grDevices::adjustcolor(scPalette(length(tt1)),0.3)
-  rect(xleft = 0, xright = 1,
+  rect(xleft = 0, xright = 1, 
        ybottom = rr[-length(rr)]+0.6, ytop = rr[-1]+0.4, col = rectcolor, border = rectcolor)
-  text(x=1, y=1:l1, labels=cluster_sorted, pos=2, cex=vertex.label.cex+0.3, col = vertex.label.color)
   # nodes and arrows:
   par(op)
   op <- par(mar=c(3,0,3,0))
@@ -513,15 +375,15 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
   par(op)
   op <- par(mar=c(3,0,3,0))
   plot(NA, bty="n", axes=FALSE, xlim=c(0,1), ylim=c(1,l2), ylab="", xlab="")
-  # 右边的矩形
-  rr <- c(0, Reduce(f = sum, x = tt2, accumulate = TRUE))
-  rectcolor = grDevices::adjustcolor(scPalette(length(tt2)),0.3)
-  rect(xleft = 0, xright = 1.1,
-       ybottom = rr[-length(rr)]+0.6, ytop = rr[-1]+0.4, col = rectcolor, border = rectcolor)
   # ptext <- pathway_sorted   # 换行
   # ptext[nchar(ptext)>30] <- paste0(substr(ptext[nchar(ptext)>30],1,30), "\n", substring(ptext[nchar(ptext)>30],31))
   # text(x=0, y=1:l2, labels=ptext, pos=4, cex=vertex.label.cex, col = vertex.label.color)
   text(x=0, y=1:l2, labels=pathway_sorted, pos=4, cex=vertex.label.cex, col = vertex.label.color)
+  # 右边的矩形
+  rr <- c(0, Reduce(f = sum, x = tt2, accumulate = TRUE))
+  rectcolor = grDevices::adjustcolor(scPalette(length(tt2)),0.3)
+  rect(xleft = 0, xright = 1.1, 
+       ybottom = rr[-length(rr)]+0.6, ytop = rr[-1]+0.4, col = rectcolor, border = rectcolor)
   # And the second dendrogram (to reverse it I reversed the xlim vector:
   par(op)
   op <- par(mar=c(3,0,3,3))
@@ -530,20 +392,21 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 
 
 # 用cowplot层层叠加的方法，适用于添加小直方图
-# embeddedplot <- function(SeuratObj,
-#                          by = "GO",
+# embeddedplot <- function(SeuratObj, 
+#                          by = "GO", 
 #                          pathwayIDs = NULL,
-#                          topaths = 1,
+#                          topaths = 1, 
 #                          reduction = "umap",
 #                          type = "hist") {
 #   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
 #   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
 #   if ((by == "GO") & is.null(pathwayIDs)) {
 #     # GO of level 5，6
+#     GO2level <- readRDS("Data/GO2level.rds")
 #     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
 #     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
 #   }
-#
+#   
 #   if (!is.null(pathwayIDs)) {
 #     if (sum(pathwayIDs %in% GSEAresult$ID) < 1) {
 #       stop("pathwayIDs provided are not found in GSEA result of Seurat object.")
@@ -563,11 +426,11 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 #     histcols <- setNames(object = scPalette(length(unique(topath$ID))), unique(topath$ID))
 #     cols <- setNames(object = scPalette(length(unique(SeuratObj@active.ident))), unique(SeuratObj@active.ident))
 #   }
-#
+# 
 #   cell_eb <- data.frame(SeuratObj@reductions[[reduction]]@cell.embeddings[,1:2], cluster=as.character(SeuratObj@active.ident))
 #   colnames(cell_eb) <- c('x','y','cluster')
 #   # scatter plot
-#   pp <- ggplot(data=cell_eb, aes(x,y)) + geom_point(aes(colour = factor(cluster)), alpha=0.5, size=0.5) +
+#   pp <- ggplot(data=cell_eb, aes(x,y)) + geom_point(aes(colour = factor(cluster)), alpha=0.5, size=0.5) + 
 #     scale_color_manual(values = cols) + theme_pubr() +
 #     theme(legend.position="none") + labs(x = paste0(reduction, "_1"), y = paste0(reduction, "_2"))
 #   # coordinates
@@ -581,7 +444,7 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 #   coords$y[which.max(coords$y)] <- max(coords$y)-0.1  # 最上和最下的直方图越过坐标轴了
 #   coords$y[which.min(coords$y)] <- min(coords$y)+0.1
 #   # child plots
-#   df <- GSEAresult %>% dplyr::mutate(FDR=-log10(p.adjust)) %>%
+#   df <- GSEAresult %>% dplyr::mutate(FDR=-log10(p.adjust)) %>% 
 #     dplyr::filter(ID %in% unique(topath$ID)) %>% dplyr::select(ID, cluster, FDR)
 #   df <- reshape2::acast(data = df, formula = ID ~ cluster, value.var = 'FDR')
 #   df[is.na(df)] <- 0
@@ -592,7 +455,7 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 #     # histogram
 #     for (cl in unique(df$cluster)) {
 #       dff <- df[df$cluster == cl, , drop = F]
-#       hp <- ggplot(dff, aes(x=ID, y=FDR, fill = ID)) + geom_bar(stat="identity") + theme_pubr() + scale_fill_manual(values = histcols) +
+#       hp <- ggplot(dff, aes(x=ID, y=FDR, fill = ID)) + geom_bar(stat="identity") + theme_pubr() + scale_fill_manual(values = histcols) + 
 #         theme(legend.position="none", plot.background=element_rect(I(0),linetype=0), panel.background=element_rect(I(0)),
 #               panel.grid.major=element_line(colour=NA), panel.grid.minor=element_line(colour=NA),
 #               axis.title=element_blank(), axis.text=element_blank(), axis.ticks=element_blank(), axis.line.y = element_blank())
@@ -602,8 +465,8 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 #     # pie chart
 #     for (cl in unique(df$cluster)) {
 #       dff <- df[df$cluster == cl, , drop = F]
-#       hp <- ggplot(dff, aes(x="", y=FDR, fill = ID)) + geom_bar(stat = "identity", width = 1, alpha = 0.7) +
-#         coord_polar(theta = "y") + theme_pubr() + scale_fill_manual(values = histcols) +
+#       hp <- ggplot(dff, aes(x="", y=FDR, fill = ID)) + geom_bar(stat = "identity", width = 1, alpha = 0.7) +    
+#         coord_polar(theta = "y") + theme_pubr() + scale_fill_manual(values = histcols) + 
 #         theme(legend.position="none", plot.background=element_rect(I(0),linetype=0), panel.background=element_rect(I(0)),
 #               panel.grid.major=element_line(colour=NA), panel.grid.minor=element_line(colour=NA),
 #               axis.title=element_blank(), axis.text=element_blank(), axis.ticks=element_blank(), axis.line = element_blank())
@@ -612,14 +475,14 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 #   }
 #   ## add 2 legends
 #   # scatter plot
-#   p1 <- ggplot(data=cell_eb, aes(x,y)) + geom_point(aes(colour = factor(cluster)), alpha=0.5, size=0.5) +
+#   p1 <- ggplot(data=cell_eb, aes(x,y)) + geom_point(aes(colour = factor(cluster)), alpha=0.5, size=0.5) + 
 #     scale_color_manual(values = cols, breaks = names(cols)) + theme_bw() + # breaks参数 图例顺序
 #     guides(color = guide_legend(title = "cluster", override.aes = list(size=3))) + # override.aes参数 图例的图标大小
 #     theme(legend.title = element_text(size = 12))
 #   # histogram
-#   p2 <- ggplot(df, aes(x=ID, y=FDR, fill = ID)) + geom_bar(stat="identity") +
-#     scale_fill_manual(values = histcols, breaks = names(histcols)) + theme_bw() +
-#     guides(fill = guide_legend(title = "pathway", override.aes = list(size=3))) +
+#   p2 <- ggplot(df, aes(x=ID, y=FDR, fill = ID)) + geom_bar(stat="identity") + 
+#     scale_fill_manual(values = histcols, breaks = names(histcols)) + theme_bw() + 
+#     guides(fill = guide_legend(title = "pathway", override.aes = list(size=3))) + 
 #     theme(legend.title = element_text(size = 12))
 #   # extract legends and convert to ggplot object
 #   l1 <- as_ggplot(get_legend(p1))
@@ -629,38 +492,11 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 #   return(ppp)
 # }
 
-
-#' show embedded histogram or pie chart on UMAP/TSNE plot
-#'
-#' embedded histogram or pie chart show pathway GSEA score on each clusters.
-#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
-#'
-#' @param SeuratObj Object of class "Seurat"
-#' @param by which GSEA result to show
-#' @param pathwayIDs IDs of pathways to show, if provided, parameter \code{topaths} become invalid.
-#' @param topaths number of top pathways of each cluster to show
-#' @param reduction "umap", "tsne", "pca"
-#' @param type "hist", "pie", type of embedded plots
-#' @param pie.size.cex size of pie chart
-#'
-#' @importFrom magrittr `%<>%`
-#' @importFrom cowplot ggdraw draw_plot
-#' @importFrom scatterpie geom_scatterpie
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' embeddedplot(SeuratObj, type = "pie")
-#' embeddedplot(SeuratObj, topaths = 3, reduction = "tsne", type = "hist")
-#' }
-#'
-#'
-embeddedplot <- function(SeuratObj,
-                         by = "GO",
+# 添加小直方图用cowplot层层叠加的方法，添加小饼图用scatterpie包
+embeddedplot <- function(SeuratObj, 
+                         by = "GO", 
                          pathwayIDs = NULL,
-                         topaths = 1,
+                         topaths = 1, 
                          reduction = "umap",
                          type = "pie",
                          pie.size.cex = 1) {
@@ -668,10 +504,11 @@ embeddedplot <- function(SeuratObj,
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
   if ((by == "GO") & is.null(pathwayIDs)) {
     # GO of level 5，6
+    GO2level <- readRDS("Data/GO2level.rds")
     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
   }
-
+  
   if (!is.null(pathwayIDs)) {
     if (sum(pathwayIDs %in% GSEAresult$ID) < 1) {
       stop("pathwayIDs provided are not found in GSEA result of Seurat object.")
@@ -691,14 +528,14 @@ embeddedplot <- function(SeuratObj,
     histcols <- setNames(object = scPalette(length(unique(topath$ID))), unique(topath$ID))
     cols <- setNames(object = scPalette(length(unique(SeuratObj@active.ident))), unique(SeuratObj@active.ident))
   # }
-
+  
   cell_eb <- data.frame(SeuratObj@reductions[[reduction]]@cell.embeddings[,1:2], cluster=as.character(SeuratObj@active.ident))
   colnames(cell_eb) <- c('x','y','cluster')
   # scatter plot
-  pp <- ggplot(data=cell_eb, aes(x,y)) + geom_point(aes(colour = factor(cluster)), alpha=0.5, size=0.2) +
-    scale_color_manual(values = cols) + ggpubr::theme_pubr() +
+  pp <- ggplot(data=cell_eb, aes(x,y)) + geom_point(aes(colour = factor(cluster)), alpha=0.5, size=0.2) + 
+    scale_color_manual(values = cols) + theme_pubr() +
     theme(legend.position="none") + labs(x = paste0(reduction, "_1"), y = paste0(reduction, "_2"))
-
+  
   type <- match.arg(type, choices = c("hist", "pie"))
   if (type == "hist") {
     #### histogram
@@ -713,16 +550,16 @@ embeddedplot <- function(SeuratObj,
     coords$y[which.max(coords$y)] <- max(coords$y)-0.1  # 最上和最下的直方图越过坐标轴了
     coords$y[which.min(coords$y)] <- min(coords$y)+0.1
     # child plots
-    df <- GSEAresult %>% dplyr::mutate(FDR=-log10(p.adjust)) %>%
+    df <- GSEAresult %>% dplyr::mutate(FDR=-log10(p.adjust)) %>% 
       dplyr::filter(ID %in% unique(topath$ID)) %>% dplyr::select(ID, cluster, FDR)
     df <- reshape2::acast(data = df, formula = ID ~ cluster, value.var = 'FDR')
     df[is.na(df)] <- 0
     df %<>% reshape2::melt() %>% setNames(c("ID","cluster","FDR"))
-
+    
     p <- ggdraw() +draw_plot(pp,0,0,1,1)
     for (cl in unique(df$cluster)) {
       dff <- df[df$cluster == cl, , drop = F]
-      hp <- ggplot(dff, aes(x=ID, y=FDR, fill = ID)) + geom_bar(stat="identity") + ggpubr::theme_pubr() + scale_fill_manual(values = histcols) +
+      hp <- ggplot(dff, aes(x=ID, y=FDR, fill = ID)) + geom_bar(stat="identity") + theme_pubr() + scale_fill_manual(values = histcols) + 
         theme(legend.position="none", plot.background=element_rect(I(0),linetype=0), panel.background=element_rect(I(0)),
               panel.grid.major=element_line(colour=NA), panel.grid.minor=element_line(colour=NA),
               axis.title=element_blank(), axis.text=element_blank(), axis.ticks=element_blank(), axis.line.y = element_blank())
@@ -733,7 +570,7 @@ embeddedplot <- function(SeuratObj,
     # coordinates
     coords <- cell_eb %>% group_by(cluster) %>% dplyr::summarise(x=median(x), y=median(y), .groups = "keep") %>% as.data.frame
     # dataframe to draw pie
-    df <- GSEAresult %>% dplyr::mutate(FDR=-log10(p.adjust)) %>%
+    df <- GSEAresult %>% dplyr::mutate(FDR=-log10(p.adjust)) %>% 
       dplyr::filter(ID %in% unique(topath$ID)) %>% dplyr::select(ID, cluster, FDR)
     piedf <- reshape2::acast(df, cluster ~ ID, value.var = "FDR")
     piedf[is.na(piedf)] <- 0
@@ -748,26 +585,26 @@ embeddedplot <- function(SeuratObj,
   }
   ## add 2 legends
   # scatter plot
-  p1 <- ggplot(data=cell_eb, aes(x,y)) + geom_point(aes(colour = factor(cluster)), alpha=0.5, size=0.5) +
+  p1 <- ggplot(data=cell_eb, aes(x,y)) + geom_point(aes(colour = factor(cluster)), alpha=0.5, size=0.5) + 
     scale_color_manual(values = cols, breaks = names(cols)) + theme_bw() + # breaks参数 图例顺序
     guides(color = guide_legend(title = "cluster", override.aes = list(size=3))) + # override.aes参数 图例的图标大小
     theme(legend.title = element_text(size = 12))
   # histogram
-  p2 <- ggplot(df, aes(x=ID, y=FDR, fill = ID)) + geom_bar(stat="identity") +
-    scale_fill_manual(values = histcols, breaks = names(histcols)) + theme_bw() +
-    guides(fill = guide_legend(title = "pathway", override.aes = list(size=3))) +
+  p2 <- ggplot(df, aes(x=ID, y=FDR, fill = ID)) + geom_bar(stat="identity") + 
+    scale_fill_manual(values = histcols, breaks = names(histcols)) + theme_bw() + 
+    guides(fill = guide_legend(title = "pathway", override.aes = list(size=3))) + 
     theme(legend.title = element_text(size = 12))
   # extract legends and convert to ggplot object
-  l1 <- ggpubr::as_ggplot(ggpubr::get_legend(p1))
-  l2 <- ggpubr::as_ggplot(ggpubr::get_legend(p2))
+  l1 <- as_ggplot(get_legend(p1))
+  l2 <- as_ggplot(get_legend(p2))
   # arrange the plot and legends
-  ppp <- ggpubr::ggarrange(p, l1,l2, ncol=3, widths = c(4,1,1), heights = c(3,3,3))
+  ppp <- ggarrange(p, l1,l2, ncol=3, widths = c(4,1,1), heights = c(3,3,3))
   return(ppp)
 }
 
 
 
-################ emapplotPie
+################ emapplotPie 
 
 overlap_ratio <- function(x, y) {
   x <- unlist(x)
@@ -821,12 +658,12 @@ get_p <- function(y, g, y_union, cex_category, pie, layout){
   if(is.null(dim(y_union)) | nrow(y_union) == 1) {
     p <- ggraph(g)
     ID_Cluster_mat <- prepare_pie_category(y, pie=pie)
-
+    
     ID_Cluster_mat <- cbind(ID_Cluster_mat,1,1,0.1*cex_category)
     colnames(ID_Cluster_mat) <- c(colnames(ID_Cluster_mat)[1:(ncol(ID_Cluster_mat)-3)],
                                   "x", "y", "radius")
-
-
+    
+    
     p <- p + geom_scatterpie(aes_(x=~x,y=~y,r=~radius), data=ID_Cluster_mat,
                              cols=names(ID_Cluster_mat)[1:(ncol(ID_Cluster_mat)-3)],
                              color=NA)+
@@ -834,12 +671,12 @@ get_p <- function(y, g, y_union, cex_category, pie, layout){
       geom_node_text(aes_(label=~name), repel=TRUE) +
       theme_void()+labs(fill = "cluster")
     return(p)
-
+    
   }
   ggraph(g, layout=layout)
 }
 
-prepare_pie_category <- function(y, pie = "-log10FDR") {
+prepare_pie_category <- function(y, pie = "count") {
   pie <- match.arg(pie, c("count", "-log10FDR"))
   if (pie == "count") {
     y$count <- stringr::str_count(y$core_enrichment, pattern = "/") + 1
@@ -855,48 +692,18 @@ prepare_pie_category <- function(y, pie = "-log10FDR") {
   return(ID_Cluster_mat)
 }
 
-#' Network of pathway with node pie
-#'
-#' links show jaccard similarity coefficient (overlap of genes) between pathways.
-#' Pie charts show GSEA score of the pathway in clusters. Code for plotting is a modified version of \code{enrichplot::emapplot()}.
-#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
-#'
-#' @param SeuratObj Object of class "Seurat"
-#' @param by which GSEA result to show
-#' @param pathwayIDs IDs of pathways to show
-#' @param showCategory number of top pathways of each cluster
-#' @param color which column to color the nodes
-#' @param layout network layout
-#' @param node_label_cex size of node label
-#' @param node_size_cex  size of node
-#' @param pie which to draw pie chart, "-log10FDR" or "count"(number of genes)
-#' @param cex_line width of edge
-#'
-#' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text
-#' @importFrom scatterpie geom_scatterpie geom_scatterpie_legend
-#' @import igraph
-#' @import plyr
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' emapplotPie(SeuratObj)
-#' emapplotPie(SeuratObj, by = "KEGG")
-#' }
-#'
 emapplotPie <- function(SeuratObj, by = "GO", pathwayIDs = NULL, showCategory = 5, color = "p.adjust", layout = "kk",
-                        node_label_cex = 1, node_size_cex = 1, pie = "-log10FDR", cex_line = 1) {
-
+                        node_label_cex = 1, node_size_cex = 1, pie = "count", cex_line = 1) {
+  
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
   if ((by == "GO") & is.null(pathwayIDs)) {
     # GO of level 5，6
+    GO2level <- readRDS("Data/GO2level.rds")
     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
   }
-
+  
   if (!is.null(pathwayIDs)) {
     if (sum(pathwayIDs %in% GSEAresult$ID) < 1) {
       stop("pathwayIDs provided are not found in GSEA result of Seurat object.")
@@ -917,52 +724,52 @@ emapplotPie <- function(SeuratObj, by = "GO", pathwayIDs = NULL, showCategory = 
     x <- x %>% dplyr::mutate(geneIDs = ids, count = cnt) %>% dplyr::select(-core_enrichment)
     x[!duplicated(x$ID), ,drop = FALSE]
   })
-
+  
   y <- y[y$ID %in% y_union$ID, ]
   geneSets <- setNames(strsplit(as.character(y_union$geneIDs), "/",
                                 fixed = TRUE), y_union$ID)
-
+  
   g <- graph_build(y_union, geneSets=geneSets,color=color, cex_line=cex_line)
-
+  
   p <- get_p(y = y, g = g, y_union = y_union, cex_category = node_size_cex,
              pie = pie, layout = layout)
   if (is.null(dim(y)) | nrow(y) == 1 | is.null(dim(y_union)) | nrow(y_union) == 1)
     return(p)
-
+  
   if (length(E(g)$width) > 0) {
     p <- p + geom_edge_link(alpha=.8, aes_(width=~I(width)),
                             colour='darkgrey')
   }
-
+  
   ## then add the pie plot
   ## Get the matrix data for the pie plot
   ID_Cluster_mat <- prepare_pie_category(y,pie=pie)
-
-
+  
+  
   # plot the edge
   # get the X-coordinate and y-coordinate of pies
   aa <- p$data
-
+  
   desc <- y_union$Description[match(rownames(ID_Cluster_mat),
                                     y_union$Description)]
   i <- match(desc, aa$name)
-
+  
   ID_Cluster_mat$x <- aa$x[i]
   ID_Cluster_mat$y <- aa$y[i]
-
+  
   #Change the radius value to fit the pie plot
   radius <- NULL
   ID_Cluster_mat$radius <- sqrt(aa$size[i] / sum(aa$size) * node_size_cex)
   #ID_Cluster_mat$radius <- sqrt(aa$size / pi)
-
+  
   x_loc1 <- min(ID_Cluster_mat$x)
   y_loc1 <- min(ID_Cluster_mat$y)
-
+  
   # if more than one cluster, plot piecharts
   if(ncol(ID_Cluster_mat) > 4) {
     p <- p + geom_scatterpie(aes_(x=~x,y=~y,r=~radius), data=ID_Cluster_mat,
                              cols=colnames(ID_Cluster_mat)[1:(ncol(ID_Cluster_mat)-3)],color=NA) +
-      coord_equal() + scale_fill_manual(values = scPalette(ncol(ID_Cluster_mat)-3))
+      coord_equal()
     if (utils::packageVersion("ggrepel") >= "0.9.0") {
       p <- p + geom_node_text(aes_(label=~name), repel=TRUE,
                               size = 3 * node_label_cex, bg.color = "white")
@@ -991,44 +798,21 @@ emapplotPie <- function(SeuratObj, by = "GO", pathwayIDs = NULL, showCategory = 
     scale_color_continuous(low="red", high="blue", name = color,
                            guide=guide_colorbar(reverse=TRUE)) +
     scale_size(range=c(3, 8) * node_size_cex)  +labs(title= title)
-
+  
 }
 
 
 
+################ emapplot
 
-#' Network of pathway
-#'
-#' Code for plotting is a modified version of \code{enrichplot::emapplot()}.
-#' If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
-#'
-#' @param SeuratObj Object of class "Seurat"
-#' @param cluster GSEA result of which cluster to show
-#' @param by which GSEA result to show
-#' @param pathwayIDs IDs of pathways to show
-#' @param showCategory number of top pathways of each cluster
-#' @param color which column to color the nodes, "p.adjust" by default
-#' @param layout network layout
-#' @param node_label_cex size of node label
-#' @param node_size_cex size of node
-#' @param cex_line width of edge
-#'
-#' @import igraph
-#' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_label geom_node_text
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' emapplot2(SeuratObj)
-#' emapplot2(SeuratObj, cluster = unique(SeuratObj@misc$GSEAresult_GO$cluster)[2])
-#' }
-#'
-#'
+
+geneInCategory <- function(x) {
+  setNames(strsplit(as.character(x$core_enrichment), "/", fixed = TRUE), x$ID)
+}
+
 emapplot2 <- function(SeuratObj, cluster = NULL, by = "GO", pathwayIDs = NULL, showCategory = 20, color = "p.adjust", layout = "kk",
                       node_label_cex = 1, node_size_cex = 1, cex_line = 1) {
-
+  
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
   if (is.null(cluster)) {
@@ -1039,6 +823,7 @@ emapplot2 <- function(SeuratObj, cluster = NULL, by = "GO", pathwayIDs = NULL, s
   }
   if ((by == "GO") & is.null(pathwayIDs)) {
     # GO of level 5，6
+    GO2level <- readRDS("Data/GO2level.rds")
     GO_level_5_6 <- GO2level[GO2level$level %in% c(5,6), "GO"] %>% as.character
     GSEAresult %<>% dplyr::filter(ID %in% GO_level_5_6)
   }
@@ -1052,10 +837,10 @@ emapplot2 <- function(SeuratObj, cluster = NULL, by = "GO", pathwayIDs = NULL, s
   } else {
     y <- dplyr::slice_min(.data = y, order_by = p.adjust, n = showCategory, with_ties = F)
   }
-
+  
   n <- nrow(y)
-  geneSets <- setNames(strsplit(as.character(y$core_enrichment), "/", fixed = TRUE), y$ID)
-
+  geneSets <- geneInCategory(y)
+  
   if (n == 0) {
     stop("no enriched term found...")
   } else if (n == 1) {
@@ -1089,22 +874,18 @@ emapplot2 <- function(SeuratObj, cluster = NULL, by = "GO", pathwayIDs = NULL, s
   }
   p <- ggraph(g, layout = layout)
   if (length(E(g)$width) > 0) {
-    p <- p + geom_edge_link(alpha = 0.8, aes_(width = ~I(width)),
+    p <- p + geom_edge_link(alpha = 0.8, aes_(width = ~I(width)), 
                             colour = "darkgrey")
   }
-  p + geom_node_point(aes_(color = ~color, size = ~size)) +
-    geom_node_text(aes_(label = ~name), repel = TRUE, size = 5 * node_label_cex) + theme_void() +
-    scale_color_continuous(low = "red", high = "blue",
-                           name = color, guide = guide_colorbar(reverse = TRUE)) +
+  p + geom_node_point(aes_(color = ~color, size = ~size)) + 
+    geom_node_text(aes_(label = ~name), repel = TRUE, size = 5 * node_label_cex) + theme_void() + 
+    scale_color_continuous(low = "red", high = "blue", 
+                           name = color, guide = guide_colorbar(reverse = TRUE)) + 
     scale_size(range = c(3, 8) * node_size_cex)
-
+  
 }
 
 ################ goplot
-
-#' @importFrom GO.db GOMFANCESTOR
-#' @importFrom GO.db GOBPANCESTOR
-#' @importFrom GO.db GOCCANCESTOR
 getAncestors <- function(ont) {
   Ancestors <- switch(ont,
                       MF = "GOMFANCESTOR",
@@ -1114,34 +895,9 @@ getAncestors <- function(ont) {
   return(eval(parse(text=Ancestors)))
 }
 
-#' Hierarchy chart of GO
-#'
-#' @param SeuratObj Object of class "Seurat"
-#' @param cluster GSEA result of which cluster to show
-#' @param pathwayIDs IDs of pathways to show
-#' @param ont gene ontology, "BP","CC","MF"
-#' @param showCategory number of top pathways of each cluster
-#' @param color which column to color the nodes, "p.adjust" by default
-#' @param layout network layout
-#' @param geom "text", "label"
-#' @param label_size size of label
-#'
-#' @import igraph
-#' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_label geom_node_text
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' goplot2(SeuratObj)
-#' goplot2(SeuratObj, ont = "MF")
-#' }
-#'
-#'
 goplot2 <- function(SeuratObj, cluster = NULL, pathwayIDs = NULL, ont = "BP", showCategory = 10, color = "p.adjust",
                     layout = "sugiyama", geom = "text", label_size = 3) {
-
+  
   if (!("GSEAresult_GO" %in% names(SeuratObj@misc))) {
     stop("No GSEA result of GO were found.")
   }
@@ -1169,23 +925,23 @@ goplot2 <- function(SeuratObj, cluster = NULL, pathwayIDs = NULL, ont = "BP", sh
   if (!exists(".GOSemSimEnv")) GOSemSim_initial()
   .GOSemSimEnv <- get(".GOSemSimEnv", envir=.GlobalEnv)
   gotbl <- get("gotbl", envir=.GOSemSimEnv)
-
+  
   GOANCESTOR <- getAncestors(ont)
   anc <- AnnotationDbi::mget(id, GOANCESTOR)
   ca <- Reduce(intersect, anc)
-
+  
   uanc <- unique(unlist(anc))
   uanc <- uanc[!uanc %in% ca]
   dag <- gotbl[gotbl$go_id %in% unique(c(id, uanc)),]
-
+  
   edge <- dag[, c(5, 1, 4)]
   edge <- edge[edge$parent != "all", ]
   node <- unique(gotbl[gotbl$go_id %in% unique(c(edge[,1], edge[,2])), 1:3])
   node$color <- GSEAresult[node$go_id, color]
-
+  
   g <- graph.data.frame(edge, directed=TRUE, vertices=node)
   E(g)$relationship <- edge[,3]
-
+  
   p <- ggraph(g, layout=layout) +
     ## geom_edge_link(aes_(color = ~relationship), arrow = arrow(length = unit(2, 'mm')), end_cap = circle(2, 'mm')) +
     geom_edge_link(aes_(linetype = ~relationship),
@@ -1197,7 +953,7 @@ goplot2 <- function(SeuratObj, cluster = NULL, pathwayIDs = NULL, ont = "BP", sh
     scale_color_continuous(low="red", high="blue", name = color,
                            guide=guide_colorbar(reverse=TRUE))
   ## scale_color_gradientn(name = color, colors=sig_palette, guide=guide_colorbar(reverse=TRUE))
-
+  
   if (geom == "label") {
     p <- p + geom_node_label(aes_(label=~Term, fill=~color), repel=TRUE) +
       scale_fill_continuous(low="red", high="blue", name = color,
@@ -1210,65 +966,47 @@ goplot2 <- function(SeuratObj, cluster = NULL, pathwayIDs = NULL, ont = "BP", sh
 }
 
 
-
-#' Scatter plot showing pathway enrichment score
-#'
-#' @param SeuratObj Object of class "Seurat"
-#' @param by which GSEA result to show
-#' @param pathwayID ID of pathway to show
-#' @param reduction "umap", "tsne", "pca"
-#' @param colour see \code{RColorBrewer::brewer.pal.info}
-#' @param pointsize size of point
-#' @param label label cluster or not
-#' @param label.size size of label
-#'
-#' @import ggplot2
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' pathwayScatterplot(SeuratObj, by = "GO", pathwayID = "GO:0002576")
-#' }
-#'
-pathwayScatterplot <- function(SeuratObj, by = "GO", pathwayID = NULL, reduction = "umap",
-                               colour = "OrRd", pointsize = 1, label = TRUE, label.size = 4) {
-
-  by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
-  GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
-  gd <- GSEAresult %>% dplyr::mutate(Score=-log10(p.adjust)) %>% reshape2::acast(formula = ID ~ cluster, value.var = 'Score')
-  gd[is.na(gd)] <- 0
-  if (!pathwayID %in% rownames(gd)) {
-    stop(pathwayID, " is not present in GSEA result of this Seurat object.")
-  }
-  gd <- gd[pathwayID, ][as.character(Seurat::Idents(SeuratObj))]
-  # > all.equal(rownames(SeuratObj@meta.data), names(Seurat::Idents(SeuratObj)))
-  # [1] TRUE
-  # SeuratObj@meta.data[["pathwayScore"]] <- unname(gd)
-  names(gd) <- names(Seurat::Idents(SeuratObj))
-  SeuratObj@meta.data[["pathwayScore"]] <- gd[rownames(SeuratObj@meta.data)]
-
-  # p <- Seurat::FeaturePlot(SeuratObj, features = "pathwayScore", pt.size = pointsize, reduction = reduction, label = label) +
-  #   scale_color_gradientn(colours = brewer.pal(n=7,name=colour)) +
-  #   ggtitle(sprintf("%s: %s",pathwayID, GSEAresult[GSEAresult$ID == pathwayID, "Description"][1]))
-  suppressMessages(p <- Seurat::FeaturePlot(SeuratObj, features = "pathwayScore", pt.size = pointsize,
-                                            reduction = reduction, label = label, label.size = label.size) +
-                     scale_color_gradientn(name="-log10(p.adjust)", colours = brewer.pal(n=7,name=colour)) +
-                     ggtitle(sprintf("%s: %s",pathwayID, GSEAresult[GSEAresult$ID == pathwayID, "Description"][1])))
-  return(p)
-}
+# simplifyEnrichmentplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, showCategory = 10, GO_ont = "BP") {
+#   
+#   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb"))
+#   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
+# 
+#   if (!is.null(pathwayIDs)) {
+#     if (sum(pathwayIDs %in% GSEAresult$ID) < 1) {
+#       stop("pathwayIDs provided are not found in GSEA result of Seurat object.")
+#     }
+#     pathwayIDs <- GSEAresult$ID[GSEAresult$ID %in% pathwayIDs]
+#   } else {
+#     # topath <- GSEAresult %>% dplyr::group_by(cluster) %>% dplyr::arrange(p.adjust, .by_group = TRUE) %>% dplyr::slice_head(n = showCategory)
+#     pathwayIDs <- GSEAresult %>% dplyr::group_by(cluster) %>% dplyr::slice_min(order_by = p.adjust, n = showCategory, with_ties = F) %>% dplyr::pull(ID)
+#   }
+# 
+#   if (by == "GO") {
+#     mat <- GO_similarity(pathwayIDs, ont = GO_ont)
+#     simplifyGO(mat, verbose = FALSE)
+#   } else if (by == "KEGG") {
+#     mat <- term_similarity_from_KEGG(pathwayIDs)
+#     simplifyEnrichment(mat, verbose = FALSE)
+#   } else if (by == "Reactome") {
+#     mat <- term_similarity_from_Reactome(pathwayIDs)
+#     simplifyEnrichment(mat, verbose = FALSE)
+#   } else if (by == "MSigDb") {
+#     mat <- term_similarity_from_MSigDB(pathwayIDs)
+#     simplifyEnrichment(mat, verbose = FALSE)
+#   }
+# }
 
 # pathwayScatterplot <- function(SeuratObj, by = "GO", pathwayID = NULL, reduction = "umap", colour = "OrRd", pointsize = 1) {
-#
+# 
 #   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
 #   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
-#
+# 
 #   df <- data.frame(SeuratObj@reductions[[reduction]]@cell.embeddings[,1:2], cluster=as.character(SeuratObj@active.ident))
 #   colnames(df) <- c('x','y','cluster')
 #   gd <- GSEAresult %>% dplyr::mutate(Score=-log10(p.adjust)) %>% dplyr::filter(ID == pathwayID) %>% dplyr::select(cluster, Score)
 #   rownames(gd) <- gd$cluster
 #   df <- df %>% mutate(Score = gd[as.character(cluster),'Score'])
-#
+# 
 #   p <- ggplot(data=df, aes(x,y)) + geom_point(aes(colour=Score), alpha=1, size=pointsize) +
 #     scale_color_gradientn(colours = brewer.pal(n=7,name=colour)) + theme_pubr() +
 #     ggtitle(sprintf("%s: %s",pathwayID, GSEAresult[GSEAresult$ID == pathwayID, "Description"][1])) +
@@ -1277,40 +1015,45 @@ pathwayScatterplot <- function(SeuratObj, by = "GO", pathwayID = NULL, reduction
 #   return(p)
 # }
 
+pathwayScatterplot <- function(SeuratObj, by = "GO", pathwayID = NULL, reduction = "umap", 
+                               colour = "OrRd", pointsize = 1, label = TRUE, label.size = 4) {
+  
+  by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
+  GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
+  gd <- GSEAresult %>% dplyr::mutate(Score=-log10(p.adjust)) %>% reshape2::acast(formula = ID ~ cluster, value.var = 'Score')
+  gd[is.na(gd)] <- 0
+  gd <- gd[pathwayID, ][as.character(Idents(SeuratObj))]
+  # > all.equal(rownames(SeuratObj@meta.data), names(Idents(SeuratObj)))
+  # [1] TRUE
+  # SeuratObj@meta.data[["pathwayScore"]] <- unname(gd)
+  names(gd) <- names(Idents(SeuratObj))
+  SeuratObj@meta.data[["pathwayScore"]] <- gd[rownames(SeuratObj@meta.data)]
+ 
+  # p <- Seurat::FeaturePlot(SeuratObj, features = "pathwayScore", pt.size = pointsize, reduction = reduction, label = label) + 
+  #   scale_color_gradientn(colours = brewer.pal(n=7,name=colour)) +
+  #   ggtitle(sprintf("%s: %s",pathwayID, GSEAresult[GSEAresult$ID == pathwayID, "Description"][1]))
+  suppressMessages(p <- Seurat::FeaturePlot(SeuratObj, features = "pathwayScore", pt.size = pointsize, 
+                                            reduction = reduction, label = label, label.size = label.size) + 
+                     scale_color_gradientn(colours = brewer.pal(n=7,name=colour)) +
+                     ggtitle(sprintf("%s: %s",pathwayID, GSEAresult[GSEAresult$ID == pathwayID, "Description"][1])))
+  return(p)
+}
 
 
-#' boxplot showing enrichment score of child or parent GOs of specific GO
-#'
-#' @param SeuratObj Object of class "Seurat"
-#' @param goid specific GO ID
-#' @param type "child","parent", show child or parent GOs of specific GO
-#' @param pointsize size of point
-#' @param flip whether to flip the coordinates
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' GOboxplot(SeuratObj, goid = "GO:0002576", type = "child")
-#' GOboxplot(SeuratObj, goid = "GO:0002576", type = "parent", flip = T)
-#' }
-#'
-#'
-GOboxplot <- function(SeuratObj, goid = NULL, type = "child", pointsize = 1, flip = FALSE) {
+GOboxplot <- function(SeuratObj, by = "GO", goid = NULL, type = "child", pointsize = 1, flip = FALSE) {
   type <- match.arg(type, choices = c("child", "parent"))
   if (type == "child") {
-    nodes <- GOfuncR::get_child_nodes(goid)$child_go_id
+    nodes <- get_child_nodes(goid)$child_go_id
   } else {
-    nodes <- GOfuncR::get_parent_nodes(goid)$parent_go_id
+    nodes <- get_parent_nodes(goid)$parent_go_id
   }
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[["GSEAresult_GO"]] %>% dplyr::mutate(Score=-log10(p.adjust))
-  godata <- GSEAresult[GSEAresult$ID %in% nodes, ] %>% dplyr::filter(!is.na(p.adjust)) %>% dplyr::select(cluster, Score)
-  p <- ggpubr::ggboxplot(godata, x = "cluster", y = "Score", color = "cluster", size = pointsize,
+  godata <- GSEAresult[GSEAresult$ID %in% nodes, ] %>% filter(!is.na(p.adjust)) %>% dplyr::select(cluster, Score)
+  p <- ggboxplot(godata, x = "cluster", y = "Score", color = "cluster", size = pointsize,
                  palette = scPalette(length(unique(godata$cluster))), add = "jitter",
                  ylab = "-log10(p.adjust)") +
     # title = sprintf("%s: %s",goid,get_names(goid)$go_name), ylab = "-log10(p.adjust)") +
-    theme(legend.position="right",
+    theme(legend.position="right", 
           plot.title = element_text(hjust = 0.5, size = 20)
     )
   if (flip) {
@@ -1322,273 +1065,5 @@ GOboxplot <- function(SeuratObj, goid = NULL, type = "child", pointsize = 1, fli
 
 
 
-#' Network showing cosine similarity between clusters according to GSEA result
-#'
-#' @param SeuratObj Seurat object
-#' @param by GO KEGG Reactome MSigDb WikiPathways DO NCG DGN.
-#' @param layout layout_nicely, layout_with_fr, etc. Either a function or a numeric matrix.
-#' It specifies how the vertices will be placed on the plot.
-#' @param cos_sim_thresh only draw links of cosine similarity bigger than this
-#' @param p.adjust_thresh threshold of p.adjust to filter pathways used to calculate cosine similarity
-#' @param SEED seed
-#' @param node.cex node size
-#' @param width_range range of width of links
-#' @param text_size size of text
-#' @param vertex.label.dist
-#'
-#' @import igraph
-#' @importFrom widyr pairwise_similarity
-#' @importFrom magrittr set_colnames `%<>%`
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' Cosine_networkByGSEA(SeuratObj, layout=layout_nicely, cos_sim_thresh=0.6, p.adjust_thresh=0.05, SEED=123, node.cex=3, width_range=c(0.1, 0.8))
-#' Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8, p.adjust_thresh=0.05, SEED=123, node.cex=5, width_range=c(0.8, 4))
-#' }
-#'
-#'
-Cosine_networkByGSEA <- function(SeuratObj,
-                                 by = "GO",
-                                 layout=layout_nicely,
-                                 cos_sim_thresh=0.6,
-                                 p.adjust_thresh=0.05,
-                                 SEED=123,
-                                 node.cex=5,
-                                 width_range=c(0.8, 4),
-                                 text_size = 1,
-                                 vertex.label.dist=0.5) {
-  by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
-  GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
-  GSEAresult %<>% dplyr::mutate(logFDR=-log2(p.adjust)) # -log2 instead of -log10 to enlarge the difference
-  topath <- GSEAresult %>% dplyr::filter(p.adjust <= p.adjust_thresh) %>% dplyr::distinct(ID) %>% dplyr::pull(ID) # only use part of pathways to calculate cosine similarity
-  if (length(topath) == 0) {
-    stop("Please adjust parameter 'p.adjust_thresh', no pathways left under such filtering")
-  }
-  dd <- GSEAresult %>% dplyr::filter(ID %in% topath) %>% dplyr::select(cluster, ID, logFDR)
-  dd$cluster <- as.character(dd$cluster)
-  ccc <- dd %>% widyr::pairwise_similarity(item = cluster, feature = ID, value = logFDR, upper=F)
-  links <- ccc %>% dplyr::filter(similarity >= cos_sim_thresh) %>% magrittr::set_colnames(c('source', 'target', 'weight')) %>%
-    dplyr::mutate(width=weight)
-  if (nrow(links) == 0) {
-    stop("Please adjust parameter 'cos_sim_thresh', no links left under such filtering")
-  }
-  links$width <- scales::rescale(links$width, width_range)
-  nodes <- data.frame(name=unique(c(links$source, links$target)), stringsAsFactors = F)
-  nodes$color <- scPalette(nrow(nodes))
-  gg <- graph_from_data_frame(d=links, vertices=nodes, directed=F)
-  V(gg)$frame.color <- NA
-  V(gg)$size <- node.cex
-  V(gg)$label.cex <- text_size
-  V(gg)$label.color <- "black"
-  V(gg)$label.font <- 2
-  set.seed(SEED)
-  plot(gg, layout=layout, vertex.label.dist=vertex.label.dist)
-}
 
 
-#' Hierarchical edge bundling plots helps visualizing correlation or similarity between clusters
-#'
-#' @param SeuratObj Seurat object
-#' @param node.by draw each node as \code{node.by}, column of \code{SeuratObj@meta.data}
-#' @param group.by color each node by \code{group.by}, column of \code{SeuratObj@meta.data}
-#' @param by GO KEGG Reactome MSigDb WikiPathways DO NCG DGN.
-#' @param link_threshold only show links of similarity or correlation above threshold
-#' @param link_width width of links
-#' @param p.adjust_thresh threshold of p.adjust to filter pathways used to calculate cosine similarity/correlation
-#' @param method one of \code{c('cosine similarity', 'pearson', 'spearman')}
-#'
-#' @importFrom igraph graph_from_data_frame
-#' @import ggraph
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05, method='cosine similarity', node.by='cluster', group.by='cellType')
-#' edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05, method='pearson', node.by='cluster', group.by='cellType')
-#' }
-#'
-edge_bundling_GSEA <- function(SeuratObj, by = "GO", link_threshold=0.6, link_width=0.9, p.adjust_thresh=0.05,
-                               method="cosine similarity", node.by="cluster", group.by="cellType") {
-
-  by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
-  GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
-  method <- match.arg(method, choices = c('cosine similarity', 'pearson', 'spearman'))
-
-  majorCellType <- unique(SeuratObj@meta.data[, c(group.by, node.by)]) %>% dplyr::arrange(get(group.by))
-  ## define data.frame with hierarchical information
-  d1 <- data.frame(from="origin", to=unique(majorCellType[, 1]), stringsAsFactors = F)
-  d2 <- majorCellType %>% magrittr::set_colnames(c('from', 'to'))
-  hierarchy <- rbind(d1, d2)
-  ## node information, cell type as group, cell number of each cluster as node size
-  vertices <- data.frame(name = unique(c(as.character(hierarchy$from), as.character(hierarchy$to))), stringsAsFactors = F)
-  vertices$group <- hierarchy$from[match(vertices$name, hierarchy$to)]
-  nn <- dplyr::count(SeuratObj@meta.data, get(node.by)) %>% magrittr::set_colnames(c('cluster', 'n'))
-  vertices$cellnumber <- nn$n[match(vertices$name, nn$cluster)] # cell number of each cluster as node size
-  # calculate angle of leaves' labels
-  vertices$id <- NA
-  myleaves <- which(is.na(match(vertices$name, hierarchy$from))) # only focus on leaves
-  nleaves <- length(myleaves)
-  vertices$id[myleaves] <- seq(1:nleaves)
-  vertices$angle <- 120 - 360 * vertices$id/nleaves
-  vertices$hjust <- ifelse(vertices$angle < -90 | vertices$angle > 90, 0, 1)
-  vertices$angle <- ifelse(vertices$angle < -90 | vertices$angle > 90, vertices$angle+180, vertices$angle) # flip angle BY to make them readable
-  GSEAresult %<>% dplyr::mutate(logFDR=-log10(p.adjust))
-  topath <- GSEAresult %>% dplyr::filter(p.adjust < p.adjust_thresh) %>% dplyr::distinct(ID) %>% dplyr::pull(ID)  # only use part of pathways to calculate
-  if (length(topath) < 1) {
-    stop("Please adjust parameter 'p.adjust_thresh', no pathways left under such filtering")
-  }
-  dd <- GSEAresult %>% dplyr::filter(ID %in% topath) %>% dplyr::select(cluster, ID, logFDR)
-  if (method == 'cosine similarity') {
-    ccc <- dd %>% widyr::pairwise_similarity(item = cluster, feature = ID, value = logFDR, upper=F)
-  } else if (method == 'pearson') {
-    ccc <- dd %>% widyr::pairwise_cor(item = cluster, feature = ID, value = logFDR, method ="pearson", upper=F)
-  } else if (method == 'spearman') {
-    ccc <- dd %>% widyr::pairwise_cor(item = cluster, feature = ID, value = logFDR, method ="spearman", upper=F)
-  }
-  colnames(ccc)[3] <- 'links'
-  connect <- ccc %>% dplyr::filter(links >= link_threshold)
-  if (nrow(connect) < 1) {
-    stop("Please adjust parameter 'link_threshold', no links left under such filtering")
-  }
-
-  from <- match(connect$item1, vertices$name)
-  to <- match(connect$item2, vertices$name)
-  mygraph <- graph_from_data_frame(hierarchy, vertices=vertices)
-  pp <- ggraph(mygraph, layout = 'dendrogram', circular = TRUE)
-  df4 <- get_con(from = from, to = to)(pp$data)
-  bb <- plyr::ddply(df4, .(con.id), .fun = function(df){
-    df$links <- connect$links[connect$item1 == df$name[1] & connect$item2 == df$name[nrow(df)]]
-    df
-  })
-  pp <- ggraph(mygraph, layout = 'dendrogram', circular = TRUE) +
-    geom_conn_bundle(data = bb, alpha=1, width=link_width, aes(colour=links)) +
-    scale_edge_color_distiller(palette = "RdPu", direction = 1) + # BuPu
-    geom_node_text(aes(x = x*1.15, y=y*1.15, filter = leaf, label=name, angle = angle, hjust=hjust, colour=group), size=3, alpha=1) +
-    geom_node_point(aes(filter = leaf, x = x*1.07, y=y*1.07, colour=group, size=cellnumber), alpha=1) +
-    scale_colour_manual(values= scPalette2(length(unique(majorCellType[, 1]))), guide=guide_legend(override.aes = list(size=5))) +
-    scale_size_continuous(range = c(2,15)) +
-    coord_fixed() +
-    theme_void() +
-    theme(plot.margin=unit(c(0,0,0,0),"cm")) +
-    expand_limits(x = c(-1.6, 1.6), y = c(-1.6, 1.6))
-  return(pp)
-}
-
-
-#' show pathways and genes in chord diagram
-#'
-#' @param SeuratObj Seurat object
-#' @param genes genes to draw
-#'
-#' @import circlize
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' GOcircleplot(SeuratObj, genes=NULL)
-#' }
-#'
-GOcircleplot <- function(SeuratObj, genes=NULL) {
-  GSEAresult <- slot(object = SeuratObj, name = 'misc')[["GSEAresult_GO"]]
-  # only show top 1 pathway of each cluster
-  toppws <- GSEAresult %>% dplyr::group_by(cluster) %>%
-    dplyr::slice_min(order_by = p.adjust, n = 1, with_ties = F) %>% dplyr::pull(ID) %>% unique
-  if (is.null(genes)) {
-    genes <- sample(Seurat::VariableFeatures(SeuratObj), 50)
-  }
-  species <- slot(object = SeuratObj, name = 'misc')[["species"]]
-  OrgDb <- getOrgDb(species)
-  df <- AnnotationDbi::select(OrgDb, keys=toppws, columns = "SYMBOL", keytype="GOALL")
-  dd <- unique(df[, c('GOALL', 'SYMBOL')])
-  dd <- dd %>% dplyr::filter(SYMBOL %in% genes) %>% magrittr::set_colnames(c("from", "to"))
-  pwscols <- setNames(scPalette2(length(unique(dd$from))), unique(dd$from))
-  dd$color <- pwscols[dd$from]
-
-  sectorc <- c(pwscols, setNames(rep("grey", length(unique(dd$to))), unique(dd$to)))
-  par(mar = rep(4, 4))
-  circos.par(track.margin = c(-0.08, 0.1), points.overflow.warning = FALSE)
-  chordDiagram(dd, grid.col = sectorc, col=dd$color, transparency = 0.4, directional = 1,
-               direction.type = c("arrows", "diffHeight"), diffHeight  = -0.03,
-               link.arr.type = "big.arrow", annotationTrack = "grid")
-  # Add text and axis
-  circos.trackPlotRegion(
-    track.index = 1,
-    bg.border = NA,
-    panel.fun = function(x, y) {
-
-      xlim = get.cell.meta.data("xlim")
-      sector.index = get.cell.meta.data("sector.index")
-
-      #text direction (dd) and adjusmtents (aa)
-      theta = circlize(mean(xlim), 1.3)[1, 1] %% 360
-      dd <- ifelse(theta < 90 || theta > 270, "clockwise", "reverse.clockwise")
-      aa = c(1, 0.5)
-      if(theta < 90 || theta > 270)  aa = c(0, 0.5)
-      circos.text(x=mean(xlim), y=1.7, labels=sector.index, facing = dd, cex=0.6,  adj = aa)
-    }
-  )
-  circos.clear()
-}
-
-
-#' cluster functional terms into groups by clustering the similarity matrix of the terms
-#'
-#' We utilize package simplifyEnrichment to cluster GO terms into groups from the semantic similarity matrix. Summaries of GO terms in each cluster are visualized by word clouds.
-#' https://bioconductor.org/packages/release/bioc/html/simplifyEnrichment.html
-#' https://bioconductor.org/packages/release/bioc/vignettes/simplifyEnrichment/inst/doc/simplifyEnrichment.html
-#' package "simplifyEnrichment" is developed based on R version 4.0
-#'
-#'
-#' @param SeuratObj Seurat object
-#' @param by GO, KEGG, Reactome, MSigDb
-#' @param pathwayIDs a vector of pathway IDs, such as a vector of GO IDs
-#' @param showCategory  number of top pathways of each cluster
-#' @param GO_ont Gene Ontology
-#'
-#' @import simplifyEnrichment
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' simplifyEnrichmentplot(SeuratObj, by = "GO", showCategory = 10)
-#' }
-#'
-#'
-simplifyEnrichmentplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, showCategory = 10, GO_ont = "BP") {
-
-  by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb"))
-  GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
-
-  if (!is.null(pathwayIDs)) {
-    if (sum(pathwayIDs %in% GSEAresult$ID) < 1) {
-      stop("pathwayIDs provided are not found in GSEA result of Seurat object.")
-    }
-    pathwayIDs <- GSEAresult$ID[GSEAresult$ID %in% pathwayIDs]
-  } else {
-    # topath <- GSEAresult %>% dplyr::group_by(cluster) %>% dplyr::arrange(p.adjust, .by_group = TRUE) %>% dplyr::slice_head(n = showCategory)
-    pathwayIDs <- GSEAresult %>% dplyr::group_by(cluster) %>% dplyr::slice_min(order_by = p.adjust, n = showCategory, with_ties = F) %>% dplyr::pull(ID)
-  }
-
-  if (by == "GO") {
-    mat <- GO_similarity(pathwayIDs, ont = GO_ont)
-    simplifyGO(mat, verbose = FALSE)
-  } else if (by == "KEGG") {
-    mat <- term_similarity_from_KEGG(pathwayIDs)
-    simplifyEnrichment(mat, verbose = FALSE)
-  } else if (by == "Reactome") {
-    mat <- term_similarity_from_Reactome(pathwayIDs)
-    simplifyEnrichment(mat, verbose = FALSE)
-  } else if (by == "MSigDb") {
-    mat <- term_similarity_from_MSigDB(pathwayIDs)
-    simplifyEnrichment(mat, verbose = FALSE)
-  }
-}

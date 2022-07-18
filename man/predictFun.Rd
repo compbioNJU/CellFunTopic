@@ -7,6 +7,8 @@
 predictFun(
   query_SeuratObj,
   reference_SeuratObj,
+  group_by = "cellType",
+  cluster_by = "seurat_clusters",
   species = "Homo sapiens",
   by = "GO",
   k = NULL,
@@ -17,6 +19,10 @@ predictFun(
 \item{query_SeuratObj}{query data}
 
 \item{reference_SeuratObj}{reference data}
+
+\item{group_by}{the column of \code{reference_SeuratObj@meta.data} that indicates cell type}
+
+\item{cluster_by}{the column of \code{reference_SeuratObj@meta.data} that indicates cluster}
 
 \item{species}{species of the reference data}
 
@@ -34,7 +40,8 @@ Predict cell type of query data based on reference data. We use caret R package 
 }
 \examples{
 \dontrun{
-predictFun(query_SeuratObj, reference_SeuratObj, species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM")
+predictFun(query_SeuratObj, reference_SeuratObj, group_by = 'cellType', cluster_by = 'seurat_clusters',
+species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM")
 }
 
 

@@ -1,8 +1,7 @@
 #' Detect the gene ID type of Seurat object
 #'
 #' @param SeuratObj Seurat object
-#' @importFrom AnnotationDbi keys
-#' @importFrom dplyr `%>%`
+#' @importFrom magrittr `%>%`
 #' @return
 #' @export
 #'
@@ -21,8 +20,8 @@ DetectGeneIDtype <- function(SeuratObj) {
   featureData <- list()
   # featureData[['OrgDb']] <- OrgDb
   allGenelist <- list()
-  for (ID in keytypes(OrgDb)) {
-    allGenelist[[ID]] <- keys(OrgDb, keytype = ID)
+  for (ID in AnnotationDbi::keytypes(OrgDb)) {
+    allGenelist[[ID]] <- AnnotationDbi::keys(OrgDb, keytype = ID)
   }
   # featureData[['allGene']] <- allGenelist
   # genes <- slot(object = SeuratObj, name = 'assays')[['RNA']] %>% slot(name = 'counts') %>% rownames()
@@ -43,9 +42,8 @@ DetectGeneIDtype <- function(SeuratObj) {
 #' @param by use_internal_data AnnotationHub biomaRt
 #'
 #' @importFrom AnnotationHub AnnotationHub query
-#' @importFrom AnnotationDbi keys
 #' @importFrom biomaRt useMart searchDatasets useDataset getBM
-#' @importFrom dplyr `%>%`
+#' @importFrom magrittr `%>%`
 #' @importFrom Seurat PercentageFeatureSet
 #' @return
 #' @export
@@ -105,8 +103,8 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
 
     # detect what gene ID type that rownames(counts) belongs to
     allGenelist <- list()
-    for (ID in keytypes(EnsDb)) {
-      allGenelist[[ID]] <- keys(EnsDb, keytype = ID)
+    for (ID in AnnotationDbi::keytypes(EnsDb)) {
+      allGenelist[[ID]] <- AnnotationDbi::keys(EnsDb, keytype = ID)
     }
     # featureData[['allGene']] <- allGenelist
     # genes <- slot(object = SeuratObj, name = 'assays')[['RNA']] %>% slot(name = 'counts') %>% rownames()
@@ -117,7 +115,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
     featureData[['GeneIDtype']] <- ifelse(GeneIDtype == "GENEID", "ENSEMBL", GeneIDtype)
     # featureData[['GeneIDtype']] <- GeneIDtype
 
-    geneTable <- select(EnsDb, keys = genes, columns = c("GENEID", "ENTREZID", "SYMBOL", "SEQNAME", "GENEBIOTYPE", "GENENAME"), keytype = GeneIDtype)
+    geneTable <- AnnotationDbi::select(EnsDb, keys = genes, columns = c("GENEID", "ENTREZID", "SYMBOL", "SEQNAME", "GENEBIOTYPE", "GENENAME"), keytype = GeneIDtype)
     featureData[['geneTable']] <- geneTable
     # Calculate nCount and nFeature
     if (!"nCount_RNA" %in% names(slot(object = SeuratObj, name = 'meta.data'))) {
@@ -184,7 +182,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
 #' @param minFeaturesPerCell minFeaturesPerCell
 #' @param maxFeaturesPerCell maxFeaturesPerCell
 #' @param maxPercent.mt maxPercent.mt
-#' @importFrom dplyr `%>%` filter
+#' @importFrom magrittr `%>%`
 #' @importFrom Seurat VlnPlot FeatureScatter GetAssayData
 #'
 #' @return
@@ -192,16 +190,16 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
 #'
 #' @examples
 #' \dontrun{
-#' SeuratObj <- ScFunQC(SeuratObj, plot = TRUE)
+#' SeuratObj <- QCfun(SeuratObj, plot = F)
 #' }
 #'
-ScFunQC <- function(SeuratObj,
-                    minCountsPerCell = NULL,
-                    maxCountsPerCell = NULL,
-                    minFeaturesPerCell = NULL,
-                    maxFeaturesPerCell = NULL,
-                    maxPercent.mt = NULL,
-                    plot = TRUE) {
+QCfun <- function(SeuratObj,
+                  minCountsPerCell = NULL,
+                  maxCountsPerCell = NULL,
+                  minFeaturesPerCell = NULL,
+                  maxFeaturesPerCell = NULL,
+                  maxPercent.mt = NULL,
+                  plot = TRUE) {
 
   # Visualization before QC
   if (plot & !dir.exists(paths = "./CellFunMap_output/plots")) {
@@ -234,7 +232,7 @@ ScFunQC <- function(SeuratObj,
   if (is.null(maxPercent.mt)) {
     maxPercent.mt <- 20
   }
-  cells <- meta.data %>% filter(nCount_RNA > minCountsPerCell, nCount_RNA < maxCountsPerCell,
+  cells <- meta.data %>% dplyr::filter(nCount_RNA > minCountsPerCell, nCount_RNA < maxCountsPerCell,
                                 nFeature_RNA > minFeaturesPerCell, nFeature_RNA < maxFeaturesPerCell,
                                 percent.mt < maxPercent.mt) %>% rownames()
   # Filter features

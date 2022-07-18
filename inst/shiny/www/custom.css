@@ -1,0 +1,25 @@
+.main-header .logo {
+  font-family: "Georgia", Times, "Times New Roman", serif;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+/* logo */
+/*.main-header .logo {
+background-color: #006272;
+} */
+
+/* logo when hovered */
+/*.main-header .logo:hover {
+background-color: #5F69E3;
+}
+
+/* navbar (rest of the header) */
+/*.main-header .navbar {
+background-color: #006272;
+}
+ 
+/* active selected tab in the sidebarmenu */
+.main-sidebar .sidebar .sidebar-menu .active a{
+background-color: #3CB371;
+}

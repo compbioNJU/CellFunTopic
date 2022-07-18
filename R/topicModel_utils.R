@@ -269,8 +269,11 @@ topicNW2 <- function(betaDF, topn) {
 
 #' echart4r network showing top terms of topics
 #'
+#' echart4r network showing top terms of topics with tooltips showing description of pathway ID
+#'
 #' @param betaDF topic~term probability data.frame
 #' @param topn top n terms of topic
+#' @param pws named vector, pathway description with ID as names
 #'
 #' @importFrom echarts4r e_charts e_graph e_graph_nodes e_graph_edges e_tooltip e_title e_legend e_toolbox e_toolbox_feature
 #'
@@ -280,13 +283,16 @@ topicNW2 <- function(betaDF, topn) {
 #' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-#' topicNW3(betaDF, topn=10)
+#' pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+#' topicNW3(betaDF, topn=10, pws)
 #' }
 #'
-topicNW3 <- function(betaDF, topn) {
+topicNW3 <- function(betaDF, topn, pws) {
   df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F) %>% dplyr::ungroup()
-  edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta) %>%
-    setNames(c("source", "target", "weight"))
+  edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta)) %>%
+    setNames(c("source", "target", "weight")) %>%
+    dplyr::mutate(target=paste(target, unname(pws[target]), sep=": "))  # 适用于多种情况 GO/KEGG
+                  # target=paste(target, GOfuncR::get_names(target)$go_name, sep=": ")) # 只适用于GO的情况
   ww <- edgedf$weight
   edgedf$width <- 2*(ww-min(ww))/(max(ww)-min(ww))+1
   aa <- unique(edgedf$source)
@@ -308,28 +314,56 @@ topicNW3 <- function(betaDF, topn) {
             edgeSymbol = list('none', 'arrow'),
             edgeSymbolSize = 5,
             lineStyle = list(color = 'source'),
-            label = list(show = T, color = "#000000", fontWeight = "normal", fontSize = 8)
+            label = list(show = T, color = "#000000", fontWeight = "normal", fontSize = 5)
     ) %>%
     e_graph_nodes(nodes=nodes, names=node, value=value, size=size, category=cat) %>%
     e_graph_edges(edges=edgedf, source, target) %>%
-    e_tooltip() %>%
+    e_labels(
+      formatter = htmlwidgets::JS(
+        paste0(
+          '
+          function(params) {
+          if (params.value) {
+          const text = params.value.split(": ")
+          const status = (text[0].substring(0,5) == "Topic")? "ff" : "ee"
+          return(`{${status}|${text[0]}}`)
+          }
+          }
+          '
+        )
+      ),
+      rich = list(
+        ff = list(borderWidth = 0, padding = 0, fontSize = 13),
+        ee = list(borderWidth = 0, padding = 0, fontSize = 8)
+      )
+    ) %>%
+    e_tooltip(
+      formatter = htmlwidgets::JS(
+        paste0(
+          '
+          function(params) {
+          if (params.value) {
+          const text = params.value.split(": ")
+          const label = (text[0].substring(0,5) == "Topic")? text[0] : `${text[0]}<br>${text[1]}`
+          return(label)
+          }
+          }
+          '
+        )
+      )
+    ) %>%
     e_title(
       text = paste0('Top ', topn, ' terms of ', length(aa), ' Topics')
     ) %>%
-    e_legend(right=0, top=10) %>%
+    e_legend(right=0, top=20) %>%
     e_toolbox() %>%
     e_toolbox_feature(feature = c("saveAsImage", "dataView"))
 }
 
-
-# # echart4r network showing top terms of topics with tooltips showing description of pathway ID
-# plotnw3 <- function(betaDF, topn, pws) {
-#   df <- betaDF %>% dplyr::group_by(topic) %>% slice_max(order_by = beta, n=topn, with_ties=F)
-#   edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, everything()) %>%
-#     setNames(c("source", "target", "weight")) %>%
-#     dplyr::mutate(# width=2*(weight-min(weight))/(max(weight)-min(weight))+1, # 这样好像不对，会出现NaN
-#                   target=paste(target, unname(pws[target]), sep=": "))  # 适用于多种情况 GO/KEGG
-#                   # target=paste(target, GOfuncR::get_names(target)$go_name, sep=": ")) # 只适用于GO的情况
+# topicNW3 <- function(betaDF, topn) {
+#   df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F) %>% dplyr::ungroup()
+#   edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta) %>%
+#     setNames(c("source", "target", "weight"))
 #   ww <- edgedf$weight
 #   edgedf$width <- 2*(ww-min(ww))/(max(ww)-min(ww))+1
 #   aa <- unique(edgedf$source)
@@ -351,48 +385,15 @@ topicNW3 <- function(betaDF, topn) {
 #             edgeSymbol = list('none', 'arrow'),
 #             edgeSymbolSize = 5,
 #             lineStyle = list(color = 'source'),
-#             label = list(show = T, color = "#000000", fontWeight = "normal", fontSize = 5)
+#             label = list(show = T, color = "#000000", fontWeight = "normal", fontSize = 8)
 #     ) %>%
 #     e_graph_nodes(nodes=nodes, names=node, value=value, size=size, category=cat) %>%
 #     e_graph_edges(edges=edgedf, source, target) %>%
-#     e_labels(
-#       formatter = htmlwidgets::JS(
-#         paste0(
-#           '
-#           function(params) {
-#           if (params.value) {
-#           const text = params.value.split(": ")
-#           const status = (text[0].substring(0,5) == "Topic")? "ff" : "ee"
-#           return(`{${status}|${text[0]}}`)
-#           }
-#           }
-#           '
-#         )
-#       ),
-#       rich = list(
-#         ff = list(borderWidth = 0, padding = 0, fontSize = 13),
-#         ee = list(borderWidth = 0, padding = 0, fontSize = 8)
-#       )
-#     ) %>%
-#     e_tooltip(
-#       formatter = htmlwidgets::JS(
-#         paste0(
-#           '
-#           function(params) {
-#           if (params.value) {
-#           const text = params.value.split(": ")
-#           const label = (text[0].substring(0,5) == "Topic")? text[0] : `${text[0]}<br>${text[1]}`
-#           return(label)
-#           }
-#           }
-#           '
-#         )
-#       )
-#     ) %>%
+#     e_tooltip() %>%
 #     e_title(
 #       text = paste0('Top ', topn, ' terms of ', length(aa), ' Topics')
 #     ) %>%
-#     e_legend(right=0, top=20) %>%
+#     e_legend(right=0, top=10) %>%
 #     e_toolbox() %>%
 #     e_toolbox_feature(feature = c("saveAsImage", "dataView"))
 # }
