@@ -43,8 +43,6 @@ library(ggnewscale)
 
 source(file = "Utils/Colors.R", local = T, encoding = "UTF-8")
 source(file = "Utils/UI_functions.R", local = T, encoding = "UTF-8")
-source(file = "Utils/Plots.R", local = T, encoding = "UTF-8")
-source(file = "Utils/topicModel_utils.R", local = T, encoding = "UTF-8")
 
 
 

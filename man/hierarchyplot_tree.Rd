@@ -58,7 +58,9 @@ Hierarchical clustering of clusters and pathways according to GSEA result.
 If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 }
 \examples{
+\dontrun{
 hierarchyplot_tree(SeuratObj, by = "GO", topaths = 10, cluster_cutree_k = 5, pathway_cutree_k = 20)
+}
 
 
 }

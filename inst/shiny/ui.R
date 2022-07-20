@@ -7,29 +7,29 @@ source(
 
 ui <- dashboardPagePlus(
   skin = "green",
-  title = "cellFunMap",
+  title = "CellFunMap",
   # options = list(sidebarExpandOnHover = TRUE),
   header = dashboardHeaderPlus(
-    title = "cellFunMap",
+    title = "CellFunMap",
     left_menu = tagList(
       tags$span(
         "Functional Annotation for Single-Cell Transcriptomics",
         style = 'font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:#fff;line-height:34px;font-size:20px;font-weight:300;overflow:hidden;'
       )
-    ),
-    userOutput("user")
+    )#,
+    # userOutput("user")
   ),
   sidebar = dashboardSidebar(
     # collapsed = TRUE,
     sidebarMenu(
       id = "sideBarTab",
       menuItem(
-        "pathway overview",
+        "Pathway overview",
         tabName = "overview",
         icon = icon("globe")
       ),
       menuItem(
-        "pathway of focus",
+        "Pathway of focus",
         tabName = "focus",
         icon = icon("eye")
       ),

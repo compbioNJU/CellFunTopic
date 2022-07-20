@@ -46,8 +46,10 @@ It specifies how the vertices will be placed on the plot.}
 Network showing cosine similarity between clusters according to GSEA result
 }
 \examples{
+\dontrun{
 Cosine_networkByGSEA(SeuratObj, layout=layout_nicely, cos_sim_thresh=0.6, p.adjust_thresh=0.05, SEED=123, node.cex=3, width_range=c(0.1, 0.8))
 Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8, p.adjust_thresh=0.05, SEED=123, node.cex=5, width_range=c(0.8, 4))
+}
 
 
 }

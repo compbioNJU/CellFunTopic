@@ -47,7 +47,9 @@ Pie charts show GSEA score of the pathway in clusters. Code for plotting is a mo
 If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 }
 \examples{
+\dontrun{
 emapplotPie(SeuratObj)
 emapplotPie(SeuratObj, by = "KEGG")
+}
 
 }

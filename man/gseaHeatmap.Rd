@@ -46,7 +46,9 @@ A Heatmap-class object.
 Heatmap of GSEA result
 }
 \examples{
+\dontrun{
 gseaHeatmap(SeuratObj, by = "GO", toshow = "-logFDR", topPath = 10, colour = "Greens")
+}
 
 
 }

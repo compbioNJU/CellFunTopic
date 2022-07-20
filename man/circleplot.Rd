@@ -21,7 +21,7 @@ circleplot(
 
 \item{pathwayIDs}{pathway IDs to calculate link width}
 
-\item{link_threshold}{only show links indicating that number of intersection bigger than this threshold}
+\item{link_threshold}{only show links whose intersection number bigger than this threshold}
 }
 \value{
 
@@ -31,7 +31,9 @@ Link width shows number of intersection of pathways between clusters, link color
 in concordance with cluster which has higher enrichment score on intersection pathways.
 }
 \examples{
+\dontrun{
 circleplot(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = NULL)
+}
 
 
 }

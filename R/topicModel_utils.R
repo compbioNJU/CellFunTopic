@@ -275,7 +275,7 @@ topicNW2 <- function(betaDF, topn) {
 #' @param topn top n terms of topic
 #' @param pws named vector, pathway description with ID as names
 #'
-#' @importFrom echarts4r e_charts e_graph e_graph_nodes e_graph_edges e_tooltip e_title e_legend e_toolbox e_toolbox_feature
+#' @importFrom echarts4r e_charts e_graph e_graph_nodes e_graph_edges e_labels e_tooltip e_title e_legend e_toolbox e_toolbox_feature
 #'
 #' @export
 #'
@@ -289,7 +289,7 @@ topicNW2 <- function(betaDF, topn) {
 #'
 topicNW3 <- function(betaDF, topn, pws) {
   df <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n=topn, with_ties=F) %>% dplyr::ungroup()
-  edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta)) %>%
+  edgedf <- df %>% dplyr::mutate(topic=paste0("Topic ", topic)) %>% dplyr::select(topic, term, beta) %>%
     setNames(c("source", "target", "weight")) %>%
     dplyr::mutate(target=paste(target, unname(pws[target]), sep=": "))  # 适用于多种情况 GO/KEGG
                   # target=paste(target, GOfuncR::get_names(target)$go_name, sep=": ")) # 只适用于GO的情况

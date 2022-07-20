@@ -18,6 +18,8 @@ GOcircleplot(SeuratObj, genes = NULL)
 show pathways and genes in chord diagram
 }
 \examples{
+\dontrun{
 GOcircleplot(SeuratObj, genes=NULL)
+}
 
 }

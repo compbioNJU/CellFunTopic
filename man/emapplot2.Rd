@@ -46,7 +46,10 @@ Code for plotting is a modified version of \code{enrichplot::emapplot()}.
 If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 }
 \examples{
+\dontrun{
 emapplot2(SeuratObj)
 emapplot2(SeuratObj, cluster = unique(SeuratObj@misc$GSEAresult_GO$cluster)[2])
+}
+
 
 }

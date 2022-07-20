@@ -4,21 +4,24 @@
 \alias{topicNW3}
 \title{echart4r network showing top terms of topics}
 \usage{
-topicNW3(betaDF, topn)
+topicNW3(betaDF, topn, pws)
 }
 \arguments{
 \item{betaDF}{topic~term probability data.frame}
 
 \item{topn}{top n terms of topic}
+
+\item{pws}{named vector, pathway description with ID as names}
 }
 \description{
-echart4r network showing top terms of topics
+echart4r network showing top terms of topics with tooltips showing description of pathway ID
 }
 \examples{
 \dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-topicNW3(betaDF, topn=10)
+pws <- SeuratObj@misc$GSEAresult_GO \%>\% dplyr::select(ID, Description) \%>\% unique \%>\% tibble::deframe()
+topicNW3(betaDF, topn=10, pws)
 }
 
 }

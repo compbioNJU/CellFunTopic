@@ -1,5 +1,8 @@
-palettes <- list("Greens", "Blues", "BuGn", "BuPu", "GnBu", "Greys", "Oranges", "OrRd", "PuBu",
-                 "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd")
+
+palettes <- function() {
+  return(list("Greens", "Blues", "BuGn", "BuPu", "GnBu", "Greys", "Oranges", "OrRd", "PuBu",
+              "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd"))
+}
 
 color_choicesOpt <- function(palettes, id) {
   switch(id,
@@ -24,7 +27,6 @@ color_choicesOpt <- function(palettes, id) {
                             }))
   )
 }
-
 
 
 

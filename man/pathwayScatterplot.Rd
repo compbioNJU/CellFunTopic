@@ -39,6 +39,8 @@ pathwayScatterplot(
 Scatter plot showing pathway enrichment score
 }
 \examples{
+\dontrun{
 pathwayScatterplot(SeuratObj, by = "GO", pathwayID = "GO:0002576")
+}
 
 }

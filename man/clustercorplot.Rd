@@ -74,7 +74,7 @@ clustercorplot_jaccard(
 
 \item{vertex.size.cex}{node size}
 
-\item{link_threshold}{only show links indicating that correlation bigger than this threshold}
+\item{link_threshold}{only show links whose correlation/Jaccard-index bigger than this threshold}
 
 \item{vertex.label.cex}{size of node label}
 
@@ -101,10 +101,16 @@ Jaccard coefficient between clusters, calculated with GSEA result. Node size ind
 If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.
 }
 \examples{
+\dontrun{
 # show Pearson correlation between clusters
 clustercorplot(SeuratObj, by = "GO")
+}
 
+
+\dontrun{
 # show Jaccard coefficient between clusters
 clustercorplot_jaccard(SeuratObj, by = "GO")
+}
+
 
 }

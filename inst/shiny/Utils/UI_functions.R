@@ -81,8 +81,8 @@ gseaheatmapui <- function() {
            pickerInput(
              inputId = "hmpcol",
              label = "color",
-             choices = palettes,
-             choicesOpt = color_choicesOpt(palettes, id=3),
+             choices = palettes(),
+             choicesOpt = color_choicesOpt(palettes(), id=3),
              inline = T
            )
     ),
@@ -342,9 +342,9 @@ pathwayScatterplotui <- function() {
            pickerInput(
              inputId = "sctcol",
              label = "color",
-             choices = palettes,
+             choices = palettes(),
              selected = "OrRd",
-             choicesOpt = color_choicesOpt(palettes, id=3),
+             choicesOpt = color_choicesOpt(palettes(), id=3),
              inline = T
            )
     ),

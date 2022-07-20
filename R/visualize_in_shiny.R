@@ -26,7 +26,7 @@ visualize_in_shiny <- function(SeuratObj) {
   check_pkgs(pkgs)
 
   appDir <- system.file('shiny', package = "CellFunMap")
-  shiny::runApp(appDir, launch.browser = FALSE)
+  shiny::runApp(appDir)
 }
 
 

@@ -42,7 +42,10 @@ goplot2(
 Hierarchy chart of GO
 }
 \examples{
+\dontrun{
 goplot2(SeuratObj)
 goplot2(SeuratObj, ont = "MF")
+}
+
 
 }

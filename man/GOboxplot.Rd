@@ -24,7 +24,10 @@ GOboxplot(SeuratObj, goid = NULL, type = "child", pointsize = 1, flip = FALSE)
 boxplot showing enrichment score of child or parent GOs of specific GO
 }
 \examples{
+\dontrun{
 GOboxplot(SeuratObj, goid = "GO:0002576", type = "child")
 GOboxplot(SeuratObj, goid = "GO:0002576", type = "parent", flip = T)
+}
+
 
 }
