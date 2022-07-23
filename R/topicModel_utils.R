@@ -131,7 +131,7 @@ runLDA <- function(SeuratObj, by = "GO", k=NULL, method='VEM', SEED=1234, plot=T
 #' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-#' pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+#' pws <- ID2Description(SeuratObj, by = "GO")
 #' betaDF %<>% dplyr::mutate(descrip=unname(pws[term]))
 #' hist_topic_term(betaDF, topics=1, topn=20, axis.text.y.size=5)
 #' hist_topic_term(betaDF, topics=c(1,2,3,4), topn=20, axis.text.y.size=5)
@@ -283,7 +283,7 @@ topicNW2 <- function(betaDF, topn) {
 #' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-#' pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+#' pws <- ID2Description(SeuratObj, by = "GO")
 #' topicNW3(betaDF, topn=10, pws)
 #' }
 #'
@@ -415,7 +415,7 @@ topicNW3 <- function(betaDF, topn, pws) {
 #' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
 #' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-#' pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+#' pws <- ID2Description(SeuratObj, by = "GO")
 #' wordcloud_topic(betaDF, pws, topic=1, topn=20)
 #' wordcloud_topic_3D(betaDF, pws, topic=1, topn=20)
 #' }

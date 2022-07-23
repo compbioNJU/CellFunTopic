@@ -1,0 +1,32 @@
+---
+title: "Getting Started with CellFunMap"
+output: html_document
+---
+
+We provide a series of vignettes to help users to get started with CellFunMap.
+
+## [Pre-processing](Pre-processing.html)
+
+The **CellFunMap** package provides a convenient workflow for data pre-processing (quality control, normalization, dimension reduction, clustering, differential expression analysis, etc.) by integrating methods of `Seurat` package.
+
+## [GSEA and visualization](visualization_GSEA.html)
+
+**CellFunMap** provides a encapsulated function for GSEA with different databases. What's more, it provides a variety of meaningful visualization methods for GSEA Result, facilitating functional annotation of cell clusters in single cell data. 
+
+## [Topic modelling and visualization](topicModel_visualization.html)
+
+**CellFunMap** provides a method to fit an LDA model to GSEA results, assuming that each cluster can be represented as a mixture of latent topics, which reveal cellular programs shared across cell types or exclusive to a particular cell type. It also provides a few methods to visualize topic modelling results.
+
+## [Transfer topic model](transfer_topicModel.html)
+
+**CellFunMap** provides built-in reference topic models for users to take advantage of large landscape datasets such as the human cell landscape (HCL) and the mouse cell atlas (MCA). It also provides methods for users to make their own reference topic models. Transferring topic model from reference data to query data enables visualization of correlation or comparison between datasets.
+
+## [Transfer annotation across datasets](transfer_annotation.html)
+
+**CellFunMap** provides methods for rapid, automated cell-type annotation across datasets without dependence on marker genes. Users can predict cell types of query data based on reference data conveniently.
+
+## [Visualize in Shiny app](shiny_app.html)
+
+The GSEA and topic modelling results can be explored interactively in the built-in Shiny app.
+
+

@@ -1,0 +1,21 @@
+---
+title: "Visualize in Built-in Shiny APP"
+output: html_document
+date: '`r Sys.Date()`'
+---
+
+First, please make sure that you have previously performed the pre-processing, GSEA and topic-modelling steps, see [Pre-processing](Pre-processing.html) and [topic-modelling](topicModel_visualization.html).
+
+The GSEA and topic modelling results can be explored interactively in the built-in Shiny web application.
+
+```{r, eval = FALSE}
+library(CellFunMap)
+visualize_in_shiny(SeuratObj)
+# It should be noted that an object named "SeuratObj" is needed in your global environment.
+```
+
+The Shiny app is demonstrated in the following image:
+
+<img src="https://xiaobaicainiao666.github.io/images/shinyappExample.gif" width="100%" />
+
+

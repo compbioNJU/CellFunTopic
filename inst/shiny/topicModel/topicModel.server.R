@@ -51,7 +51,7 @@ ldaDF <- reactive({
 output$tm_echt <- renderEcharts4r({
   if (!("ldaOut" %in% names(ldaDF()$SeuratObj@misc))) return(NULL)
   betaDF <- ldaDF()$betaDF
-  pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+  pws <- ID2Description(SeuratObj, by = "GO")
   topicNW3(betaDF, topn=input$tm_topn1, pws=pws)
 })
 
@@ -59,7 +59,7 @@ output$tm_echt <- renderEcharts4r({
 tm_hist3 <- reactive({
   if (!("ldaOut" %in% names(ldaDF()$SeuratObj@misc))) return(NULL)
   betaDF <- ldaDF()$betaDF
-  pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+  pws <- ID2Description(SeuratObj, by = "GO")
   betaDF %<>% dplyr::mutate(descrip=unname(pws[term]))
   # betaDF %<>% dplyr::mutate(descrip=GOfuncR::get_names(term)$go_name) # 只适用于GO的情况
   tt <- gsub("Topic ", "", input$tm_echt_clicked_data$source)
@@ -76,7 +76,7 @@ tm_wordcloud <- reactive({
   tt <- gsub("Topic ", "", input$tm_echt_clicked_data$source)
   betaDF <- ldaDF()$betaDF
   if (length(tt)<1) tt <- unique(betaDF$topic)[1]
-  pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+  pws <- ID2Description(SeuratObj, by = "GO")
   wordcloud_topic(betaDF, pws, topic=tt, topn=input$tm_topn1)
 })
 
@@ -92,7 +92,7 @@ output$tm_wordcloud <- renderPlot({
 betatable <- reactive({
   if (!("ldaOut" %in% names(ldaDF()$SeuratObj@misc))) return(NULL)
   betaDF <- ldaDF()$betaDF
-  pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe() # 这样做适用于GO、KEGG等等多种情况
+  pws <- ID2Description(SeuratObj, by = "GO") # 这样做适用于GO、KEGG等等多种情况
   betaDF %<>% dplyr::mutate(descrip=unname(pws[term])) %>% dplyr::rename(probability=beta)
   # GOfuncR::get_names(term)$go_name # 只适用于GO的情况
 
@@ -191,7 +191,7 @@ output$topicsChoiceui <- renderUI(topicsChoiceui())
 tm_hist1 <- reactive({
   if (!("ldaOut" %in% names(ldaDF()$SeuratObj@misc))) return(NULL)
   betaDF <- ldaDF()$betaDF
-  pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+  pws <- ID2Description(SeuratObj, by = "GO")
   betaDF %<>% dplyr::mutate(descrip=unname(pws[term]))
   # betaDF %<>% dplyr::mutate(descrip=GOfuncR::get_names(term)$go_name) # 只适用于GO的情况
   hist_topic_term(betaDF, topics=input$tm_topics, topn=input$tm_topn2, axis.text.y.size=input$tm_size)
@@ -327,7 +327,7 @@ output$tm_hist2 <- renderPlot({
 
 assignwstable <- reactive({
   if (!("ldaOut" %in% names(ldaDF()$SeuratObj@misc))) return(NULL)
-  pws <- SeuratObj@misc$GSEAresult_GO %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe() # 这样做适用于GO、KEGG等等多种情况
+  pws <- ID2Description(SeuratObj, by = "GO")
   assignws <- ldaDF()$assignws %>% dplyr::mutate(description=unname(pws[term])) %>%
     dplyr::rename(cluster=document, topic=.topic) %>% dplyr::select(cluster, term, description, everything())
 

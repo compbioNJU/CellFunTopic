@@ -1,0 +1,73 @@
+---
+title: "Transfer annotation from reference to query data"
+output: html_document
+date: '`r Sys.Date()`'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  tidy = FALSE,
+  message = FALSE,
+  # error = FALSE,
+  warning = FALSE,
+  fig.align = "center"
+)
+options(width = 80)
+```
+
+**CellFunMap** provides methods for rapid, automated cell-type annotation across datasets without dependence on marker genes, reducing labor intensive and time-consuming work of manual markers collection and manual cell-type annotation.
+
+## Predict cell type of query data based on reference data
+
+```{r}
+library(CellFunMap)
+```
+
+Here, we take `pbmc3k.final` as the reference data:
+
+```{r}
+data('pbmc3k.final', package = "pbmc3k.SeuratData")
+unique(Seurat::Idents(pbmc3k.final))
+```
+
+To make things easier, we re-analyze and re-cluster `pbmc3k.final` as the query data, each cell owns a new cluster identity.
+
+```{r}
+SeuratObj <- readData(data = pbmc3k.final, type = 'Seurat', species = "Homo sapiens")
+SeuratObj <- CalMTpercent(SeuratObj, by = "use_internal_data")
+SeuratObj <- QCfun(SeuratObj, plot = F)
+SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 1, plot = FALSE)
+SeuratObj <- RunGSEA(SeuratObj, by = 'GO')
+unique(Seurat::Idents(SeuratObj))
+```
+
+It's convenient to transfer annotation from reference to query data:
+
+```{r}
+df <- predictFun(query_SeuratObj = SeuratObj, reference_SeuratObj = pbmc3k.final,
+                 group_by = 'seurat_annotations', cluster_by = 'seurat_clusters',
+                 species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM")
+df
+```
+
+To obtain the accuracy of prediction in this case, we identify the cell types of each cluster in query data based on ground-truth identity of each cell.
+
+```{r}
+mm <- table(SeuratObj$seurat_annotations, SeuratObj$seurat_clusters)
+nn <- setNames(rownames(mm)[apply(mm, 2, which.max)], colnames(mm))
+caret::confusionMatrix(data = as.factor(df$prediction), reference = as.factor(nn[df$query]))$overall[["Accuracy"]]
+```
+
+To improve accuracy of prediction, users can oversample the reference data. In this case, we skip this step because it can be time-consuming.
+
+```{r, eval = FALSE}
+reference_SeuratObj <- oversample_ref(reference_SeuratObj, number_clusters = 5,
+                                      group_by = 'cellType', cluster_by = 'seurat_clusters',
+                                      species = "Homo sapiens", by = 'GO', k = NULL, method = "VEM")
+predictFun(query_SeuratObj, reference_SeuratObj, group_by = 'seurat_annotations', cluster_by = 'seurat_clusters',
+           species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM")
+# if true labels of query data are provided, you can use caret::confusionMatrix to inspect the confusion matrix and accuracy
+caret::confusionMatrix(data = prediction , reference = true_label)
+caret::confusionMatrix(data = prediction , reference = true_label)$overall[["Accuracy"]]
+```
+

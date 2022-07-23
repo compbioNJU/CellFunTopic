@@ -1,0 +1,122 @@
+---
+title: "Visualizaiton of GSEA Result"
+output: html_document
+date: '`r Sys.Date()`'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  tidy = FALSE,
+  message = FALSE,
+  # error = FALSE,
+  warning = FALSE,
+  fig.align = "center"
+)
+options(width = 80)
+```
+
+
+```{r}
+library(CellFunMap)
+```
+
+First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](Pre-processing.html).
+
+```{r, echo = FALSE}
+data('pbmc3k.final', package = "pbmc3k.SeuratData")
+SeuratObj <- readData(data = pbmc3k.final, type = 'Seurat', species = "Homo sapiens")
+rm(pbmc3k.final); gc()
+SeuratObj <- CalMTpercent(SeuratObj, by = "use_internal_data")
+SeuratObj <- QCfun(SeuratObj, plot = F) # set plot = T if you want to get the QC reports.
+SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 1, plot = FALSE)
+SeuratObj <- RunGSEA(SeuratObj, by = 'GO')
+```
+
+**CellFunMap** provides a variety of meaningful visualization methods of GSEA Result, facilitating functional annotation of cell clusters in single cell data. What's more, the visualization can be explored interactively in the built-in shiny app, see [Visualize in Built-in Shiny APP](shiny_app.html).
+
+```{r, fig.height=10, fig.width=7}
+# Heatmap of GSEA result
+gseaHeatmap(SeuratObj, by = "GO", toshow = "-logFDR", topPath = 5, colour = "Greens", fontsize_row = 7)
+```
+
+```{r, fig.height=7, fig.width=7}
+# Helps to infer the relationship between clusters. Link width shows Pearson correlation or Jaccard coefficient between clusters, calculated with GSEA result. Node size indicates cell number of each cluster.
+clustercorplot(SeuratObj, by = "GO", link_threshold=0.3, vertex.label.cex=1, weight.scale=T)
+# clustercorplot_jaccard(SeuratObj, by = "GO", link_threshold=0.3, vertex.label.cex=1, weight.scale=T)
+```
+
+```{r, fig.height=7, fig.width=10}
+# show relationship between clusters and pathways
+hierarchyplot_tree(SeuratObj, by = "GO", topaths = 5, cluster_cutree_k = 6, pathway_cutree_k = 10,
+                   vertex.label.cex=0.5, edge.max.width=1, vertex.size.cex=0.7)
+```
+
+```{r, fig.height=7, fig.width=7}
+# Scatter plot showing pathway enrichment score on cell map
+pathwayScatterplot(SeuratObj, by = "GO", reduction = "umap", pathwayID = "GO:0030217", pointsize = 0.5, label = F)
+```
+
+```{r, fig.height=7, fig.width=7}
+# Link width shows number of intersection of pathways between clusters
+circleplot(SeuratObj, by = "GO", pvaluecutoff = 0.001, link_threshold = 10)
+```
+
+```{r, fig.height=7, fig.width=11}
+# show embedded histogram or pie chart on UMAP/TSNE plot
+embeddedplot(SeuratObj, type = "pie")
+```
+
+```{r, fig.height=7, fig.width=11}
+embeddedplot(SeuratObj, topaths = 1, reduction = "umap", type = "hist")
+```
+
+```{r, fig.height=10, fig.width=10}
+# Network of cosine similarity between terms
+cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "GSEA result", GSEA_by = "GO",
+                    topn = 10, layout = "fr", cos_sim_thresh = 0.9, radius = 0.1, text_size = 2)
+```
+
+```{r, fig.height=7, fig.width=7}
+# Network showing cosine similarity between clusters according to GSEA result
+Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8, p.adjust_thresh=0.05, SEED=123,
+                     node.cex=6, width_range=c(0.8, 4), vertex.label.dist=0.5)
+```
+
+```{r, fig.height=7, fig.width=7}
+# Hierarchical edge bundling plots helps visualizing correlation or similarity between clusters
+SeuratObj$group <- 'majorcelltype' # edge_bundling_GSEA need major group information
+edge_bundling_GSEA(SeuratObj, link_threshold=0.7, p.adjust_thresh=0.05, link_width=0.9, method='cosine similarity', node.by='seurat_clusters', group.by="group")
+```
+
+```{r, fig.height=7, fig.width=7}
+# links show jaccard similarity coefficient (overlap of genes) between pathways.Pie charts show GSEA score of the pathway in clusters.
+emapplotPie(SeuratObj, node_size_cex = 1.5, showCategory = 3)
+```
+
+```{r, fig.height=7, fig.width=7}
+emapplot2(SeuratObj, cluster = unique(Seurat::Idents(SeuratObj))[1])
+```
+
+```{r, fig.height=9, fig.width=7}
+goplot2(SeuratObj, cluster = unique(Seurat::Idents(SeuratObj))[1])
+```
+
+```{r, fig.height=7, fig.width=7}
+# show pathways and genes in chord diagram
+GOcircleplot(SeuratObj, genes=NULL)
+```
+
+```{r, fig.height=7, fig.width=7}
+# boxplot showing enrichment score of child or parent GOs of specific GO
+GOboxplot(SeuratObj, goid = "GO:0030217", type = "child")
+```
+
+
+
+
+
+
+
+
+ 
+ 

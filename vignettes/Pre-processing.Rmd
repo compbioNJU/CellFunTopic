@@ -1,0 +1,71 @@
+---
+title: "Pre-processing"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  tidy = FALSE,
+  message = FALSE,
+  # error = FALSE,
+  warning = FALSE,
+  eval = FALSE,
+  fig.align = "center"
+)
+options(width = 80)
+```
+
+
+The **CellFunMap** package provides a convenient workflow for data pre-processing (quality control, normalization, dimension reduction, clustering, differential expression analysis, etc.) by integrating methods of `Seurat` package.
+
+```{r}
+library(CellFunMap)
+```
+
+## Load in the data
+
+CellFunMap allows various types of input, including CellRanger outputs, raw gene expression matrix, and popular R/python objects used for single cell analysis such as `SingleCellExperiment`, `Seurat`, `CellDataSet`, `AnnData`. CellFunMap will transform different input data into a `Seurat` object.
+
+Let us use `pbmc3k.final` as a toy example.
+
+```{r}
+data('pbmc3k.final', package = "pbmc3k.SeuratData")
+dim(pbmc3k.final)
+
+SeuratObj <- readData(data = pbmc3k.final, type = 'Seurat', species = "Homo sapiens")
+rm(pbmc3k.final); gc()
+```
+
+## Standard pre-processing workflow
+
+Then we can perform pre-processing conveniently. If users provide a pre-processed data, this step can be skipped.
+
+```{r}
+SeuratObj <- CalMTpercent(SeuratObj, by = "use_internal_data")
+SeuratObj <- QCfun(SeuratObj, plot = F) # set plot = T if you want to get the QC reports.
+SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 1, plot = FALSE)
+unique(Seurat::Idents(SeuratObj)) # see how many clusters we got.
+```
+
+## Gene Set Enrichment Analysis (GSEA)
+
+Then we perform Gene Set Enrichment Analysis (GSEA) on the `Seurat` object. CellFunMap provides a encapsulated function for GSEA with different databases such as GO (Gene Ontology), KEGG, Reactome, MSigDb, WikiPathways, DO, NCG, DGN.
+
+```{r}
+SeuratObj <- RunGSEA(SeuratObj, by = 'GO')
+
+# save object for later use.
+save(SeuratObj, file = "SeuratObj.RData")
+```
+
+
+
+
+
+
+
+
+
+
+

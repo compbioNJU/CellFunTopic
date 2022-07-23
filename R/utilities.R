@@ -184,3 +184,24 @@ get_kegg_code <- function(species) {
 }
 
 
+#' Get pathway IDs and their corresponding description
+#'
+#' @param SeuratObj Object of class "Seurat"
+#' @param by "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ID2Description(SeuratObj, by = "GO")
+#' ID2Description(SeuratObj, by = "KEGG")
+#' }
+#'
+ID2Description <- function(SeuratObj, by = "GO") {
+  by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
+  GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
+  pws <- GSEAresult %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
+  return(pws)
+}
+
+
