@@ -79,3 +79,6 @@ Suggests:
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
+URL: https://github.com/xiaobaicainiao666/CellFunMap
+BugReports: https://github.com/xiaobaicainiao666/CellFunMap/issues
+
