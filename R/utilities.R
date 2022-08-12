@@ -3,7 +3,6 @@
 #'
 #' @param species such as "Homo sapiens"
 #'
-#' @return
 #'
 getOrgDb <- function(species) {
   spes <- c("Anopheles gambiae",
@@ -39,11 +38,10 @@ getOrgDb <- function(species) {
 
 #' Get OrgDb of a species from package AnnotationHub
 #'
-#' @param species
+#' @param species species name
 #'
 #' @importFrom AnnotationHub AnnotationHub query
 #'
-#' @return
 #'
 getOrgDb_AH <- function(species) {
 
@@ -62,11 +60,10 @@ getOrgDb_AH <- function(species) {
 
 #' Get EnsDb of a species from package AnnotationHub
 #'
-#' @param species
+#' @param species species name
 #'
 #' @importFrom AnnotationHub AnnotationHub query
 #'
-#' @return
 #'
 getEnsDb_AH <- function(species) {
   if (!requireNamespace('AnnotationHub', quietly = TRUE)) {
@@ -85,9 +82,8 @@ getEnsDb_AH <- function(species) {
 
 #' require OrgDb Package of a species
 #'
-#' @param species
+#' @param species species name
 #'
-#' @return
 #'
 requireOrgDb <- function(species) {
   OrgDb <- org2db(species)
@@ -98,9 +94,8 @@ requireOrgDb <- function(species) {
 
 #' get OrgDb name according to species
 #'
-#' @param species
+#' @param species species name
 #'
-#' @return
 #'
 org2db <- function(species) {
   OrgDb <- switch(species,
@@ -133,9 +128,8 @@ org2db <- function(species) {
 #' get 'organism' that ReactomePA::gsePathway needs.
 #'
 #' change latin name of species to trivial name
-#' @param species
+#' @param species species name
 #'
-#' @return
 #'
 speToOrg <- function(species) {
   species <- gsub(" ", "_", species)
@@ -168,11 +162,10 @@ speToOrg <- function(species) {
 
 #' Get scientific name abbreviate(kegg_code) used in the 'organism' parameter of gseKEGG function
 #'
-#' @param species
+#' @param species species name
 #'
 #' @importFrom clusterProfiler search_kegg_organism
 #'
-#' @return
 #'
 get_kegg_code <- function(species) {
   result <- search_kegg_organism(species, by='scientific_name')
@@ -203,5 +196,25 @@ ID2Description <- function(SeuratObj, by = "GO") {
   pws <- GSEAresult %>% dplyr::select(ID, Description) %>% unique %>% tibble::deframe()
   return(pws)
 }
+
+
+# Calculate nCount and nFeature
+#
+# @param object An Assay object
+caln <- function(object) {
+  return(list(
+    nCount = Matrix::colSums(x = GetAssayData(object = object, slot = 'counts')),
+    nFeature = Matrix::colSums(x = GetAssayData(object = object, slot = 'counts') > 0)
+  ))
+}
+
+
+
+
+
+
+
+
+
 
 

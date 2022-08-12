@@ -9,9 +9,6 @@ DetectGeneIDtype(SeuratObj)
 \arguments{
 \item{SeuratObj}{Seurat object}
 }
-\value{
-
-}
 \description{
 Detect the gene ID type of Seurat object
 }

@@ -12,7 +12,7 @@ CalMTpercent(SeuratObj, by = "use_internal_data")
 \item{by}{use_internal_data AnnotationHub biomaRt}
 }
 \value{
-
+Seurat object
 }
 \description{
 Calculate the proportion of transcripts mapping to mitochondrial genes

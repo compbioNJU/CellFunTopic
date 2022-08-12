@@ -35,9 +35,6 @@ goplot2(
 
 \item{label_size}{size of label}
 }
-\value{
-
-}
 \description{
 Hierarchy chart of GO
 }

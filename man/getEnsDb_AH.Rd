@@ -7,10 +7,7 @@
 getEnsDb_AH(species)
 }
 \arguments{
-\item{species}{}
-}
-\value{
-
+\item{species}{species name}
 }
 \description{
 Get EnsDb of a species from package AnnotationHub

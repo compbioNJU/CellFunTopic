@@ -7,10 +7,7 @@
 get_kegg_code(species)
 }
 \arguments{
-\item{species}{}
-}
-\value{
-
+\item{species}{species name}
 }
 \description{
 Get scientific name abbreviate(kegg_code) used in the 'organism' parameter of gseKEGG function

@@ -37,18 +37,17 @@ It specifies how the vertices will be placed on the plot.}
 
 \item{text_size}{size of text}
 
-\item{vertex.label.dist}{}
-}
-\value{
-
+\item{vertex.label.dist}{The distance of the label from the center of the vertex.}
 }
 \description{
 Network showing cosine similarity between clusters according to GSEA result
 }
 \examples{
 \dontrun{
-Cosine_networkByGSEA(SeuratObj, layout=layout_nicely, cos_sim_thresh=0.6, p.adjust_thresh=0.05, SEED=123, node.cex=3, width_range=c(0.1, 0.8))
-Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8, p.adjust_thresh=0.05, SEED=123, node.cex=5, width_range=c(0.8, 4))
+Cosine_networkByGSEA(SeuratObj, layout=layout_nicely, cos_sim_thresh=0.6,
+                     p.adjust_thresh=0.05, SEED=123, node.cex=3, width_range=c(0.1, 0.8))
+Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8,
+                     p.adjust_thresh=0.05, SEED=123, node.cex=5, width_range=c(0.8, 4))
 }
 
 

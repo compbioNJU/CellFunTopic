@@ -7,14 +7,15 @@
 #' @param type 10X, 10X_h5, expMatrix, SingleCellExperiment, Seurat, CellDataSet, AnnData, loom
 #' @param meta.data Additional cell-level metadata to add to the Seurat object. Should be a data frame where the rows are cell names and the columns are additional metadata fields.
 #' @param species Species name, such as Homo sapiens or Mus musculus.
-#' @importFrom Seurat Read10X CreateSeuratObject as.Seurat ReadH5AD
+#' @importFrom Seurat Read10X CreateSeuratObject as.Seurat ReadH5AD Read10X_h5
 #'
 #' @return Seurat object
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' SeuratObj <- CellFunMap::readData(data = "~/outs/filtered_gene_bc_matrices/GRCh38/", type = "10X", species = "Homo sapiens")
+#' SeuratObj <- CellFunMap::readData(data = "~/outs/filtered_gene_bc_matrices/GRCh38/",
+#'                                   type = "10X", species = "Homo sapiens")
 #' SeuratObj <- CellFunMap::readData(data = counts, type = 'expMatrix', species = "Homo sapiens")
 #' }
 #'
@@ -32,7 +33,7 @@ readData <- function(data,
     counts <- Read10X(data.dir = data)
     SeuratObj <- CreateSeuratObject(counts = counts, meta.data = meta.data)
     } else if (type == "10X_h5") {
-      counts <- Read10X_h5(file = data)
+      counts <- Read10X_h5(filename = data)
       SeuratObj <- CreateSeuratObject(counts = counts, meta.data = meta.data)
     }  else if (type == "expMatrix") {
       if (!inherits(x = data, what = c('matrix', 'Matrix', 'dgCMatrix', 'data.frame'))) {

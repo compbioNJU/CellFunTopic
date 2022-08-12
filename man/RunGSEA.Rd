@@ -30,7 +30,7 @@ RunGSEA(
 \item{subcategory}{MSigDB sub-collection abbreviation, such as CGP or BP.}
 }
 \value{
-
+Seurat object
 }
 \description{
 Perform Gene Set Enrichment Analysis (GSEA) on Seurat object. GSEA is implemented using clusterProfiler package.

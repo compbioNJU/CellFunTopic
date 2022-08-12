@@ -10,7 +10,8 @@ runLDA(
   k = NULL,
   method = "VEM",
   SEED = 1234,
-  plot = TRUE
+  plot = TRUE,
+  BP.only = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ runLDA(
 \item{SEED}{seed}
 
 \item{plot}{whether or not to plot metrics used to decide the number of topics}
+
+\item{BP.only}{use only pathways of Biological Process (BP) to run topic modeling. Take effect when by = "GO".}
 }
 \value{
 a Seurat object with topic modeling result stored in the \code{SeuratObj@misc$ldaOut}

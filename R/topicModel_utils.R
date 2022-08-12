@@ -17,12 +17,12 @@
 #' }
 #'
 #'
-lda.rep<-function(dtm, max.k=5, method='VEM', SEED=1234){
-  cat('Calculating Metrics to choose the best number of topics.\n')
+lda.rep <- function(dtm, max.k=5, method='VEM', SEED=1234){
+  message('Calculating Metrics to choose the best number of topics......')
   # model<-vector('list')
   perp <- loglik <- alpha <- entropy <- cosine <- c()
   for(i in 2:max.k){
-    cat('---------------- k=',i,' --------------\n')
+    message('---------------- k=',i,' --------------')
     # model[[i-1]] <- LDA(dtm, k = i, method = method, control = list(seed = SEED, verbose=0))
     modell <- topicmodels::LDA(dtm, k = i, method = method, control = list(seed = SEED, verbose=0))
     perp[i-1] <- topicmodels::perplexity(modell)  # perplexity
@@ -62,7 +62,7 @@ plotindex <- function(ldas) {
                  type=rep(c('perplexity', 'loglikelihood', 'cosine similarity'), each=n-1))
   ggplot(est, aes(x, y, color=type)) +
     geom_line() + geom_point()+ scale_x_continuous(breaks = 0:n) +
-    facet_wrap(~ type, scales = "free", ncol=3)+
+    facet_wrap(~ type, scales = "free", nrow=3)+
     labs(x = "number of topic")
 }
 
@@ -75,6 +75,7 @@ plotindex <- function(ldas) {
 #' @param method method used for fitting a LDA model; currently "VEM" or "Gibbs" are supported.
 #' @param SEED seed
 #' @param plot whether or not to plot metrics used to decide the number of topics
+#' @param BP.only use only pathways of Biological Process (BP) to run topic modeling. Take effect when by = "GO".
 #'
 #' @return a Seurat object with topic modeling result stored in the \code{SeuratObj@misc$ldaOut}
 #' @export
@@ -87,9 +88,12 @@ plotindex <- function(ldas) {
 #' }
 #'
 #'
-runLDA <- function(SeuratObj, by = "GO", k=NULL, method='VEM', SEED=1234, plot=TRUE) {
+runLDA <- function(SeuratObj, by = "GO", k=NULL, method='VEM', SEED=1234, plot=TRUE, BP.only = FALSE) {
   by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
   GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]]
+  if ((by == "GO") & BP.only) {
+    GSEAresult <- GSEAresult[GSEAresult$ONTOLOGY == "BP", ]
+  }
   #create a DocumentTermMatrix
   dd <- GSEAresult %>% dplyr::mutate(score = as.integer(-log2(p.adjust)))
   dtm <- tidytext::cast_dtm(data = dd, document = cluster, term = ID, value = score)
@@ -104,9 +108,9 @@ runLDA <- function(SeuratObj, by = "GO", k=NULL, method='VEM', SEED=1234, plot=T
     bestK1 <- seq(2,max.k)[which.min(ldas$perp)]
     bestK2 <- seq(2,max.k)[which.max(ldas$loglik)]
     k <- min(bestK1, bestK2)
-    cat('The number of topics is set to', k, '.\n')
+    message('The number of topics is set to ', k)
     if (plot) {
-      plotindex(ldas)
+      print(plotindex(ldas))
     }
   }
   ldaOut <- topicmodels::LDA(dtm, k = k, method = method, control = list(seed = SEED))
@@ -115,7 +119,7 @@ runLDA <- function(SeuratObj, by = "GO", k=NULL, method='VEM', SEED=1234, plot=T
 }
 
 
-#' barplot to show top terms of every topic
+#' barplot to show top terms of each topic
 #'
 #' @param betaDF topic~term probability data.frame
 #' @param topics topics to show
@@ -123,6 +127,7 @@ runLDA <- function(SeuratObj, by = "GO", k=NULL, method='VEM', SEED=1234, plot=T
 #' @param axis.text.y.size size of y axis text
 #'
 #' @importFrom dplyr filter group_by slice_max ungroup
+#' @importFrom stats reorder
 #'
 #' @return ggplot object
 #' @export
@@ -143,20 +148,53 @@ hist_topic_term <- function(betaDF, topics, topn=5, axis.text.y.size=5) {
   top_terms <- betaDF %>% dplyr::filter(topic %in% topics) %>%
     group_by(topic) %>% slice_max(order_by = beta, n=topn, with_ties=F) %>% ungroup()
   pp <- top_terms %>%
-    mutate(descrip = reorder(descrip, beta)) %>%
-    ggplot(aes(descrip,beta,fill=factor(topic))) +
+    ggplot(aes(x = reorder(descrip, beta), y = beta, fill = factor(topic))) +
     geom_bar(stat="identity") +
     coord_flip(expand = TRUE) +
     labs(title = paste0("Top ", topn, " terms of Topics ", paste(topics, collapse=",")), fill="topic", x="terms", y="probability") +
     facet_wrap(~ topic, scales = "free", ncol=2) +
-    theme(axis.text.y = element_text(size=axis.text.y.size),
+    theme(axis.text.y = element_text(size=axis.text.y.size, color="black"),
           # axis.text.x = element_text(size=5),
           panel.background = element_blank(),
-          panel.border=element_rect(fill="transparent",color="black"),
+          panel.border=element_rect(fill="transparent", color="black"),
           strip.background = element_rect(fill = "light gray", color = "black"),
-          plot.title = element_text(lineheight = 610,colour = "black",size = 15))
+          plot.title = element_text(lineheight = 610, colour = "black", size = 15))
   return(pp)
 }
+
+
+#' Show top terms of each topic
+#'
+#' @param betaDF topic~term probability data.frame
+#' @param Topic topic to show
+#' @param topn top n terms of topic
+#' @param text.size size of text
+#'
+#' @return ggplot object
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ldaOut <- SeuratObj@misc$ldaOut
+#' betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
+#' pws <- ID2Description(SeuratObj, by = "GO")
+#' betaDF %<>% dplyr::mutate(descrip=unname(pws[term]))
+#' Topterms_Topic(betaDF, Topic = 1, topn = 10, text.size = 3)
+#' }
+#'
+Topterms_Topic <- function(betaDF, Topic, topn = 10, text.size = 3) {
+  top_terms <- betaDF %>% dplyr::group_by(topic) %>% dplyr::slice_max(order_by = beta, n = topn, with_ties=F) %>%
+    dplyr::ungroup()
+  pp <- top_terms %>% dplyr::filter(topic == Topic) %>% dplyr::mutate(descrip = reorder(descrip, beta)) %>%
+    ggplot(aes(x=1, y=descrip)) + geom_point(aes(size=beta)) +
+    geom_text(aes(label=descrip), hjust=0, vjust=0.5, nudge_x =0.2, color="black", size=text.size) +
+    xlim(c(0,5)) + theme_classic() + Seurat::NoAxes() + Seurat::NoLegend() +
+    ggtitle(paste0("Topic ", Topic)) + theme(plot.title = element_text(size = 10, hjust = 0.5, face = "bold")) +
+    coord_cartesian(clip = "off")
+  return(pp)
+}
+
+
 
 #' barplot to show probability of assigned topics in clusters
 #'
@@ -181,7 +219,7 @@ hist_cluster_topic <- function(gammaDF, clusters) {
     coord_flip() +
     facet_wrap(~ document, ncol=3) +
     labs(fill="topic", x="topic") +
-    theme(axis.text.y = element_text(size=11),
+    theme(axis.text.y = element_text(size=11, color = "black"),
           axis.text.x = element_text(size=10),
           panel.background = element_blank(),
           panel.border=element_rect(fill="transparent",color="black"),
@@ -197,8 +235,8 @@ hist_cluster_topic <- function(gammaDF, clusters) {
 #' @param topn number of top terms of each topic
 #'
 #' @importFrom igraph graph_from_data_frame
+#' @importFrom stats embed
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -232,7 +270,6 @@ topicNW1 <- function(betaDF, topn) {
 #'
 #' @importFrom igraph graph_from_data_frame
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -460,7 +497,6 @@ wordcloud_topic_3D <- function(betaDF, pws, topic, topn=20) {
 #' @importFrom networkD3 sankeyNetwork
 #' @importFrom dplyr group_by slice_max ungroup mutate n
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -491,10 +527,10 @@ plot_sankey <- function(gammaDF, topn=1, plotHeight=600) {
 #' Each point represents clusters. Point color indicates the topic with the highest probability of each cluster.
 #'
 #' @param ldaOut topic modeling result
+#' @param label.size size of labels
 #'
 #' @importFrom modeltools posterior
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -504,7 +540,7 @@ plot_sankey <- function(gammaDF, topn=1, plotHeight=600) {
 #' }
 #'
 #'
-umap_cluster <- function(ldaOut) {
+umap_cluster <- function(ldaOut, label.size = 3) {
   mat <- posterior(ldaOut)$topics  # cluster-topic probability matrix
   em <- uwot::umap(mat, n_neighbors = 3)
   colnames(x = em) <- paste0("UMAP_", 1:ncol(x = em))
@@ -519,7 +555,7 @@ umap_cluster <- function(ldaOut) {
     scale_color_manual(name="topic", values=setNames(scPalette2(ncol(mat)), colnames(mat))) +
     guides(color=guide_legend(title = "topic", override.aes = list(size=3))) +
     # geom_text(inherit.aes = T, aes(label=cluster), size=3) + #coord_fixed() +
-    ggrepel::geom_text_repel(aes(label=cluster), max.overlaps = 20, segment.colour="black") +
+    ggrepel::geom_text_repel(aes(label=cluster), max.overlaps = 50, segment.colour="black", size = label.size) +
     ggtitle("UMAP on cluster-topic probability matrix")
   return(pp)
 }
@@ -528,10 +564,11 @@ umap_cluster <- function(ldaOut) {
 #' Heatmap showing probability between topics and clusters
 #'
 #' @param ldaOut topic modeling result
+#' @param cluster_rows boolean values determining if rows should be clustered.
+#' @param cluster_cols boolean values determining if columns should be clustered.
 #'
 #' @importFrom modeltools posterior
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -544,7 +581,7 @@ umap_cluster <- function(ldaOut) {
 cluster_topic_hmp <- function(ldaOut, cluster_rows = T, cluster_cols = T) {
   mm <- posterior(ldaOut)$topics
   colnames(mm) <- paste0('Topic ', colnames(mm))
-  pheatmap::pheatmap(mm, cluster_rows = cluster_rows, cluster_cols = cluster_cols, angle_col = "0", main = "probability between topic and cluster",
+  pheatmap::pheatmap(mm, cluster_rows = cluster_rows, cluster_cols = cluster_cols, angle_col = "45", main = "probability between topic and cluster",
                      color = colorRampPalette(c('white', brewer.pal(n=9,name="OrRd")))(100))
 }
 
@@ -573,6 +610,30 @@ cosineheatmap <- function(ldaOut) {
                      fontsize = 9, main = "cosine similarity between topics")#, cellwidth = 30, cellheight = 30)
 }
 
+#' Heatmap showing cosine similarity between clusters
+#'
+#' calculated by topic~cluster probability matrix
+#'
+#' @param ldaOut topic modeling result
+#'
+#' @importFrom modeltools posterior
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ldaOut <- SeuratObj@misc$ldaOut
+#' cosinehmp_cluster(ldaOut)
+#' }
+#'
+cosinehmp_cluster <- function(ldaOut) {
+  mm <- posterior(ldaOut)$topics
+  cc <- suppressMessages(philentropy::distance(mm, method = "cosine"))
+  rownames(cc) <- colnames(cc) <- rownames(mm)
+  pheatmap::pheatmap(cc, color = colorRampPalette(rev(c("#000000", "#9932CC", "#EF3B2C","#FFFFCC")))(100), angle_col = "45",
+                     fontsize = 9, main = "cosine similarity between clusters")
+}
+
 
 #' Network showing cosine similarity between clusters
 #'
@@ -584,6 +645,7 @@ cosineheatmap <- function(ldaOut) {
 #' @param SEED seed
 #' @param radius node pie radius
 #' @param width_range range of width of edges
+#' @param text_size size of labels
 #'
 #' @importFrom igraph graph_from_data_frame
 #' @importFrom ggraph ggraph geom_edge_link scale_edge_width_continuous
@@ -596,8 +658,10 @@ cosineheatmap <- function(ldaOut) {
 #' @examples
 #' \dontrun{
 #' ldaOut <- SeuratObj@misc$ldaOut
-#' cosine_network_cluster(ldaOut, layout="circle", cos_sim_thresh=0.2, SEED=123, radius=0.12, width_range=c(0.1, 0.8))
-#' cosine_network_cluster(ldaOut, layout="fr", cos_sim_thresh=0.2, SEED=123, radius=0.12, width_range=c(0.1, 0.8))
+#' cosine_network_cluster(ldaOut, layout="circle", cos_sim_thresh=0.2, SEED=123,
+#'                        radius=0.12, width_range=c(0.1, 0.8))
+#' cosine_network_cluster(ldaOut, layout="fr", cos_sim_thresh=0.2, SEED=123,
+#'                        radius=0.12, width_range=c(0.1, 0.8))
 #' }
 #'
 cosine_network_cluster <- function(ldaOut,
@@ -665,11 +729,14 @@ cosine_network_cluster <- function(ldaOut,
 #'
 #' @examples
 #' \dontrun{
-#' cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", pie_by = "Topic modeling", GSEA_by = "GO",
-#'    topn = 10, layout = "fr", cos_sim_thresh = 0.8, radius = 0.1, text_size = 2)
-#' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "GSEA result", GSEA_by = "GO")
+#' cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", pie_by = "Topic modeling",
+#'                     GSEA_by = "GO", topn = 10, layout = "fr", cos_sim_thresh = 0.8,
+#'                     radius = 0.1, text_size = 2)
+#' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result",
+#'                     pie_by = "GSEA result", GSEA_by = "GO")
 #' # edge(cosine similarity calculation) and node pie information could be different.
-#' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "Topic modeling", GSEA_by = "GO")
+#' cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result",
+#'                     pie_by = "Topic modeling", GSEA_by = "GO")
 #' }
 #'
 #'
@@ -763,7 +830,7 @@ cosine_network_term <- function(SeuratObj,
 #'
 #' @importFrom modeltools posterior
 #'
-#' @return
+#' @return ggplot object
 #' @export
 #'
 #' @examples

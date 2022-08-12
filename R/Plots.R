@@ -79,8 +79,9 @@ gseaHeatmap <- function(SeuratObj, by = "GO", pathwayIDs = NULL, toshow = "-logF
 #' @param link_threshold only show links whose intersection number bigger than this threshold
 #'
 #' @importFrom circlize chordDiagram circos.clear
+#' @importFrom utils combn
+#' @importFrom stats setNames
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -163,8 +164,8 @@ circleplot <- function(SeuratObj, by = "GO", pvaluecutoff = 0.01, pathwayIDs = N
 #' @param link_threshold only show links whose correlation/Jaccard-index bigger than this threshold
 #'
 #' @import igraph
+#' @importFrom stats cor
 #'
-#' @return
 #' @rdname clustercorplot
 #' @export
 #'
@@ -380,8 +381,10 @@ clustercorplot_jaccard <- function(SeuratObj, by = "GO", pathwayIDs = NULL, colo
 #' @param vertex.label.color color of label of nodes, 'black' by default
 #' @param alpha.edge transparency of edge color
 #'
+#' @importFrom graphics arrows layout par plot points rect text
+#' @importFrom stats as.dendrogram cutree dist hclust
 #'
-#' @return
+#'
 #' @export
 #'
 #' @examples
@@ -646,8 +649,8 @@ hierarchyplot_tree <- function(SeuratObj, by = "GO", pathwayIDs = NULL, topaths 
 #' @importFrom magrittr `%<>%`
 #' @importFrom cowplot ggdraw draw_plot
 #' @importFrom scatterpie geom_scatterpie
+#' @importFrom stats median setNames
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -874,10 +877,9 @@ prepare_pie_category <- function(y, pie = "-log10FDR") {
 #'
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text
 #' @importFrom scatterpie geom_scatterpie geom_scatterpie_legend
+#' @importFrom plyr ddply .
 #' @import igraph
-#' @import plyr
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -1016,7 +1018,6 @@ emapplotPie <- function(SeuratObj, by = "GO", pathwayIDs = NULL, showCategory = 
 #' @import igraph
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_label geom_node_text
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -1128,8 +1129,8 @@ getAncestors <- function(ont) {
 #'
 #' @import igraph
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_label geom_node_text
+#' @importFrom utils getFromNamespace
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -1223,7 +1224,6 @@ goplot2 <- function(SeuratObj, cluster = NULL, pathwayIDs = NULL, ont = "BP", sh
 #' @param label.size size of label
 #'
 #' @import ggplot2
-#' @return
 #' @export
 #'
 #' @examples
@@ -1287,7 +1287,6 @@ pathwayScatterplot <- function(SeuratObj, by = "GO", pathwayID = NULL, reduction
 #' @param pointsize size of point
 #' @param flip whether to flip the coordinates
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -1334,19 +1333,20 @@ GOboxplot <- function(SeuratObj, goid = NULL, type = "child", pointsize = 1, fli
 #' @param node.cex node size
 #' @param width_range range of width of links
 #' @param text_size size of text
-#' @param vertex.label.dist
+#' @param vertex.label.dist The distance of the label from the center of the vertex.
 #'
 #' @import igraph
 #' @importFrom widyr pairwise_similarity
 #' @importFrom magrittr set_colnames `%<>%`
 #'
-#' @return
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' Cosine_networkByGSEA(SeuratObj, layout=layout_nicely, cos_sim_thresh=0.6, p.adjust_thresh=0.05, SEED=123, node.cex=3, width_range=c(0.1, 0.8))
-#' Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8, p.adjust_thresh=0.05, SEED=123, node.cex=5, width_range=c(0.8, 4))
+#' Cosine_networkByGSEA(SeuratObj, layout=layout_nicely, cos_sim_thresh=0.6,
+#'                      p.adjust_thresh=0.05, SEED=123, node.cex=3, width_range=c(0.1, 0.8))
+#' Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8,
+#'                      p.adjust_thresh=0.05, SEED=123, node.cex=5, width_range=c(0.8, 4))
 #' }
 #'
 #'
@@ -1401,15 +1401,17 @@ Cosine_networkByGSEA <- function(SeuratObj,
 #' @param method one of \code{c('cosine similarity', 'pearson', 'spearman')}
 #'
 #' @importFrom igraph graph_from_data_frame
-#' @import ggraph
+#' @importFrom plyr ddply .
+#' @importFrom ggraph ggraph get_con geom_conn_bundle scale_edge_color_distiller geom_node_text geom_node_point
 #'
-#' @return
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05, method='cosine similarity', node.by='cluster', group.by='cellType')
-#' edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05, method='pearson', node.by='cluster', group.by='cellType')
+#' edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05,
+#'              method='cosine similarity', node.by='cluster', group.by='cellType')
+#' edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05,
+#'              method='pearson', node.by='cluster', group.by='cellType')
 #' }
 #'
 edge_bundling_GSEA <- function(SeuratObj, by = "GO", link_threshold=0.6, link_width=0.9, p.adjust_thresh=0.05,
@@ -1485,9 +1487,8 @@ edge_bundling_GSEA <- function(SeuratObj, by = "GO", link_threshold=0.6, link_wi
 #' @param SeuratObj Seurat object
 #' @param genes genes to draw
 #'
-#' @import circlize
+#' @importFrom circlize circos.par chordDiagram circos.trackPlotRegion get.cell.meta.data circlize circos.text circos.clear
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -1552,9 +1553,6 @@ GOcircleplot <- function(SeuratObj, genes=NULL) {
 #' @param showCategory  number of top pathways of each cluster
 #' @param GO_ont Gene Ontology
 #'
-#' @import simplifyEnrichment
-#'
-#' @return
 #' @export
 #'
 #' @examples
@@ -1579,16 +1577,16 @@ simplifyEnrichmentplot <- function(SeuratObj, by = "GO", pathwayIDs = NULL, show
   }
 
   if (by == "GO") {
-    mat <- GO_similarity(pathwayIDs, ont = GO_ont)
-    simplifyGO(mat, verbose = FALSE)
+    mat <- simplifyEnrichment::GO_similarity(pathwayIDs, ont = GO_ont)
+    simplifyEnrichment::simplifyGO(mat, verbose = FALSE)
   } else if (by == "KEGG") {
-    mat <- term_similarity_from_KEGG(pathwayIDs)
-    simplifyEnrichment(mat, verbose = FALSE)
+    mat <- simplifyEnrichment::term_similarity_from_KEGG(pathwayIDs)
+    simplifyEnrichment::simplifyEnrichment(mat, verbose = FALSE)
   } else if (by == "Reactome") {
-    mat <- term_similarity_from_Reactome(pathwayIDs)
-    simplifyEnrichment(mat, verbose = FALSE)
+    mat <- simplifyEnrichment::term_similarity_from_Reactome(pathwayIDs)
+    simplifyEnrichment::simplifyEnrichment(mat, verbose = FALSE)
   } else if (by == "MSigDb") {
-    mat <- term_similarity_from_MSigDB(pathwayIDs)
-    simplifyEnrichment(mat, verbose = FALSE)
+    mat <- simplifyEnrichment::term_similarity_from_MSigDB(pathwayIDs)
+    simplifyEnrichment::simplifyEnrichment(mat, verbose = FALSE)
   }
 }

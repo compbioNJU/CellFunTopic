@@ -1,8 +1,13 @@
 ---
 title: "Transfer topic model and visualization"
-output: html_document
 date: '`r Sys.Date()`'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Transfer topic model and visualization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -26,7 +31,6 @@ CellFunMap provides built-in reference topic models for users to take advantage 
 ```{r, eval = FALSE}
 ?HCL_ldaOut
 ?MCA_ldaOut
-# SeuratObj <- transfer_LDA(query_SeuratObj = SeuratObj, ref_ldaOUt = HCL_ldaOut, by = "GO")
 ```
 
 CellFunMap also provides methods for users to make their own reference topic models. 
@@ -37,7 +41,7 @@ Let us take `pbmc3k.final` as example to show how to make a reference topic mode
 
 Make a reference topic model out of `pbmc3k.final` with the ground-truth cell type.
 
-```{r}
+```{r, eval = FALSE}
 data('pbmc3k.final', package = "pbmc3k.SeuratData")
 reference_SeuratObj <- readData(data = pbmc3k.final, type = 'Seurat', species = "Homo sapiens")
 reference_SeuratObj <- DetectGeneIDtype(reference_SeuratObj)
@@ -46,24 +50,39 @@ slot(object = reference_SeuratObj, name = 'misc')[["Allmarkers"]] <- SeuratObj.m
 reference_SeuratObj <- RunGSEA(reference_SeuratObj, by = 'GO')
 k <- length(unique(Seurat::Idents(reference_SeuratObj)))
 reference_SeuratObj <- runLDA(reference_SeuratObj, by = "GO", k = k, method = "VEM", SEED = 1234, plot = F)
-unique(Seurat::Idents(reference_SeuratObj))
+```
+
+```{r, echo = FALSE}
+reference_SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_original.rds")
+```
+
+```{r}
+table(Seurat::Idents(reference_SeuratObj))
 ```
 
 Re-analyze and re-cluster `pbmc3k.final` as the query data, each cell owns a new cluster identity.
 
-```{r}
+```{r, eval = FALSE}
 SeuratObj <- readData(data = pbmc3k.final, type = 'Seurat', species = "Homo sapiens")
-rm(pbmc3k.final); gc()
 SeuratObj <- CalMTpercent(SeuratObj, by = "use_internal_data")
 SeuratObj <- QCfun(SeuratObj, plot = F)
 SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 1, plot = FALSE)
 SeuratObj <- RunGSEA(SeuratObj, by = 'GO')
-unique(Seurat::Idents(SeuratObj))
 ```
+
+```{r, echo = FALSE}
+SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
+```
+
+```{r}
+# check the new clustering
+table(Seurat::Idents(SeuratObj))
+```
+
 
 Transfer topic model from reference data to query data.
 
-```{r}
+```{r, eval = FALSE}
 ref_ldaOUt <- reference_SeuratObj@misc$ldaOut
 SeuratObj <- transfer_LDA(query_SeuratObj = SeuratObj, ref_ldaOUt = ref_ldaOUt, by = "GO")
 ```
@@ -110,10 +129,6 @@ cosine_heatmap2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="q
 ```{r, fig.height=7, fig.width=7}
 cosine_hive(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_")
 ```
-
-
-
-
 
 
 

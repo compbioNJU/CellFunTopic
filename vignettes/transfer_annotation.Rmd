@@ -1,13 +1,18 @@
 ---
 title: "Transfer annotation from reference to query data"
-output: html_document
 date: '`r Sys.Date()`'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Transfer annotation from reference to query data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   tidy = FALSE,
-  message = FALSE,
+  message = T,
   # error = FALSE,
   warning = FALSE,
   fig.align = "center"
@@ -32,14 +37,23 @@ unique(Seurat::Idents(pbmc3k.final))
 
 To make things easier, we re-analyze and re-cluster `pbmc3k.final` as the query data, each cell owns a new cluster identity.
 
-```{r}
+```{r, eval = FALSE}
 SeuratObj <- readData(data = pbmc3k.final, type = 'Seurat', species = "Homo sapiens")
 SeuratObj <- CalMTpercent(SeuratObj, by = "use_internal_data")
 SeuratObj <- QCfun(SeuratObj, plot = F)
 SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 1, plot = FALSE)
 SeuratObj <- RunGSEA(SeuratObj, by = 'GO')
-unique(Seurat::Idents(SeuratObj))
 ```
+
+```{r, echo = FALSE}
+SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
+```
+
+```{r}
+# check the new clustering
+table(Seurat::Idents(SeuratObj))
+```
+
 
 It's convenient to transfer annotation from reference to query data:
 
@@ -70,4 +84,8 @@ predictFun(query_SeuratObj, reference_SeuratObj, group_by = 'seurat_annotations'
 caret::confusionMatrix(data = prediction , reference = true_label)
 caret::confusionMatrix(data = prediction , reference = true_label)$overall[["Accuracy"]]
 ```
+
+
+
+
 

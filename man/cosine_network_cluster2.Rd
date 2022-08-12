@@ -38,9 +38,6 @@ cosine_network_cluster2(
 
 \item{text_size}{text size}
 }
-\value{
-
-}
 \description{
 Network showing cosine similarity between reference data and query data,
 calculated with reference LDA model and transferred model.

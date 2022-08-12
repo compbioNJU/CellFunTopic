@@ -50,11 +50,14 @@ Node pie shows topic distribution of each term or enrichment score distribution 
 }
 \examples{
 \dontrun{
-cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", pie_by = "Topic modeling", GSEA_by = "GO",
-   topn = 10, layout = "fr", cos_sim_thresh = 0.8, radius = 0.1, text_size = 2)
-cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "GSEA result", GSEA_by = "GO")
+cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", pie_by = "Topic modeling",
+                    GSEA_by = "GO", topn = 10, layout = "fr", cos_sim_thresh = 0.8,
+                    radius = 0.1, text_size = 2)
+cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result",
+                    pie_by = "GSEA result", GSEA_by = "GO")
 # edge(cosine similarity calculation) and node pie information could be different.
-cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "Topic modeling", GSEA_by = "GO")
+cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result",
+                    pie_by = "Topic modeling", GSEA_by = "GO")
 }
 
 

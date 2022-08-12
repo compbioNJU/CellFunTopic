@@ -50,9 +50,6 @@ hierarchyplot_tree(
 
 \item{alpha.edge}{transparency of edge color}
 }
-\value{
-
-}
 \description{
 Hierarchical clustering of clusters and pathways according to GSEA result.
 If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.

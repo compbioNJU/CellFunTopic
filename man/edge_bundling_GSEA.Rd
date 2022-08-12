@@ -32,16 +32,15 @@ edge_bundling_GSEA(
 
 \item{group.by}{color each node by \code{group.by}, column of \code{SeuratObj@meta.data}}
 }
-\value{
-
-}
 \description{
 Hierarchical edge bundling plots helps visualizing correlation or similarity between clusters
 }
 \examples{
 \dontrun{
-edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05, method='cosine similarity', node.by='cluster', group.by='cellType')
-edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05, method='pearson', node.by='cluster', group.by='cellType')
+edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05,
+             method='cosine similarity', node.by='cluster', group.by='cellType')
+edge_bundling_GSEA(SeuratObj, link_threshold=0.6, p.adjust_thresh=0.05,
+             method='pearson', node.by='cluster', group.by='cellType')
 }
 
 }

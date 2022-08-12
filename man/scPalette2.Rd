@@ -9,9 +9,6 @@ scPalette2(n)
 \arguments{
 \item{n}{number of colors to generate}
 }
-\value{
-
-}
 \description{
 Generate colors from a customed color palette
 }

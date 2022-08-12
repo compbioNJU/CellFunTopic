@@ -2,7 +2,7 @@
 % Please edit documentation in R/topicModel_utils.R
 \name{hist_topic_term}
 \alias{hist_topic_term}
-\title{barplot to show top terms of every topic}
+\title{barplot to show top terms of each topic}
 \usage{
 hist_topic_term(betaDF, topics, topn = 5, axis.text.y.size = 5)
 }
@@ -19,13 +19,13 @@ hist_topic_term(betaDF, topics, topn = 5, axis.text.y.size = 5)
 ggplot object
 }
 \description{
-barplot to show top terms of every topic
+barplot to show top terms of each topic
 }
 \examples{
 \dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-pws <- SeuratObj@misc$GSEAresult_GO \%>\% dplyr::select(ID, Description) \%>\% unique \%>\% tibble::deframe()
+pws <- ID2Description(SeuratObj, by = "GO")
 betaDF \%<>\% dplyr::mutate(descrip=unname(pws[term]))
 hist_topic_term(betaDF, topics=1, topn=20, axis.text.y.size=5)
 hist_topic_term(betaDF, topics=c(1,2,3,4), topn=20, axis.text.y.size=5)

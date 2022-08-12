@@ -38,9 +38,6 @@ emapplot2(
 
 \item{cex_line}{width of edge}
 }
-\value{
-
-}
 \description{
 Code for plotting is a modified version of \code{enrichplot::emapplot()}.
 If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.

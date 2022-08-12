@@ -32,9 +32,6 @@ pathwayScatterplot(
 
 \item{label.size}{size of label}
 }
-\value{
-
-}
 \description{
 Scatter plot showing pathway enrichment score
 }

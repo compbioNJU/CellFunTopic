@@ -25,10 +25,7 @@ devtools::install_github("xiaobaicainiao666/CellFunMap")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+See website: https://xiaobaicainiao666.github.io/CellFunMap
 
-``` r
-library(CellFunMap)
-## basic example code
-```
+
 

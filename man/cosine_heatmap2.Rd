@@ -26,16 +26,14 @@ cosine_heatmap2(
 
 \item{fontsize}{font size}
 }
-\value{
-
-}
 \description{
 Heatmap showing cosine similarity or pearson correlation between reference data and query data
 }
 \examples{
 \dontrun{
 dist <- query_SeuratObj@misc$dist
-cosine_heatmap2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_", method="cosine")
+cosine_heatmap2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_",
+                b_prefix="query_", method="cosine")
 }
 
 

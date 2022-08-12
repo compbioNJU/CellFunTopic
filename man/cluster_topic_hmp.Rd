@@ -8,9 +8,10 @@ cluster_topic_hmp(ldaOut, cluster_rows = T, cluster_cols = T)
 }
 \arguments{
 \item{ldaOut}{topic modeling result}
-}
-\value{
 
+\item{cluster_rows}{boolean values determining if rows should be clustered.}
+
+\item{cluster_cols}{boolean values determining if columns should be clustered.}
 }
 \description{
 Heatmap showing probability between topics and clusters

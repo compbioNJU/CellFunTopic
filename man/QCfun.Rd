@@ -11,7 +11,7 @@ QCfun(
   minFeaturesPerCell = NULL,
   maxFeaturesPerCell = NULL,
   maxPercent.mt = NULL,
-  plot = TRUE
+  plot = FALSE
 )
 }
 \arguments{
@@ -26,16 +26,18 @@ QCfun(
 \item{maxFeaturesPerCell}{maxFeaturesPerCell}
 
 \item{maxPercent.mt}{maxPercent.mt}
+
+\item{plot}{whether to plot quality control results}
 }
 \value{
-
+Seurat object
 }
 \description{
 quality control according to 'nCount_RNA', 'nFeature_RNA', 'percent.mt', 'CellsPerGene'
 }
 \examples{
 \dontrun{
-SeuratObj <- QCfun(SeuratObj, plot = F)
+SeuratObj <- QCfun(SeuratObj)
 }
 
 }

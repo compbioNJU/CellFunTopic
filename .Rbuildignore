@@ -2,3 +2,8 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 .git
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+vignettes/
+vignette_data/

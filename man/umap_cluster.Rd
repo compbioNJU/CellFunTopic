@@ -4,13 +4,12 @@
 \alias{umap_cluster}
 \title{UMAP on cluster-topic probability matrix}
 \usage{
-umap_cluster(ldaOut)
+umap_cluster(ldaOut, label.size = 3)
 }
 \arguments{
 \item{ldaOut}{topic modeling result}
-}
-\value{
 
+\item{label.size}{size of labels}
 }
 \description{
 Each point represents clusters. Point color indicates the topic with the highest probability of each cluster.

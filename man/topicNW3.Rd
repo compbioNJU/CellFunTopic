@@ -20,7 +20,7 @@ echart4r network showing top terms of topics with tooltips showing description o
 \dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
 betaDF <- tidytext::tidy(ldaOut, matrix = "beta")
-pws <- SeuratObj@misc$GSEAresult_GO \%>\% dplyr::select(ID, Description) \%>\% unique \%>\% tibble::deframe()
+pws <- ID2Description(SeuratObj, by = "GO")
 topicNW3(betaDF, topn=10, pws)
 }
 

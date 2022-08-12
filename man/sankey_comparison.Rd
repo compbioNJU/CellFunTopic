@@ -29,9 +29,6 @@ sankey_comparison(
 
 \item{fontSize}{font size}
 }
-\value{
-
-}
 \description{
 After we transfer the reference LDA model to query data (\code{transfer_LDA()}), we can use this function to visualize
 the comparison of reference LDA model and query data.
@@ -39,7 +36,8 @@ the comparison of reference LDA model and query data.
 \examples{
 \dontrun{
 dist <- query_SeuratObj@misc$dist
-sankey_comparison(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_") \%>\% saveNetwork(file = "sankey_comparison.html")
+sankey_comparison(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_") \%>\%
+          saveNetwork(file = "sankey_comparison.html")
 }
 
 

@@ -92,9 +92,6 @@ clustercorplot_jaccard(
 
 \item{vertex.label.dist}{distance between label and nodes}
 }
-\value{
-
-}
 \description{
 Helps to infer the relationship between clusters. Link width shows Pearson correlation or
 Jaccard coefficient between clusters, calculated with GSEA result. Node size indicates cell number of each cluster.

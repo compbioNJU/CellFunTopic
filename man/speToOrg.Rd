@@ -7,10 +7,7 @@
 speToOrg(species)
 }
 \arguments{
-\item{species}{}
-}
-\value{
-
+\item{species}{species name}
 }
 \description{
 change latin name of species to trivial name

@@ -23,9 +23,6 @@ simplifyEnrichmentplot(
 
 \item{GO_ont}{Gene Ontology}
 }
-\value{
-
-}
 \description{
 We utilize package simplifyEnrichment to cluster GO terms into groups from the semantic similarity matrix. Summaries of GO terms in each cluster are visualized by word clouds.
 https://bioconductor.org/packages/release/bioc/html/simplifyEnrichment.html

@@ -11,9 +11,6 @@ GOcircleplot(SeuratObj, genes = NULL)
 
 \item{genes}{genes to draw}
 }
-\value{
-
-}
 \description{
 show pathways and genes in chord diagram
 }

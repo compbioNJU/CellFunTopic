@@ -13,9 +13,6 @@ plot_sankey(gammaDF, topn = 1, plotHeight = 600)
 
 \item{plotHeight}{height of plot}
 }
-\value{
-
-}
 \description{
 Create a D3 JavaScript Sankey diagram which shows the best assigned topic of each cluster.
 }

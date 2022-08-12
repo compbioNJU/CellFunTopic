@@ -33,17 +33,16 @@ scPalette <- function(n) {
 #'
 #' @param n number of colors to generate
 #'
-#' @return
 #' @importFrom grDevices colorRampPalette
 #' @importFrom RColorBrewer brewer.pal
-#' 
+#'
 #' @export
 #'
 #' @examples
 #' scPalette2(8)
 #' barplot(rep(1,8), col = scPalette2(8))
 #' pals::pal.bands(scPalette2(20))
-#' 
+#'
 scPalette2 <- function(n) {
   colorSpace <- c(brewer.pal(9, "Set1")[-6], brewer.pal(8, "Dark2"), brewer.pal(12, "Paired"), brewer.pal(12, "Set3"), brewer.pal(8, "Accent"))
   if (n <= length(colorSpace)) {

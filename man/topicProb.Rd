@@ -16,7 +16,7 @@ topicProb(SeuratObj, reduction = "umap", topic = 1, pointSize = 0.1)
 \item{pointSize}{0.1 default.}
 }
 \value{
-
+ggplot object
 }
 \description{
 Show topic activity on UMAP/TSNE cell map

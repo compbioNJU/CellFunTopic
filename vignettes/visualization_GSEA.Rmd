@@ -1,8 +1,13 @@
 ---
-title: "Visualizaiton of GSEA Result"
-output: html_document
+title: "Visualization of GSEA Result"
 date: '`r Sys.Date()`'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Visualization of GSEA Result}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -23,13 +28,7 @@ library(CellFunMap)
 First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](Pre-processing.html).
 
 ```{r, echo = FALSE}
-data('pbmc3k.final', package = "pbmc3k.SeuratData")
-SeuratObj <- readData(data = pbmc3k.final, type = 'Seurat', species = "Homo sapiens")
-rm(pbmc3k.final); gc()
-SeuratObj <- CalMTpercent(SeuratObj, by = "use_internal_data")
-SeuratObj <- QCfun(SeuratObj, plot = F) # set plot = T if you want to get the QC reports.
-SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 1, plot = FALSE)
-SeuratObj <- RunGSEA(SeuratObj, by = 'GO')
+SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
 ```
 
 **CellFunMap** provides a variety of meaningful visualization methods of GSEA Result, facilitating functional annotation of cell clusters in single cell data. What's more, the visualization can be explored interactively in the built-in shiny app, see [Visualize in Built-in Shiny APP](shiny_app.html).
@@ -112,11 +111,3 @@ GOboxplot(SeuratObj, goid = "GO:0030217", type = "child")
 ```
 
 
-
-
-
-
-
-
- 
- 

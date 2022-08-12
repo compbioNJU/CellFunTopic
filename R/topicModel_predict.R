@@ -41,13 +41,13 @@ transfer_LDA <- function(query_SeuratObj, ref_ldaOUt, by = "GO") {
 #' @param method to calculate cosine similarity or pearson correlation between clusters
 #' @param fontsize font size
 #'
-#' @return
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' dist <- query_SeuratObj@misc$dist
-#' cosine_heatmap2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_", method="cosine")
+#' cosine_heatmap2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_",
+#'                 b_prefix="query_", method="cosine")
 #' }
 #'
 #'
@@ -94,9 +94,8 @@ cosine_heatmap2 <- function(ldaOut,
 #' @param node_text_size node text size
 #'
 #' @importFrom dplyr group_by slice_max ungroup mutate
-#' @import ggraph
+#' @importFrom ggraph ggraph geom_edge_hive scale_edge_width scale_edge_colour_manual geom_node_point geom_node_text
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -182,7 +181,6 @@ cosine_hive <- function(ldaOut,
 #' @importFrom ggraph ggraph geom_edge_link scale_edge_width_continuous
 #' @importFrom scatterpie geom_scatterpie
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -260,13 +258,13 @@ cosine_network_cluster2 <- function(ldaOut,
 #' @importFrom networkD3 sankeyNetwork
 #' @importFrom dplyr group_by slice_max ungroup mutate
 #'
-#' @return
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' dist <- query_SeuratObj@misc$dist
-#' sankey_comparison(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_") %>% saveNetwork(file = "sankey_comparison.html")
+#' sankey_comparison(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_") %>%
+#'           saveNetwork(file = "sankey_comparison.html")
 #' }
 #'
 #'
@@ -427,15 +425,17 @@ oversample_ref <- function(reference_SeuratObj, number_clusters = NULL,
 #' @param k  number of topics. This parameter works when \code{reference_SeuratObj} does not contain topic model.
 #' @param LDAmethod  method used for fitting a LDA model on reference data; currently "VEM" or "Gibbs" are supported. This parameter works when \code{reference_SeuratObj} does not contain topic model.
 #'
-#' @import caret
+#' @importFrom caret trainControl train
+#' @importFrom stats predict
 #'
 #' @return data frame with 2 columns including clusters of query data, and the predicted cell type based on reference data.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' predictFun(query_SeuratObj, reference_SeuratObj, group_by = 'cellType', cluster_by = 'seurat_clusters',
-#' species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM")
+#' predictFun(query_SeuratObj, reference_SeuratObj, group_by = 'cellType',
+#'            cluster_by = 'seurat_clusters', species = "Homo sapiens",
+#'            by = 'GO', k = NULL, LDAmethod = "VEM")
 #' }
 #'
 #'

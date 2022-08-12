@@ -7,10 +7,7 @@
 org2db(species)
 }
 \arguments{
-\item{species}{}
-}
-\value{
-
+\item{species}{species name}
 }
 \description{
 get OrgDb name according to species

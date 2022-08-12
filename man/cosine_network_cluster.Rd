@@ -26,6 +26,8 @@ cosine_network_cluster(
 \item{radius}{node pie radius}
 
 \item{width_range}{range of width of edges}
+
+\item{text_size}{size of labels}
 }
 \value{
 ggplot object
@@ -36,8 +38,10 @@ Network of cosine similarity between clusters, calculated by cluster~topic proba
 \examples{
 \dontrun{
 ldaOut <- SeuratObj@misc$ldaOut
-cosine_network_cluster(ldaOut, layout="circle", cos_sim_thresh=0.2, SEED=123, radius=0.12, width_range=c(0.1, 0.8))
-cosine_network_cluster(ldaOut, layout="fr", cos_sim_thresh=0.2, SEED=123, radius=0.12, width_range=c(0.1, 0.8))
+cosine_network_cluster(ldaOut, layout="circle", cos_sim_thresh=0.2, SEED=123,
+                       radius=0.12, width_range=c(0.1, 0.8))
+cosine_network_cluster(ldaOut, layout="fr", cos_sim_thresh=0.2, SEED=123,
+                       radius=0.12, width_range=c(0.1, 0.8))
 }
 
 }

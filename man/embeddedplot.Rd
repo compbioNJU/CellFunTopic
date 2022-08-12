@@ -29,9 +29,6 @@ embeddedplot(
 
 \item{pie.size.cex}{size of pie chart}
 }
-\value{
-
-}
 \description{
 embedded histogram or pie chart show pathway GSEA score on each clusters.
 If \code{by = "GO"} and \code{pathwayIDs = NULL}, only GO terms of level 5-6 are used for calculation.

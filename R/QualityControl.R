@@ -2,7 +2,6 @@
 #'
 #' @param SeuratObj Seurat object
 #' @importFrom magrittr `%>%`
-#' @return
 #' @export
 #'
 #' @examples
@@ -45,7 +44,7 @@ DetectGeneIDtype <- function(SeuratObj) {
 #' @importFrom biomaRt useMart searchDatasets useDataset getBM
 #' @importFrom magrittr `%>%`
 #' @importFrom Seurat PercentageFeatureSet
-#' @return
+#' @return Seurat object
 #' @export
 #'
 #' @examples
@@ -60,7 +59,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
   if (by == 'use_internal_data') {
     # Calculate nCount and nFeature
     if (!"nCount_RNA" %in% names(slot(object = SeuratObj, name = 'meta.data'))) {
-      n.calc <- Seurat:::CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
+      n.calc <- caln(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
       if (!is.null(x = n.calc)) {
         names(x = n.calc) <- paste(names(x = n.calc), 'RNA', sep = '_')
         slot(object = SeuratObj, name = 'meta.data')[,names(x = n.calc)] <- n.calc
@@ -119,7 +118,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
     featureData[['geneTable']] <- geneTable
     # Calculate nCount and nFeature
     if (!"nCount_RNA" %in% names(slot(object = SeuratObj, name = 'meta.data'))) {
-      n.calc <- Seurat:::CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
+      n.calc <- caln(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
       if (!is.null(x = n.calc)) {
         names(x = n.calc) <- paste(names(x = n.calc), 'RNA', sep = '_')
         slot(object = SeuratObj, name = 'meta.data')[,names(x = n.calc)] <- n.calc
@@ -157,7 +156,7 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
     slot(object = SeuratObj, name = 'misc')[["featureData"]][['geneTable']] <- geneTable
     # Calculate nCount and nFeature
     if (!"nCount_RNA" %in% names(slot(object = SeuratObj, name = 'meta.data'))) {
-      n.calc <- Seurat:::CalcN(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
+      n.calc <- caln(object = slot(object = SeuratObj, name = 'assays')[['RNA']])
       if (!is.null(x = n.calc)) {
         names(x = n.calc) <- paste(names(x = n.calc), 'RNA', sep = '_')
         slot(object = SeuratObj, name = 'meta.data')[,names(x = n.calc)] <- n.calc
@@ -182,15 +181,18 @@ CalMTpercent <- function(SeuratObj, by = 'use_internal_data') {
 #' @param minFeaturesPerCell minFeaturesPerCell
 #' @param maxFeaturesPerCell maxFeaturesPerCell
 #' @param maxPercent.mt maxPercent.mt
+#' @param plot whether to plot quality control results
+#'
 #' @importFrom magrittr `%>%`
 #' @importFrom Seurat VlnPlot FeatureScatter GetAssayData
+#' @importFrom stats quantile
 #'
-#' @return
+#' @return Seurat object
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' SeuratObj <- QCfun(SeuratObj, plot = F)
+#' SeuratObj <- QCfun(SeuratObj)
 #' }
 #'
 QCfun <- function(SeuratObj,
@@ -199,7 +201,7 @@ QCfun <- function(SeuratObj,
                   minFeaturesPerCell = NULL,
                   maxFeaturesPerCell = NULL,
                   maxPercent.mt = NULL,
-                  plot = TRUE) {
+                  plot = FALSE) {
 
   # Visualization before QC
   if (plot & !dir.exists(paths = "./CellFunMap_output/plots")) {

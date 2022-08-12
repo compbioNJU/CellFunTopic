@@ -11,9 +11,6 @@ topicNW1(betaDF, topn)
 
 \item{topn}{number of top terms of each topic}
 }
-\value{
-
-}
 \description{
 network showing top terms of topics
 }

@@ -7,6 +7,7 @@
 #' @param plot draw plots or not. If TRUE, plots will be produced and saved in working directory.
 #'
 #' @importFrom dplyr group_by top_n
+#' @importFrom grDevices pdf dev.off
 #' @import Seurat
 #'
 #' @return Seurat object

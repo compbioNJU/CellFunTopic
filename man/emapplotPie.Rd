@@ -38,9 +38,6 @@ emapplotPie(
 
 \item{cex_line}{width of edge}
 }
-\value{
-
-}
 \description{
 links show jaccard similarity coefficient (overlap of genes) between pathways.
 Pie charts show GSEA score of the pathway in clusters. Code for plotting is a modified version of \code{enrichplot::emapplot()}.

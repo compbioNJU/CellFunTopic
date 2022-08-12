@@ -26,9 +26,6 @@ cosine_hive(
 
 \item{node_text_size}{node text size}
 }
-\value{
-
-}
 \description{
 Hive diagram showing cosine similarity between reference data and query data,
 calculated with reference LDA model and transferred model.

@@ -1,8 +1,13 @@
 ---
 title: "Topic modeling and visualization"
-output: html_document
 date: '`r Sys.Date()`'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Topic modeling and visualization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -22,13 +27,7 @@ library(CellFunMap)
 First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](Pre-processing.html).
 
 ```{r, echo = FALSE}
-data('pbmc3k.final', package = "pbmc3k.SeuratData")
-SeuratObj <- readData(data = pbmc3k.final, type = 'Seurat', species = "Homo sapiens")
-rm(pbmc3k.final); gc()
-SeuratObj <- CalMTpercent(SeuratObj, by = "use_internal_data")
-SeuratObj <- QCfun(SeuratObj, plot = F) # set plot = T if you want to get the QC reports.
-SeuratObj <- RunSeurat(SeuratObj, nPCs = 10, resolution = 1, plot = FALSE)
-SeuratObj <- RunGSEA(SeuratObj, by = 'GO')
+SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
 ```
 
 ## Topic modeling
@@ -37,7 +36,7 @@ Latent Dirichlet Allocation (LDA) is a Bayesian mixture model, initially develop
 
 Actually, CellFunMap provides two metrics, **log-likelihood** and **perplexity**, to determine the optimal number of topics. But we recommend a customized number of topics such as the number of cell types in scRNA-seq data, in order to improve biological interpretability. 
 
-```{r}
+```{r, eval = FALSE}
 k <- length(unique(Seurat::Idents(SeuratObj)))
 # if k=NULL, the optimal number of topics will be calculated automatically according to log-likelihood and perplexity.
 SeuratObj <- runLDA(SeuratObj, by = "GO", k = k, method = "VEM", SEED = 1234, plot = F)
@@ -120,6 +119,5 @@ hist_topic_term(betaDF, topics=c(1,2,3,4), topn=20, axis.text.y.size=3)
 # barplot to show probability of assigned topics in clusters
 hist_cluster_topic(gammaDF, clusters=head(Seurat::Idents(SeuratObj)))
 ```
-
 
 

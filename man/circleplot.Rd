@@ -23,9 +23,6 @@ circleplot(
 
 \item{link_threshold}{only show links whose intersection number bigger than this threshold}
 }
-\value{
-
-}
 \description{
 Link width shows number of intersection of pathways between clusters, link color is
 in concordance with cluster which has higher enrichment score on intersection pathways.

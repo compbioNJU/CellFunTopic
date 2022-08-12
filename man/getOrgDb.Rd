@@ -9,9 +9,6 @@ getOrgDb(species)
 \arguments{
 \item{species}{such as "Homo sapiens"}
 }
-\value{
-
-}
 \description{
 Get OrgDb of a species
 }

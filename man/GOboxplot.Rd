@@ -17,9 +17,6 @@ GOboxplot(SeuratObj, goid = NULL, type = "child", pointsize = 1, flip = FALSE)
 
 \item{flip}{whether to flip the coordinates}
 }
-\value{
-
-}
 \description{
 boxplot showing enrichment score of child or parent GOs of specific GO
 }

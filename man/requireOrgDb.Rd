@@ -7,10 +7,7 @@
 requireOrgDb(species)
 }
 \arguments{
-\item{species}{}
-}
-\value{
-
+\item{species}{species name}
 }
 \description{
 require OrgDb Package of a species

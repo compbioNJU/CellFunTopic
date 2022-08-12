@@ -32,7 +32,8 @@ Load data from different sources
 }
 \examples{
 \dontrun{
-SeuratObj <- CellFunMap::readData(data = "~/outs/filtered_gene_bc_matrices/GRCh38/", type = "10X", species = "Homo sapiens")
+SeuratObj <- CellFunMap::readData(data = "~/outs/filtered_gene_bc_matrices/GRCh38/",
+                                  type = "10X", species = "Homo sapiens")
 SeuratObj <- CellFunMap::readData(data = counts, type = 'expMatrix', species = "Homo sapiens")
 }
 

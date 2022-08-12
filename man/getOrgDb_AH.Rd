@@ -7,10 +7,7 @@
 getOrgDb_AH(species)
 }
 \arguments{
-\item{species}{}
-}
-\value{
-
+\item{species}{species name}
 }
 \description{
 Get OrgDb of a species from package AnnotationHub

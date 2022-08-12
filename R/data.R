@@ -13,6 +13,36 @@
 "txid_gene_MT"
 
 
+#' Mitochondrial genes of all species.
+#'
+#' A dataset containing mitochondrial genes of all species in NCBI.
+#'
+#' @format A data frame with 1082809 rows and 5 variables:
+#' \describe{
+#'   \item{txid}{taxonomy id of species}
+#'   \item{species}{species name}
+#'   \item{ENTREZID}{ENTREZID of genes}
+#'   \item{SYMBOL}{symbol of genes}
+#'   \item{chromosome}{MT}
+#' }
+#' @source \url{ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/All_Data.gene_info.gz}
+"txid_species_gene_MT"
+
+
+#' Mitochondrial genes of 3 species.
+#'
+#' A list containing mitochondrial genes of 3 species, Homo sapiens, Mus musculus and Arabidopsis thaliana.
+#'
+#' @format A list containing 3 elements:
+#' \describe{
+#'   \item{Homo sapiens}{mitochondrial genes of several gene ID types}
+#'   \item{Mus musculus}{mitochondrial genes of several gene ID types}
+#'   \item{Arabidopsis thaliana}{mitochondrial genes of several gene ID types}
+#' }
+#' @source mitochondrial genes information derived from bioMart and NCBI.
+"MTGENE"
+
+
 #' GO terms and their corresponding level or ontology.
 #'
 #' A dataset containing all GO terms and their corresponding level or ontology.

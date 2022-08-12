@@ -15,7 +15,7 @@
 #' @importFrom DOSE gseDO gseNCG gseDGN
 #' @importFrom magrittr `%>%`
 #' @importFrom foreach foreach `%do%`
-#' @return
+#' @return Seurat object
 #' @export
 #'
 #' @examples
