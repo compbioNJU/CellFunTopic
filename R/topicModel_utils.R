@@ -461,7 +461,7 @@ wordcloud_topic <- function(betaDF, pws, topic, topn=20) {
   pp <- betaDF %>% filter(.data$topic == .env$topic) %>% slice_max(order_by = beta, n=topn, with_ties=F) %>% mutate(term=pws[term]) %>%
     ggplot(aes(label=term, size=beta, color=beta)) +
     geom_text_wordcloud_area(show.legend = T) +
-    scale_color_gradientn(colours = rev(scPalette2(20))) + # scale_size(range = c(1,6)) +
+    scale_color_gradientn(colours = rev(pals::brewer.spectral(11)[-c(4,5,6,7,8)])) + # scale_size(range = c(1,6)) +
     theme_minimal() + #ggtitle(paste0("Topic ", topic)) +
     theme(legend.position = "none")# +
     # theme(plot.margin = margin(t = 0,
@@ -604,8 +604,7 @@ cluster_topic_hmp <- function(ldaOut, cluster_rows = T, cluster_cols = T) {
 #'
 cosineheatmap <- function(ldaOut) {
   mm <- posterior(ldaOut)$terms  # topic~term probability matrix
-  cc <- suppressMessages(philentropy::distance(mm, method = "cosine"))
-  rownames(cc) <- colnames(cc) <- rownames(mm)
+  cc <- suppressMessages(philentropy::distance(mm, method = "cosine", use.row.names = T))
   pheatmap::pheatmap(cc, color = colorRampPalette(rev(c("#000000", "#9932CC", "#EF3B2C","#FFFFCC")))(100), angle_col = "0",
                      fontsize = 9, main = "cosine similarity between topics")#, cellwidth = 30, cellheight = 30)
 }
@@ -628,8 +627,7 @@ cosineheatmap <- function(ldaOut) {
 #'
 cosinehmp_cluster <- function(ldaOut) {
   mm <- posterior(ldaOut)$topics
-  cc <- suppressMessages(philentropy::distance(mm, method = "cosine"))
-  rownames(cc) <- colnames(cc) <- rownames(mm)
+  cc <- suppressMessages(philentropy::distance(mm, method = "cosine", use.row.names = T))
   pheatmap::pheatmap(cc, color = colorRampPalette(rev(c("#000000", "#9932CC", "#EF3B2C","#FFFFCC")))(100), angle_col = "45",
                      fontsize = 9, main = "cosine similarity between clusters")
 }

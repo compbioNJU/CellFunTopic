@@ -16,7 +16,7 @@ GSEAresulttable <- reactive({
   } else {
     return(NULL)
     }
-  
+
   DT::datatable(
     data = dt2,
     class = 'display',
@@ -76,11 +76,11 @@ GSEAresulttable <- reactive({
           targets = c(5,12,13)
         ),
         list(
-          className = "dt-center", 
+          className = "dt-center",
           targets = c(0,1,4:7,11,14)
         ),
         list(
-          className = "dt-left", 
+          className = "dt-left",
           targets = c(3,8:10)
         ),
         list(
@@ -93,41 +93,41 @@ GSEAresulttable <- reactive({
         list(width = "100px", targets = c(14))
       )
     )
-  ) %>% 
+  ) %>%
     formatStyle(
     columns = "cluster",
     color = styleEqual(
-      unique(dt2$cluster), 
+      unique(dt2$cluster),
       scPalette(length(unique(dt2$cluster)))
     ),
     fontWeight = "bold"
-  ) %>% 
+  ) %>%
     formatStyle(
       columns = "ONTOLOGY",
       backgroundColor = styleEqual(
-        unique(dt2$ONTOLOGY), 
+        unique(dt2$ONTOLOGY),
         grDevices::adjustcolor(scPalette(length(unique(dt2$ONTOLOGY))),0.3)
       ),
       fontWeight = "bold"
-    ) %>% 
+    ) %>%
     formatStyle(
     columns = 'p.adjust',
-    background = styleColorBar(dt2$p.adjust, 
+    background = styleColorBar(dt2$p.adjust,
                                '#FC4E07', angle = -90),
     backgroundSize = '100% 50%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center',
     fontWeight = "bold"
-  ) %>% 
+  ) %>%
     formatStyle(
     columns = 'pvalue',
-    background = styleColorBar(dt2$pvalue, 
+    background = styleColorBar(dt2$pvalue,
                                '#00AFBB', angle = -90),
     backgroundSize = '100% 50%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center',
     fontWeight = "bold"
-  ) %>% 
+  ) %>%
     formatStyle(
       columns = 'qvalues',
       background = styleColorBar(dt2$qvalues,
@@ -162,15 +162,15 @@ GSEAresulttable <- reactive({
     formatStyle(
       columns = "NES",
       backgroundColor = styleInterval(seq(min(dt2$NES), max(dt2$NES), length.out = 49),
-                                      colorRampPalette(c("#FFFFFF", "#B03C2D"))(50)), 
+                                      colorRampPalette(c("#FFFFFF", "#B03C2D"))(50)),
       fontWeight = "bold"
       ) %>%
     formatStyle(
       columns = "enrichmentScore",
       backgroundColor = styleInterval(seq(min(dt2$enrichmentScore), max(dt2$enrichmentScore), length.out = 49),
-                                      colorRampPalette(c("#FFFFFF", "#DB8B0A"))(50)), 
+                                      colorRampPalette(c("#FFFFFF", "#DB8B0A"))(50)),
       fontWeight = "bold"
-    ) %>% 
+    ) %>%
     formatSignif(
       columns = c("-log10(FDR)","enrichmentScore", "NES", "pvalue","p.adjust","qvalues"),
       digits = 3
@@ -222,7 +222,7 @@ clusterChoiceui <- reactive({
   clus <- unique(GSEAresult$cluster)
   selectInput(
     inputId = "cluster",
-    label = "cluster", 
+    label = "cluster",
     choices = clus
   )
 })
@@ -235,7 +235,7 @@ clusterChoiceui2 <- reactive({
   clus <- unique(GSEAresult$cluster)
   selectInput(
     inputId = "cluster2",
-    label = "cluster", 
+    label = "cluster",
     choices = clus
   )
 })
@@ -243,7 +243,7 @@ output$clusterChoiceui2 <- renderUI(clusterChoiceui2())
 
 
 
-# 
+#
 # observeEvent(input$GSEAtable_rows_selected, {
 #   output$pathwayList <- renderUI({
 #     rids <- input$GSEAtable_rows_selected
@@ -255,12 +255,12 @@ output$clusterChoiceui2 <- renderUI(clusterChoiceui2())
 #     }
 #     tags$span(
 #       pickerInput(
-#         inputId = "selectedpw", 
+#         inputId = "selectedpw",
 #         label = "Selected:",
-#         choices = dat, 
+#         choices = dat,
 #         selected = GSEAresult[rids, "ID"],
 #         options = list(
-#           `actions-box` = TRUE, 
+#           `actions-box` = TRUE,
 #           size = 10,
 #           `selected-text-format`= "count",
 #           width = "300px"
@@ -468,7 +468,7 @@ observeEvent(input$button2, {
 #     return(NULL)
 #   }
 # })
-# 
+#
 # output$plotui <- renderUI(plotui())
 
 # output$plotui <- renderUI({
@@ -617,7 +617,7 @@ observeEvent(input$button2, {
 # })
 # output$goplot_ui <- renderUI(goplot_ui())
 
-# 
+#
 # simplifyEnrichmentplot_ui <- reactive({
 #   if (input$switchTerm %in% c("GO", "KEGG", "Reactome", "MSigDb")) {
 #     boxPlus(
@@ -650,7 +650,7 @@ observeEvent({
   if (length(input$selectedpw) > 1) {
     inter$pwss <- pws()
   }else{
-    show_alert(title="Warnings", 
+    show_alert(title="Warnings",
                type="warning",
                text="Please select >=2 pathways to generate plots.")
   }
@@ -673,7 +673,7 @@ dlp <- function(ppp) {
     contentType = "image/pdf"
   )
 }
-for (ppp in c("gseaHeatmap", "embeddedplot", "emapplotPie", "goplot", "emapplot")) {
+for (ppp in c("gseaHeatmap", "embeddedplot")) {
   dlp(ppp)
 }
 
@@ -711,7 +711,7 @@ output$hierarchyplot_treedl <- downloadHandler(
   filename = "hierarchyplot.pdf",
   content = function(file) {
     pdf(file, width = 13, height = 10)
-    hierarchyplot_tree(SeuratObj, by = input$switchTerm, pathwayIDs = inter$pwss, topaths = input$topath1, 
+    hierarchyplot_tree(SeuratObj, by = input$switchTerm, pathwayIDs = inter$pwss, topaths = input$topath1,
                        vertex.size.cex = input$vertex.size.cex2,
                        vertex.label.cex = input$vertex.label.cex2,
                        edge.max.width = input$edge.max.width2, alpha.edge = input$alpha.edge)
@@ -738,8 +738,8 @@ output$hierarchyplot_treedl <- downloadHandler(
 
 
 
-# 
-# 
+#
+#
 # plotui <- fluidRow(
 #   fluidRow(
 #     column(width = 12,
@@ -817,7 +817,7 @@ output$hierarchyplot_treedl <- downloadHandler(
 #         ),
 #         closable = F,
 #         collapsible = T,
-#         footer = tags$small(icon("lightbulb"), "Link width represents number of intersection pathways between clusters, 
+#         footer = tags$small(icon("lightbulb"), "Link width represents number of intersection pathways between clusters,
 #                             link color is the same as the cluster with higher-score intersection pathways."),
 #         width = 12,
 #         circleplotui(),
@@ -838,8 +838,8 @@ output$hierarchyplot_treedl <- downloadHandler(
 #     )
 #   )
 # )
-# 
-# 
+#
+#
 # totalui <- renderUI({
 #   # if (paste0("GSEAresult_", "GO") %in% names(SeuratObj@misc)) {
 #   if (paste0("GSEAresult_", input$switchTerm) %in% names(SeuratObj@misc)) {

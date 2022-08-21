@@ -21,5 +21,5 @@ visualize_in_shiny(SeuratObj)
 
 The Shiny app is demonstrated in the following image:
 
-<img src="https://xiaobaicainiao666.github.io/images/shinyappExample.gif" width="100%" />
+<img src="images/shinyappExample.gif" width="100%" />
 

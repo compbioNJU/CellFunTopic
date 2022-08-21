@@ -22,6 +22,7 @@ options(width = 80)
 
 ```{r}
 library(CellFunMap)
+library(magrittr)
 ```
 
 First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](Pre-processing.html).
@@ -59,17 +60,17 @@ betaDF %<>% dplyr::mutate(descrip=unname(pws[term]))
 gammaDF <- tidytext::tidy(ldaOut, matrix = "gamma")
 ```
 
-```{r, fig.height=7, fig.width=7}
+```{r, fig.height=6, fig.width=7}
 # Show topic distribution on UMAP/TSNE cell map
 topicProb(SeuratObj, reduction="umap", topic=3, pointSize=0.1)
 ```
 
-```{r, fig.height=10, fig.width=10}
+```{r, fig.height=11, fig.width=8}
 # echart4r network showing top terms of topics with tooltips showing description of pathway ID
 topicNW3(betaDF, topn=10, pws = pws)
 ```
 
-```{r, fig.height=10, fig.width=10}
+```{r, fig.height=7, fig.width=7}
 # Heatmap showing probability between topics and clusters
 cluster_topic_hmp(ldaOut)
 ```
@@ -81,17 +82,22 @@ plot_sankey(gammaDF, topn=1)
 
 ```{r, fig.height=7, fig.width=7}
 # word cloud of top terms of topic
-wordcloud_topic(betaDF, pws, topic=1, topn=20)
+wordcloud_topic(betaDF, pws, topic=3, topn=20)
 ```
 
 ```{r, fig.height=7, fig.width=7}
 # 3D word cloud of top terms of topic
-wordcloud_topic_3D(betaDF, pws, topic=1, topn=20)
+wordcloud_topic_3D(betaDF, pws, topic=3, topn=20)
 ```
 
 ```{r, fig.height=7, fig.width=7}
 # Heatmap showing cosine similarity between topics
 cosineheatmap(ldaOut)
+```
+
+```{r}
+# Heatmap showing cosine similarity between clusters
+cosinehmp_cluster(ldaOut)
 ```
 
 ```{r, fig.height=7, fig.width=7}
@@ -105,9 +111,14 @@ cosine_network_term(SeuratObj, cosine_cal_by = "Topic modeling", pie_by = "Topic
    topn = 10, layout = "fr", cos_sim_thresh = 0.8, radius = 0.1, text_size = 2)
 ```
 
-```{r, fig.height=7, fig.width=7}
+```{r, fig.height=6, fig.width=7}
 # UMAP on cluster-topic probability matrix
 umap_cluster(ldaOut)
+```
+
+```{r, fig.height=7, fig.width=7}
+# Show top terms of each topic
+Topterms_Topic(betaDF, Topic = 3, topn = 10, text.size = 3)
 ```
 
 ```{r, fig.height=10, fig.width=10}

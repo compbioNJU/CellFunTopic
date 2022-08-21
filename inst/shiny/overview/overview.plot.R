@@ -88,57 +88,12 @@ output$hierarchyplot_tree <- renderPlot({
   }
 })
 
-emapplotPie1 <- reactive({
-  emapplotPie(SeuratObj, by = input$switchTerm, pathwayIDs = inter$pwss, showCategory = input$showCategory,
-              node_label_cex = input$node_label_cex,
-              node_size_cex = input$node_size_cex, layout = input$layout,
-              cex_line = input$cex_line, pie = input$pie)
-})
 
-# output$emapplotPie <- renderPlot(emapplotPie1())
-output$emapplotPie <- renderPlot({
-  if (paste0("GSEAresult_", input$switchTerm) %in% names(SeuratObj@misc)) {
-    emapplotPie1()
-  } else {
-    return(NULL)
-  }
-})
-
-emapplot1 <- reactive({
-  emapplot2(SeuratObj, by = input$switchTerm, pathwayIDs = inter$pwss, showCategory = input$showCategory2,
-            node_label_cex = input$node_label_cex2, cluster = input$cluster,
-            node_size_cex = input$node_size_cex2, layout = input$layout2,
-            cex_line = input$cex_line2)
-})
-
-# output$emapplot <- renderPlot(emapplot1())
-output$emapplot <- renderPlot({
-  if (paste0("GSEAresult_", input$switchTerm) %in% names(SeuratObj@misc)) {
-    emapplot1()
-  } else {
-    return(NULL)
-  }
-})
-
-
-goplot1 <- reactive({
-  goplot2(SeuratObj, cluster = input$cluster2, pathwayIDs = inter$pwss, showCategory = input$showCategory3,
-          ont = input$ont, label_size = input$label_size)
-})
-# output$goplot <- renderPlot(goplot1())
-output$goplot <- renderPlot({
-  if ((paste0("GSEAresult_", input$switchTerm) %in% names(SeuratObj@misc)) & (input$switchTerm == "GO")) {
-    goplot1()
-  } else {
-    return(NULL)
-  }
-})
 
 
 # simplifyEnrichmentplot1 <- reactive({
 #   simplifyEnrichmentplot(SeuratObj, by = input$switchTerm, pathwayIDs = inter$pwss, showCategory = input$showCategory4, GO_ont = input$ont2)
 # })
-# # output$goplot <- renderPlot(goplot1())
 # output$simplifyEnrichmentplot <- renderPlot({
 #   if ((paste0("GSEAresult_", input$switchTerm) %in% names(SeuratObj@misc)) & (input$switchTerm %in% c("GO", "KEGG", "Reactome", "MSigDb"))) {
 #     simplifyEnrichmentplot1()

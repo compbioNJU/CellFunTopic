@@ -33,7 +33,7 @@ SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
 
 **CellFunMap** provides a variety of meaningful visualization methods of GSEA Result, facilitating functional annotation of cell clusters in single cell data. What's more, the visualization can be explored interactively in the built-in shiny app, see [Visualize in Built-in Shiny APP](shiny_app.html).
 
-```{r, fig.height=10, fig.width=7}
+```{r, fig.height=8, fig.width=7}
 # Heatmap of GSEA result
 gseaHeatmap(SeuratObj, by = "GO", toshow = "-logFDR", topPath = 5, colour = "Greens", fontsize_row = 7)
 ```
@@ -50,7 +50,7 @@ hierarchyplot_tree(SeuratObj, by = "GO", topaths = 5, cluster_cutree_k = 6, path
                    vertex.label.cex=0.5, edge.max.width=1, vertex.size.cex=0.7)
 ```
 
-```{r, fig.height=7, fig.width=7}
+```{r, fig.height=6, fig.width=7}
 # Scatter plot showing pathway enrichment score on cell map
 pathwayScatterplot(SeuratObj, by = "GO", reduction = "umap", pathwayID = "GO:0030217", pointsize = 0.5, label = F)
 ```
@@ -77,8 +77,11 @@ cosine_network_term(SeuratObj, cosine_cal_by = "GSEA result", pie_by = "GSEA res
 
 ```{r, fig.height=7, fig.width=7}
 # Network showing cosine similarity between clusters according to GSEA result
-Cosine_networkByGSEA(SeuratObj, layout=layout_with_fr, cos_sim_thresh=0.8, p.adjust_thresh=0.05, SEED=123,
-                     node.cex=6, width_range=c(0.8, 4), vertex.label.dist=0.5)
+Cosine_networkByGSEA(SeuratObj, layout=igraph::layout_with_fr, cos_sim_thresh=0.8, p.adjust_thresh=0.05, SEED=123, node.cex=6, width_range=c(0.8, 4), vertex.label.dist=0.5)
+```
+
+```{r, echo = FALSE}
+suppressPackageStartupMessages(library(ggraph))
 ```
 
 ```{r, fig.height=7, fig.width=7}
@@ -87,18 +90,6 @@ SeuratObj$group <- 'majorcelltype' # edge_bundling_GSEA need major group informa
 edge_bundling_GSEA(SeuratObj, link_threshold=0.7, p.adjust_thresh=0.05, link_width=0.9, method='cosine similarity', node.by='seurat_clusters', group.by="group")
 ```
 
-```{r, fig.height=7, fig.width=7}
-# links show jaccard similarity coefficient (overlap of genes) between pathways.Pie charts show GSEA score of the pathway in clusters.
-emapplotPie(SeuratObj, node_size_cex = 1.5, showCategory = 3)
-```
-
-```{r, fig.height=7, fig.width=7}
-emapplot2(SeuratObj, cluster = unique(Seurat::Idents(SeuratObj))[1])
-```
-
-```{r, fig.height=9, fig.width=7}
-goplot2(SeuratObj, cluster = unique(Seurat::Idents(SeuratObj))[1])
-```
 
 ```{r, fig.height=7, fig.width=7}
 # show pathways and genes in chord diagram

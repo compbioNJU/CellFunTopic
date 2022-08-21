@@ -32,11 +32,11 @@ visualize_in_shiny <- function(SeuratObj) {
 
 
 
-#' Check packages for shiny app
-#'
-#' @param pkgs packages that need to check for shiny app
+# Check packages for shiny app
+#
+# @param pkgs packages that need to check for shiny app
 #' @importFrom utils install.packages
-#'
+#
 check_pkgs <- function(pkgs) {
   unavail <- c()
   for (pkg in pkgs) {

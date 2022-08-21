@@ -1,5 +1,5 @@
 .Rproj.user
 .Rhistory
 inst/doc
-docs
+#docs
 vignette_data/*

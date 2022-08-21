@@ -187,9 +187,9 @@ cosine_hive <- function(ldaOut,
 #' \dontrun{
 #' dist <- query_SeuratObj@misc$dist
 #' cosine_network_cluster2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_",
-#                         layout="fr", cos_sim_thresh=0.5, radius=0.1, text_size = 3)
+#'                         layout="fr", cos_sim_thresh=0.5, radius=0.1, text_size = 3)
 #' cosine_network_cluster2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_",
-#                         layout="circle", cos_sim_thresh=0.5, radius=0.05, text_size = 3)
+#'                          layout="circle", cos_sim_thresh=0.5, radius=0.05, text_size = 3)
 #' }
 #'
 cosine_network_cluster2 <- function(ldaOut,
@@ -298,19 +298,19 @@ sankey_comparison <- function(ldaOut,
 
 
 
-#' Oversample the reference data
-#'
-#' In order to avoid class imbalance while training a classifier, we oversampled the training set.
-#' In other words, we randomly selected cells from clusters of a particular cell type to form new clusters,
-#' reaching the situation that each cell type owns the same number of clusters
-#'
-#' @param reference_SeuratObj reference data
-#' @param number_clusters goal number of clusters that you need to oversample to
-#' @param group_by the column of \code{reference_SeuratObj@meta.data} that indicates cell type
-#' @param cluster_by the column of \code{reference_SeuratObj@meta.data} that indicates cluster
-#'
-#' @return a Seurat object with oversampled expression matrix
-#'
+# Oversample the reference data
+#
+# In order to avoid class imbalance while training a classifier, we oversampled the training set.
+# In other words, we randomly selected cells from clusters of a particular cell type to form new clusters,
+# reaching the situation that each cell type owns the same number of clusters
+#
+# @param reference_SeuratObj reference data
+# @param number_clusters goal number of clusters that you need to oversample to
+# @param group_by the column of \code{reference_SeuratObj@meta.data} that indicates cell type
+# @param cluster_by the column of \code{reference_SeuratObj@meta.data} that indicates cluster
+#
+# @return a Seurat object with oversampled expression matrix
+#
 oversample <- function(reference_SeuratObj, number_clusters = NULL,
                        group_by = 'cellType', cluster_by = 'seurat_clusters') {
 

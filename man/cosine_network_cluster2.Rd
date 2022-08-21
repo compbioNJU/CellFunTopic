@@ -46,7 +46,9 @@ calculated with reference LDA model and transferred model.
 \dontrun{
 dist <- query_SeuratObj@misc$dist
 cosine_network_cluster2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_",
+                        layout="fr", cos_sim_thresh=0.5, radius=0.1, text_size = 3)
 cosine_network_cluster2(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_",
+                         layout="circle", cos_sim_thresh=0.5, radius=0.05, text_size = 3)
 }
 
 }

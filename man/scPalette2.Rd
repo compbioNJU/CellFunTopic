@@ -14,7 +14,6 @@ Generate colors from a customed color palette
 }
 \examples{
 scPalette2(8)
-barplot(rep(1,8), col = scPalette2(8))
 pals::pal.bands(scPalette2(20))
 
 }

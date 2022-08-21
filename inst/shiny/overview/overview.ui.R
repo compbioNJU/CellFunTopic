@@ -95,7 +95,7 @@ fluidPage(
   #     width = 12,
   #     uiOutput("plotui") %>% withSpinner()
   #   )
-  #   
+  #
   # ),
   fluidRow(
     id = "pa",
@@ -174,54 +174,9 @@ fluidPage(
           clustercorplotui(),
           plotOutput('clustercorplot', height = "400px") %>% withSpinner()
         )
-      ),
-      column(
-        width = 6,
-        boxPlus(
-          title = tagList(
-            icon("bezier-curve"),
-            "EmapplotPie"
-          ),
-          closable = F,
-          collapsible = T,
-          width = 12,
-          emapplotPieui(),
-          plotOutput('emapplotPie', height = "400px") %>% withSpinner()
-        )
       )
-    ),
-    fluidRow(
-      column(
-        width = 6,
-        boxPlus(
-          title = tagList(
-            icon("bezier-curve"),
-            "Emapplot"
-          ),
-          closable = F,
-          collapsible = T,
-          width = 12,
-          emapplotui(),
-          plotOutput('emapplot', height = "400px") %>% withSpinner()
-        )
-      ),
-      column(
-        width = 6,
-        # uiOutput("goplot_ui") %>% withSpinner()
-        boxPlus(
-          id = "tohide3",
-          title = tagList(
-            icon("sitemap"),
-            "GOplot"
-          ),
-          closable = F,
-          collapsible = T,
-          width = 12,
-          goplotui(),
-          plotOutput('goplot', height = "400px") %>% withSpinner()
-        )
-      )
-    )#,
+    )
+    #,
     # fluidRow(
     #   column(
     #     width = 6,
@@ -232,7 +187,7 @@ fluidPage(
     #   )
     # )
   )
-  
+
 )
 
 # fluidPage(

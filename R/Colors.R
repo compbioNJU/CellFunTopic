@@ -1,9 +1,8 @@
-#' Generate ggplot2 colors
-#'
-#' @param n number of colors to generate
+# Generate ggplot2 colors
+#
+# @param n number of colors to generate
 #' @importFrom grDevices hcl
-#' @export
-#'
+#
 ggPalette <- function(n) {
   hues = seq(15, 375, length = n + 1)
   grDevices::hcl(h = hues, l = 65, c = 100)[1:n]
@@ -17,6 +16,8 @@ ggPalette <- function(n) {
 #' @importFrom grDevices colorRampPalette
 #'
 #' @export
+#' @examples
+#' pals::pal.bands(scPalette(20))
 #'
 scPalette <- function(n) {
   colorSpace <- c('#E41A1C','#377EB8','#4DAF4A','#984EA3','#F29403','#F781BF','#BC9DCC','#A65628','#54B0E4','#222F75','#1B9E77','#B2DF8A',
@@ -40,7 +41,6 @@ scPalette <- function(n) {
 #'
 #' @examples
 #' scPalette2(8)
-#' barplot(rep(1,8), col = scPalette2(8))
 #' pals::pal.bands(scPalette2(20))
 #'
 scPalette2 <- function(n) {

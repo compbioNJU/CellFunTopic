@@ -15,3 +15,7 @@ A color palette for plotting
 \description{
 Generate colors from a customed color palette
 }
+\examples{
+pals::pal.bands(scPalette(20))
+
+}

@@ -1,9 +1,9 @@
 
-#' Get OrgDb of a species
-#'
-#' @param species such as "Homo sapiens"
-#'
-#'
+# Get OrgDb of a species
+#
+# @param species such as "Homo sapiens"
+#
+#
 getOrgDb <- function(species) {
   spes <- c("Anopheles gambiae",
             "Arabidopsis thaliana",
@@ -36,13 +36,13 @@ getOrgDb <- function(species) {
   return(OrgDb)
 }
 
-#' Get OrgDb of a species from package AnnotationHub
-#'
-#' @param species species name
-#'
+# Get OrgDb of a species from package AnnotationHub
+#
+# @param species species name
+#
 #' @importFrom AnnotationHub AnnotationHub query
-#'
-#'
+#
+#
 getOrgDb_AH <- function(species) {
 
   if (!requireNamespace('AnnotationHub', quietly = TRUE)) {
@@ -58,13 +58,13 @@ getOrgDb_AH <- function(species) {
 }
 
 
-#' Get EnsDb of a species from package AnnotationHub
-#'
-#' @param species species name
-#'
+# Get EnsDb of a species from package AnnotationHub
+#
+# @param species species name
+#
 #' @importFrom AnnotationHub AnnotationHub query
-#'
-#'
+#
+#
 getEnsDb_AH <- function(species) {
   if (!requireNamespace('AnnotationHub', quietly = TRUE)) {
     stop("Please install AnnotationHub from Bioconductor at first")
@@ -80,11 +80,11 @@ getEnsDb_AH <- function(species) {
 }
 
 
-#' require OrgDb Package of a species
-#'
-#' @param species species name
-#'
-#'
+# require OrgDb Package of a species
+#
+# @param species species name
+#
+#
 requireOrgDb <- function(species) {
   OrgDb <- org2db(species)
   suppressPackageStartupMessages(require(OrgDb, character.only = TRUE))
@@ -92,11 +92,11 @@ requireOrgDb <- function(species) {
   return(OrgDb)
 }
 
-#' get OrgDb name according to species
-#'
-#' @param species species name
-#'
-#'
+# get OrgDb name according to species
+#
+# @param species species name
+#
+#
 org2db <- function(species) {
   OrgDb <- switch(species,
                   `Anopheles gambiae`             = "org.Ag.eg.db",
@@ -125,12 +125,12 @@ org2db <- function(species) {
   return(OrgDb)
 }
 
-#' get 'organism' that ReactomePA::gsePathway needs.
-#'
-#' change latin name of species to trivial name
-#' @param species species name
-#'
-#'
+# get 'organism' that ReactomePA::gsePathway needs.
+#
+# change latin name of species to trivial name
+# @param species species name
+#
+#
 speToOrg <- function(species) {
   species <- gsub(" ", "_", species)
   organism <- switch(species,
@@ -160,13 +160,13 @@ speToOrg <- function(species) {
 }
 
 
-#' Get scientific name abbreviate(kegg_code) used in the 'organism' parameter of gseKEGG function
-#'
-#' @param species species name
-#'
+# Get scientific name abbreviate(kegg_code) used in the 'organism' parameter of gseKEGG function
+#
+# @param species species name
+#
 #' @importFrom clusterProfiler search_kegg_organism
-#'
-#'
+#
+#
 get_kegg_code <- function(species) {
   result <- search_kegg_organism(species, by='scientific_name')
   if (nrow(result) == 0) {

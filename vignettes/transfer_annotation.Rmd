@@ -24,7 +24,7 @@ options(width = 80)
 
 ## Predict cell type of query data based on reference data
 
-```{r}
+```{r, warning = FALSE, message = FALSE}
 library(CellFunMap)
 ```
 
@@ -61,7 +61,7 @@ It's convenient to transfer annotation from reference to query data:
 df <- predictFun(query_SeuratObj = SeuratObj, reference_SeuratObj = pbmc3k.final,
                  group_by = 'seurat_annotations', cluster_by = 'seurat_clusters',
                  species = "Homo sapiens", by = 'GO', k = NULL, LDAmethod = "VEM")
-df
+df  # prediction result
 ```
 
 To obtain the accuracy of prediction in this case, we identify the cell types of each cluster in query data based on ground-truth identity of each cell.
@@ -69,6 +69,8 @@ To obtain the accuracy of prediction in this case, we identify the cell types of
 ```{r}
 mm <- table(SeuratObj$seurat_annotations, SeuratObj$seurat_clusters)
 nn <- setNames(rownames(mm)[apply(mm, 2, which.max)], colnames(mm))
+nn[df$query] # cell types of query data based on identity of each cell
+# check the accuracy of prediction
 caret::confusionMatrix(data = as.factor(df$prediction), reference = as.factor(nn[df$query]))$overall[["Accuracy"]]
 ```
 

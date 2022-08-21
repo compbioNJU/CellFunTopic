@@ -1,0 +1,96 @@
+reference:
+- title: Pre-processing
+  desc:  Functions used for pre-processing.
+- contents:
+  - readData
+  - CalMTpercent
+  - DetectGeneIDtype
+  - QCfun
+  - RunSeurat
+  - RunGSEA
+- title: Visualization of GSEA
+  desc:  Functions used for visualization of GSEA Result.
+- contents:
+  - circleplot
+  - clustercorplot
+  - Cosine_networkByGSEA
+  - edge_bundling_GSEA
+  - embeddedplot
+  - GOboxplot
+  - GOcircleplot
+  - gseaHeatmap
+  - hierarchyplot_tree
+  - pathwayScatterplot
+  - ID2Description
+  - simplifyEnrichmentplot
+  - scPalette
+  - scPalette2
+- title: Topic modeling and visualization
+  desc:  Functions used for topic modeling and visualization.
+- contents:
+  - runLDA
+  - cluster_topic_hmp
+  - plot_sankey
+  - cosineheatmap
+  - cosinehmp_cluster
+  - cosine_network_cluster
+  - cosine_network_term
+  - topicProb
+  - Topterms_Topic
+  - hist_cluster_topic
+  - hist_topic_term
+  - topicNW1
+  - topicNW2
+  - topicNW3
+  - umap_cluster
+  - wordcloud_topic
+  - lda.rep
+  - plotindex
+- title: Transfer topic model
+- contents:
+  - transfer_LDA
+  - cosine_heatmap2
+  - cosine_hive
+  - cosine_network_cluster2
+  - sankey_comparison
+- title: Transfer annotation
+  desc:  Functions used for annotation transfer from reference to query data.
+- contents:
+  - oversample_ref
+  - predictFun
+- title: Built-in Shiny APP
+  desc:  Visualize analysis result in Built-in Shiny APP.
+- contents:
+  - visualize_in_shiny
+- title: Data
+  desc:  Internal data.
+- contents:
+  - GO2level
+  - HCL_ldaOut
+  - MCA_ldaOut
+  - MTGENE
+  - txid_gene_MT
+  - txid_species_gene_MT
+
+
+articles:
+- title: Get started
+  navbar: ~
+  contents:
+  - pre-processing
+  - visualization_gsea
+  - topicmodel_visualization
+  - transfer_topicmodel
+  - transfer_annotation
+  - shiny_app
+
+
+---
+title: My Document
+resource_files:
+  - images/shinyappExample.gif
+---
+
+
+
+

@@ -22,6 +22,7 @@ options(width = 80)
 
 ```{r}
 library(CellFunMap)
+library(magrittr)
 ```
 
 ## Reference topic models
@@ -82,8 +83,11 @@ table(Seurat::Idents(SeuratObj))
 
 Transfer topic model from reference data to query data.
 
-```{r, eval = FALSE}
+```{r}
 ref_ldaOUt <- reference_SeuratObj@misc$ldaOut
+```
+
+```{r, eval = FALSE}
 SeuratObj <- transfer_LDA(query_SeuratObj = SeuratObj, ref_ldaOUt = ref_ldaOUt, by = "GO")
 ```
 
@@ -96,12 +100,12 @@ plot_sankey(gammaDF, topn=1)
 
 ```
 
-```{r, fig.height=7, fig.width=7}
+```{r, fig.height=6, fig.width=6}
 mm <- dist$topics
 colnames(mm) <- paste0('Topic ', colnames(mm))
 pheatmap::pheatmap(mm, cluster_rows = T, cluster_cols = T, angle_col = "0", main = "probability between topic and cluster",
-                   color = colorRampPalette(c('white', brewer.pal(n=9,name="OrRd")))(100),
-                   fontsize_row = 8, width = 9, height = 9)
+                   color = colorRampPalette(c('white', RColorBrewer::brewer.pal(n=9,name="OrRd")))(100),
+                   fontsize_row = 8)
 ```
 
 ## Visualize correlation or comparison
@@ -114,7 +118,7 @@ mm <- table(SeuratObj$seurat_annotations, SeuratObj$seurat_clusters)
 nn <- setNames(rownames(mm)[apply(mm, 2, which.max)], colnames(mm))
 rownames(dist$topics) <- nn[rownames(dist$topics)]
 
-sankey_comparison(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_")
+sankey_comparison(ldaOut=ref_ldaOUt, dist=dist, a_prefix="reference_", b_prefix="query_", height=800)
 ```
 
 ```{r, fig.height=10, fig.width=10}
