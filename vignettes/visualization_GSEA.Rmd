@@ -22,7 +22,7 @@ options(width = 80)
 
 
 ```{r}
-library(CellFunMap)
+library(CellFunTopic)
 ```
 
 First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](Pre-processing.html).
@@ -31,7 +31,7 @@ First, please make sure that you have previously performed the pre-processing an
 SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
 ```
 
-**CellFunMap** provides a variety of meaningful visualization methods of GSEA Result, facilitating functional annotation of cell clusters in single cell data. What's more, the visualization can be explored interactively in the built-in shiny app, see [Visualize in Built-in Shiny APP](shiny_app.html).
+**CellFunTopic** provides a variety of meaningful visualization methods of GSEA Result, facilitating functional annotation of cell clusters in single cell data. What's more, the visualization can be explored interactively in the built-in shiny app, see [Visualize in Built-in Shiny APP](shiny_app.html).
 
 ```{r, fig.height=8, fig.width=7}
 # Heatmap of GSEA result

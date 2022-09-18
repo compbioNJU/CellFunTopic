@@ -1,4 +1,4 @@
-Package: CellFunMap
+Package: CellFunTopic
 Title: Cell-Type Inference and Functional Annotation for Single-Cell Transcriptomics Using Functional Signatures
 Version: 0.0.0.9000
 Authors@R: 
@@ -7,8 +7,8 @@ Authors@R:
            role = c("aut", "cre"),
            email = "xiaobaicainiao@163.com")
 Maintainer: Shanni Cao <xiaobaicainiao@163.com>
-Description: CellFunMap enables rapid, automated, effective cell type annotation transfer across scRNA-seq datasets and species. 
-    In addition, CellFunMap provides a variety of meaningful visualization methods for functional annotation of single-cell transcriptomics.
+Description: CellFunTopic enables rapid, automated, effective cell type annotation transfer across scRNA-seq datasets and species. 
+    In addition, CellFunTopic provides a variety of meaningful visualization methods for functional annotation of single-cell transcriptomics.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -79,6 +79,6 @@ Suggests:
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
-URL: https://github.com/xiaobaicainiao666/CellFunMap
-BugReports: https://github.com/xiaobaicainiao666/CellFunMap/issues
+URL: https://github.com/xiaobaicainiao666/CellFunTopic
+BugReports: https://github.com/xiaobaicainiao666/CellFunTopic/issues
 

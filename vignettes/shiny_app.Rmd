@@ -14,7 +14,7 @@ First, please make sure that you have previously performed the pre-processing, G
 The GSEA and topic modelling results can be explored interactively in the built-in Shiny web application.
 
 ```{r, eval = FALSE}
-library(CellFunMap)
+library(CellFunTopic)
 visualize_in_shiny(SeuratObj)
 # It should be noted that an object named "SeuratObj" is needed in your global environment.
 ```

@@ -20,12 +20,12 @@ knitr::opts_chunk$set(
 options(width = 80)
 ```
 
-**CellFunMap** provides methods for rapid, automated cell-type annotation across datasets without dependence on marker genes, reducing labor intensive and time-consuming work of manual markers collection and manual cell-type annotation.
+**CellFunTopic** provides methods for rapid, automated cell-type annotation across datasets without dependence on marker genes, reducing labor intensive and time-consuming work of manual markers collection and manual cell-type annotation.
 
 ## Predict cell type of query data based on reference data
 
 ```{r, warning = FALSE, message = FALSE}
-library(CellFunMap)
+library(CellFunTopic)
 ```
 
 Here, we take `pbmc3k.final` as the reference data:

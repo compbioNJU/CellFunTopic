@@ -21,7 +21,7 @@ options(width = 80)
 ```
 
 ```{r}
-library(CellFunMap)
+library(CellFunTopic)
 library(magrittr)
 ```
 
@@ -33,9 +33,9 @@ SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
 
 ## Topic modeling
 
-Latent Dirichlet Allocation (LDA) is a Bayesian mixture model, initially developed for the analysis of text documents. **CellFunMap** provides a method to fit an LDA model to the clusters-by-pathways matrix derived from GSEA, where each cluster is considered as a document, pathway enrichment score(log-transformed) as a token in the document, and each pathway is considered as a word. CellFunMap infers the topic probability distribution by decomposing the clusters-by-pathways matrix into clusters-by-topics (`θ`) and topics-by-pathways (`ϕ`) matrices, that is, (1) the probability distributions over the topics for each cluster in the dataset (`θ`) and (2) the probability distributions over the pathways for each topic (`ϕ`). These distributions indicate, respectively, how important a regulatory topic is for a cluster (`θ`), and how important pathways are for the regulatory topic (`ϕ`). We assume that each cluster can be represented as a mixture of latent topics, which reveal cellular programs shared across cell types or exclusive to a particular cell type.
+Latent Dirichlet Allocation (LDA) is a Bayesian mixture model, initially developed for the analysis of text documents. **CellFunTopic** provides a method to fit an LDA model to the clusters-by-pathways matrix derived from GSEA, where each cluster is considered as a document, pathway enrichment score(log-transformed) as a token in the document, and each pathway is considered as a word. CellFunTopic infers the topic probability distribution by decomposing the clusters-by-pathways matrix into clusters-by-topics (`θ`) and topics-by-pathways (`ϕ`) matrices, that is, (1) the probability distributions over the topics for each cluster in the dataset (`θ`) and (2) the probability distributions over the pathways for each topic (`ϕ`). These distributions indicate, respectively, how important a regulatory topic is for a cluster (`θ`), and how important pathways are for the regulatory topic (`ϕ`). We assume that each cluster can be represented as a mixture of latent topics, which reveal cellular programs shared across cell types or exclusive to a particular cell type.
 
-Actually, CellFunMap provides two metrics, **log-likelihood** and **perplexity**, to determine the optimal number of topics. But we recommend a customized number of topics such as the number of cell types in scRNA-seq data, in order to improve biological interpretability. 
+Actually, CellFunTopic provides two metrics, **log-likelihood** and **perplexity**, to determine the optimal number of topics. But we recommend a customized number of topics such as the number of cell types in scRNA-seq data, in order to improve biological interpretability. 
 
 ```{r, eval = FALSE}
 k <- length(unique(Seurat::Idents(SeuratObj)))
@@ -50,7 +50,7 @@ save(SeuratObj, file = "SeuratObj.RData")
 
 ## Visualization of topic modelling results
 
-CellFunMap provides a few methods to visualize topic modelling results.
+CellFunTopic provides a few methods to visualize topic modelling results.
 
 ```{r}
 ldaOut <- SeuratObj@misc$ldaOut

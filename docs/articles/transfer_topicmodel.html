@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transfer topic model and visualization • CellFunMap</title>
+<title>Transfer topic model and visualization • CellFunTopic</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Transfer topic model and visualization">
-<meta property="og:description" content="CellFunMap">
+<meta property="og:description" content="CellFunTopic">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -30,7 +30,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">CellFunMap</a>
+        <a class="navbar-link" href="../index.html">CellFunTopic</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.0.9000</span>
       </span>
     </div>
@@ -44,7 +44,7 @@
   </a>
 </li>
 <li>
-  <a href="../articles/CellFunMap.html">Get started</a>
+  <a href="../articles/CellFunTopic.html">Get started</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -79,7 +79,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/xiaobaicainiao666/CellFunMap/">
+  <a href="https://github.com/xiaobaicainiao666/CellFunTopic/">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -99,9 +99,9 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Transfer topic model and visualization</h1>
             
-            <h4 class="date">2022-08-19</h4>
+            <h4 class="date">2022-09-18</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/xiaobaicainiao666/CellFunMap/blob/master/vignettes/transfer_topicmodel.Rmd"><code>vignettes/transfer_topicmodel.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/xiaobaicainiao666/CellFunTopic/blob/master/vignettes/transfer_topicmodel.Rmd"><code>vignettes/transfer_topicmodel.Rmd</code></a></small>
       <div class="hidden name"><code>transfer_topicmodel.Rmd</code></div>
 
     </div>
@@ -109,18 +109,18 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/xiaobaicainiao666/CellFunMap">CellFunMap</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/xiaobaicainiao666/CellFunTopic">CellFunTopic</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">magrittr</span><span class="op">)</span></code></pre></div>
 <div id="reference-topic-models" class="section level2">
 <h2 class="hasAnchor">
 <a href="#reference-topic-models" class="anchor"></a>Reference topic models</h2>
-<p>CellFunMap provides built-in reference topic models for users to take
-advantage of large landscape datasets such as the human cell landscape
-(HCL) and the mouse cell atlas (MCA).</p>
+<p>CellFunTopic provides built-in reference topic models for users to
+take advantage of large landscape datasets such as the human cell
+landscape (HCL) and the mouse cell atlas (MCA).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="op">?</span><span class="va">HCL_ldaOut</span>
 <span class="op">?</span><span class="va">MCA_ldaOut</span></code></pre></div>
-<p>CellFunMap also provides methods for users to make their own
+<p>CellFunTopic also provides methods for users to make their own
 reference topic models.</p>
 </div>
 <div id="make-a-reference-topic-model-and-transfer" class="section level2">
@@ -174,8 +174,8 @@ data, each cell owns a new cluster identity.</p>
 <code class="sourceCode R"><span class="va">dist</span> <span class="op">&lt;-</span> <span class="va">SeuratObj</span><span class="op">@</span><span class="va">misc</span><span class="op">$</span><span class="va">dist</span>
 <span class="va">gammaDF</span> <span class="op">&lt;-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span><span class="op">(</span><span class="va">dist</span><span class="op">$</span><span class="va">topics</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/magrittr/man/aliases.html">set_colnames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"document"</span>, <span class="st">"topic"</span>, <span class="st">"gamma"</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="../reference/plot_sankey.html">plot_sankey</a></span><span class="op">(</span><span class="va">gammaDF</span>, topn<span class="op">=</span><span class="fl">1</span><span class="op">)</span></code></pre></div>
-<div id="htmlwidget-e02874f62da9c812cda6" style="width:800px;height:600px;" class="sankeyNetwork html-widget"></div>
-<script type="application/json" data-for="htmlwidget-e02874f62da9c812cda6">{"x":{"links":{"source":[3,4,7,0,5,9,2,1,6,8],"target":[10,10,11,12,13,13,14,15,15,16],"value":[0.69709575770648,0.707537832158022,0.560277500122771,0.716691803345141,0.55890829679742,0.633647735217932,0.853007038074221,0.797392894298069,0.721059301442405,0.701440405818133],"group":["Topic_1","Topic_1","Topic_2","Topic_3","Topic_5","Topic_5","Topic_6","Topic_8","Topic_8","Topic_9"]},"nodes":{"name":["0","1","2","3","4","5","6","7","8","9","Topic_1","Topic_2","Topic_3","Topic_5","Topic_6","Topic_8","Topic_9"],"group":["0","1","2","3","4","5","6","7","8","9","Topic_1","Topic_2","Topic_3","Topic_5","Topic_6","Topic_8","Topic_9"]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":"topic","colourScale":"d3.scaleOrdinal(d3.schemeCategory20);","fontSize":12,"fontFamily":null,"nodeWidth":30,"nodePadding":10,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":false}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div id="htmlwidget-4841b265f04ac361809c" style="width:800px;height:600px;" class="sankeyNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4841b265f04ac361809c">{"x":{"links":{"source":[3,4,7,0,5,9,2,1,6,8],"target":[10,10,11,12,13,13,14,15,15,16],"value":[0.69709575770648,0.707537832158022,0.560277500122771,0.716691803345141,0.55890829679742,0.633647735217932,0.853007038074221,0.797392894298069,0.721059301442405,0.701440405818133],"group":["Topic_1","Topic_1","Topic_2","Topic_3","Topic_5","Topic_5","Topic_6","Topic_8","Topic_8","Topic_9"]},"nodes":{"name":["0","1","2","3","4","5","6","7","8","9","Topic_1","Topic_2","Topic_3","Topic_5","Topic_6","Topic_8","Topic_9"],"group":["0","1","2","3","4","5","6","7","8","9","Topic_1","Topic_2","Topic_3","Topic_5","Topic_6","Topic_8","Topic_9"]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":"topic","colourScale":"d3.scaleOrdinal(d3.schemeCategory20);","fontSize":12,"fontFamily":null,"nodeWidth":30,"nodePadding":10,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":false}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">mm</span> <span class="op">&lt;-</span> <span class="va">dist</span><span class="op">$</span><span class="va">topics</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">mm</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">'Topic '</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">mm</span><span class="op">)</span><span class="op">)</span>
 <span class="fu">pheatmap</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pheatmap/man/pheatmap.html">pheatmap</a></span><span class="op">(</span><span class="va">mm</span>, cluster_rows <span class="op">=</span> <span class="cn">T</span>, cluster_cols <span class="op">=</span> <span class="cn">T</span>, angle_col <span class="op">=</span> <span class="st">"0"</span>, main <span class="op">=</span> <span class="st">"probability between topic and cluster"</span>,
@@ -186,7 +186,7 @@ data, each cell owns a new cluster identity.</p>
 <div id="visualize-correlation-or-comparison" class="section level2">
 <h2 class="hasAnchor">
 <a href="#visualize-correlation-or-comparison" class="anchor"></a>Visualize correlation or comparison</h2>
-<p>CellFunMap provides a few methods to visualize correlation or
+<p>CellFunTopic provides a few methods to visualize correlation or
 comparison between reference data and query data. For better comparison,
 we identify the cell types of query data based on ground-truth identity
 of each cell.</p>
@@ -196,8 +196,8 @@ of each cell.</p>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">dist</span><span class="op">$</span><span class="va">topics</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">nn</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">dist</span><span class="op">$</span><span class="va">topics</span><span class="op">)</span><span class="op">]</span>
 
 <span class="fu"><a href="../reference/sankey_comparison.html">sankey_comparison</a></span><span class="op">(</span>ldaOut<span class="op">=</span><span class="va">ref_ldaOUt</span>, dist<span class="op">=</span><span class="va">dist</span>, a_prefix<span class="op">=</span><span class="st">"reference_"</span>, b_prefix<span class="op">=</span><span class="st">"query_"</span>, height<span class="op">=</span><span class="fl">800</span><span class="op">)</span></code></pre></div>
-<div id="htmlwidget-ee16b7ff3f1a379489c9" style="width:800px;height:800px;" class="sankeyNetwork html-widget"></div>
-<script type="application/json" data-for="htmlwidget-ee16b7ff3f1a379489c9">{"x":{"links":{"source":[1,7,5,2,0,3,8,6,4,9,10,11,12,13,15,14],"target":[10,15,13,11,9,9,16,14,12,17,18,19,20,21,23,22],"value":[0.999971152916276,0.641833162163222,0.999969356943293,0.999975946174153,0.999944072655296,0.580412295314719,0.99991416091789,0.999955069049232,0.799421181349954,0.853007038074221,0.707537832158022,0.633647735217932,0.701440405818133,0.716691803345141,0.560277500122771,0.797392894298069],"group":["Topic_1","Topic_2","Topic_3","Topic_5","Topic_6","Topic_6","Topic_7","Topic_8","Topic_9","Topic_6","Topic_1","Topic_5","Topic_9","Topic_3","Topic_2","Topic_8"]},"nodes":{"name":["reference_B","reference_CD14+ Mono","reference_CD8 T","reference_DC","reference_FCGR3A+ Mono","reference_Memory CD4 T","reference_Naive CD4 T","reference_NK","reference_Platelet","Topic_6","Topic_1","Topic_5","Topic_9","Topic_3","Topic_8","Topic_2","Topic_7","query_B","query_CD14+ Mono","query_CD8 T","query_FCGR3A+ Mono","query_Memory CD4 T","query_Naive CD4 T","query_NK"],"group":["reference_B","reference_CD14+ Mono","reference_CD8 T","reference_DC","reference_FCGR3A+ Mono","reference_Memory CD4 T","reference_Naive CD4 T","reference_NK","reference_Platelet","Topic_6","Topic_1","Topic_5","Topic_9","Topic_3","Topic_8","Topic_2","Topic_7","query_B","query_CD14+ Mono","query_CD8 T","query_FCGR3A+ Mono","query_Memory CD4 T","query_Naive CD4 T","query_NK"]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":"linkcolor","colourScale":"d3.scaleOrdinal(d3.schemeCategory20);","fontSize":12,"fontFamily":null,"nodeWidth":30,"nodePadding":10,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":false}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div id="htmlwidget-b846237a3f974cd8e3e7" style="width:800px;height:800px;" class="sankeyNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-b846237a3f974cd8e3e7">{"x":{"links":{"source":[1,7,5,2,0,3,8,6,4,9,10,11,12,13,15,14],"target":[10,15,13,11,9,9,16,14,12,17,18,19,20,21,23,22],"value":[0.999971152916276,0.641833162163222,0.999969356943293,0.999975946174153,0.999944072655296,0.580412295314719,0.99991416091789,0.999955069049232,0.799421181349954,0.853007038074221,0.707537832158022,0.633647735217932,0.701440405818133,0.716691803345141,0.560277500122771,0.797392894298069],"group":["Topic_1","Topic_2","Topic_3","Topic_5","Topic_6","Topic_6","Topic_7","Topic_8","Topic_9","Topic_6","Topic_1","Topic_5","Topic_9","Topic_3","Topic_2","Topic_8"]},"nodes":{"name":["reference_B","reference_CD14+ Mono","reference_CD8 T","reference_DC","reference_FCGR3A+ Mono","reference_Memory CD4 T","reference_Naive CD4 T","reference_NK","reference_Platelet","Topic_6","Topic_1","Topic_5","Topic_9","Topic_3","Topic_8","Topic_2","Topic_7","query_B","query_CD14+ Mono","query_CD8 T","query_FCGR3A+ Mono","query_Memory CD4 T","query_Naive CD4 T","query_NK"],"group":["reference_B","reference_CD14+ Mono","reference_CD8 T","reference_DC","reference_FCGR3A+ Mono","reference_Memory CD4 T","reference_Naive CD4 T","reference_NK","reference_Platelet","Topic_6","Topic_1","Topic_5","Topic_9","Topic_3","Topic_8","Topic_2","Topic_7","query_B","query_CD14+ Mono","query_CD8 T","query_FCGR3A+ Mono","query_Memory CD4 T","query_Naive CD4 T","query_NK"]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":"linkcolor","colourScale":"d3.scaleOrdinal(d3.schemeCategory20);","fontSize":12,"fontFamily":null,"nodeWidth":30,"nodePadding":10,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":false}},"evals":[],"jsHooks":[]}</script><div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/cosine_network_cluster2.html">cosine_network_cluster2</a></span><span class="op">(</span>ldaOut<span class="op">=</span><span class="va">ref_ldaOUt</span>, dist<span class="op">=</span><span class="va">dist</span>, a_prefix<span class="op">=</span><span class="st">"reference_"</span>, b_prefix<span class="op">=</span><span class="st">"query_"</span>,
                         layout<span class="op">=</span><span class="st">"fr"</span>, cos_sim_thresh<span class="op">=</span><span class="fl">0.5</span>, radius<span class="op">=</span><span class="fl">0.1</span>, text_size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
 <p><img src="transfer_topicmodel_files/figure-html/unnamed-chunk-14-1.png" width="960" style="display: block; margin: auto;"></p>

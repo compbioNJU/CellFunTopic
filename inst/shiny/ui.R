@@ -7,10 +7,10 @@ source(
 
 ui <- dashboardPagePlus(
   skin = "green",
-  title = "CellFunMap",
+  title = "CellFunTopic",
   # options = list(sidebarExpandOnHover = TRUE),
   header = dashboardHeaderPlus(
-    title = "CellFunMap",
+    title = "CellFunTopic",
     left_menu = tagList(
       tags$span(
         "Functional Annotation for Single-Cell Transcriptomics",

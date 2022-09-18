@@ -21,20 +21,20 @@ options(width = 80)
 ```
 
 ```{r}
-library(CellFunMap)
+library(CellFunTopic)
 library(magrittr)
 ```
 
 ## Reference topic models
 
-CellFunMap provides built-in reference topic models for users to take advantage of large landscape datasets such as the human cell landscape (HCL) and the mouse cell atlas (MCA).
+CellFunTopic provides built-in reference topic models for users to take advantage of large landscape datasets such as the human cell landscape (HCL) and the mouse cell atlas (MCA).
 
 ```{r, eval = FALSE}
 ?HCL_ldaOut
 ?MCA_ldaOut
 ```
 
-CellFunMap also provides methods for users to make their own reference topic models. 
+CellFunTopic also provides methods for users to make their own reference topic models. 
 
 ## Make a reference topic model and transfer
 
@@ -110,7 +110,7 @@ pheatmap::pheatmap(mm, cluster_rows = T, cluster_cols = T, angle_col = "0", main
 
 ## Visualize correlation or comparison
 
-CellFunMap provides a few methods to visualize correlation or comparison between reference data and query data.
+CellFunTopic provides a few methods to visualize correlation or comparison between reference data and query data.
 For better comparison, we identify the cell types of query data based on ground-truth identity of each cell.
 
 ```{r, fig.height=7, fig.width=7}

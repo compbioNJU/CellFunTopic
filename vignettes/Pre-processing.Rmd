@@ -22,15 +22,15 @@ options(width = 80)
 ```
 
 
-The **CellFunMap** package provides a convenient workflow for data pre-processing (quality control, normalization, dimension reduction, clustering, differential expression analysis, etc.) by integrating methods of `Seurat` package.
+The **CellFunTopic** package provides a convenient workflow for data pre-processing (quality control, normalization, dimension reduction, clustering, differential expression analysis, etc.) by integrating methods of `Seurat` package.
 
 ```{r}
-library(CellFunMap)
+library(CellFunTopic)
 ```
 
 ## Load in the data
 
-CellFunMap allows various types of input, including CellRanger outputs, raw gene expression matrix, and popular R/python objects used for single cell analysis such as `SingleCellExperiment`, `Seurat`, `CellDataSet`, `AnnData`. CellFunMap will transform different input data into a `Seurat` object.
+CellFunTopic allows various types of input, including CellRanger outputs, raw gene expression matrix, and popular R/python objects used for single cell analysis such as `SingleCellExperiment`, `Seurat`, `CellDataSet`, `AnnData`. CellFunTopic will transform different input data into a `Seurat` object.
 
 Let us use `pbmc3k.final` as a toy example.
 
@@ -55,7 +55,7 @@ unique(Seurat::Idents(SeuratObj)) # see how many clusters we got.
 
 ## Gene Set Enrichment Analysis (GSEA)
 
-Then we perform Gene Set Enrichment Analysis (GSEA) on the `Seurat` object. CellFunMap provides a encapsulated function for GSEA with different databases such as GO (Gene Ontology), KEGG, Reactome, MSigDb, WikiPathways, DO, NCG, DGN.
+Then we perform Gene Set Enrichment Analysis (GSEA) on the `Seurat` object. CellFunTopic provides a encapsulated function for GSEA with different databases such as GO (Gene Ontology), KEGG, Reactome, MSigDb, WikiPathways, DO, NCG, DGN.
 
 ```{r}
 SeuratObj <- RunGSEA(SeuratObj, by = 'GO')

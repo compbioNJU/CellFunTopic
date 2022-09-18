@@ -2,12 +2,12 @@ pandoc: 2.17.1.1
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
-  CellFunMap: CellFunMap.html
+  CellFunTopic: CellFunTopic.html
   pre-processing: pre-processing.html
   shiny_app: shiny_app.html
   topicmodel_visualization: topicmodel_visualization.html
   transfer_annotation: transfer_annotation.html
   transfer_topicmodel: transfer_topicmodel.html
   visualization_gsea: visualization_gsea.html
-last_built: 2022-08-19T15:50Z
+last_built: 2022-09-18T12:22Z
 
