@@ -79,6 +79,6 @@ Suggests:
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
-URL: https://github.com/xiaobaicainiao666/CellFunTopic
-BugReports: https://github.com/xiaobaicainiao666/CellFunTopic/issues
+URL: https://github.com/compbioNJU/CellFunTopic
+BugReports: https://github.com/compbioNJU/CellFunTopic/issues
 

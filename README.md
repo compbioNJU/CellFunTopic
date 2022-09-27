@@ -20,12 +20,12 @@ if (!requireNamespace("devtools", quietly = TRUE)) install.packages("devtools")
 Then, install CellFunTopic:
 
 ``` r
-devtools::install_github("xiaobaicainiao666/CellFunTopic")
+devtools::install_github("compbioNJU/CellFunTopic")
 ```
 
 ## Example
 
-See website: https://xiaobaicainiao666.github.io/CellFunTopic
+See website: https://compbioNJU.github.io/CellFunTopic
 
 
 
