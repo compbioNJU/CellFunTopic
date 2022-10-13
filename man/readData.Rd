@@ -7,7 +7,7 @@
 readData(
   data,
   type = c("10X", "10X_h5", "expMatrix", "SingleCellExperiment", "Seurat",
-    "CellDataSet", "AnnData", "loom"),
+    "CellDataSet", "loom"),
   meta.data = NULL,
   species
 )
@@ -15,10 +15,9 @@ readData(
 \arguments{
 \item{data}{Can be a directory like "/outs/filtered_gene_bc_matrices/" provided by 10X.
 Or an expression matrix of single-cell RNA-seq (matrix or dgCMatrix).
-Or an object from R/python packages such as scater, scran, Seurat, monocle.
-Or H5AD files that AnnData uses.}
+Or an object from R/python packages such as scater, scran, Seurat, monocle.}
 
-\item{type}{10X, 10X_h5, expMatrix, SingleCellExperiment, Seurat, CellDataSet, AnnData, loom}
+\item{type}{10X, 10X_h5, expMatrix, SingleCellExperiment, Seurat, CellDataSet, loom}
 
 \item{meta.data}{Additional cell-level metadata to add to the Seurat object. Should be a data frame where the rows are cell names and the columns are additional metadata fields.}
 

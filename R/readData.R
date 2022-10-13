@@ -3,11 +3,10 @@
 #' @param data Can be a directory like "/outs/filtered_gene_bc_matrices/" provided by 10X.
 #' Or an expression matrix of single-cell RNA-seq (matrix or dgCMatrix).
 #' Or an object from R/python packages such as scater, scran, Seurat, monocle.
-#' Or H5AD files that AnnData uses.
-#' @param type 10X, 10X_h5, expMatrix, SingleCellExperiment, Seurat, CellDataSet, AnnData, loom
+#' @param type 10X, 10X_h5, expMatrix, SingleCellExperiment, Seurat, CellDataSet, loom
 #' @param meta.data Additional cell-level metadata to add to the Seurat object. Should be a data frame where the rows are cell names and the columns are additional metadata fields.
 #' @param species Species name, such as Homo sapiens or Mus musculus.
-#' @importFrom Seurat Read10X CreateSeuratObject as.Seurat ReadH5AD Read10X_h5
+#' @importFrom Seurat Read10X CreateSeuratObject as.Seurat Read10X_h5
 #'
 #' @return Seurat object
 #' @export
@@ -21,7 +20,7 @@
 #'
 #'
 readData <- function(data,
-                     type = c("10X", "10X_h5", "expMatrix", "SingleCellExperiment", "Seurat", "CellDataSet", "AnnData", "loom"),
+                     type = c("10X", "10X_h5", "expMatrix", "SingleCellExperiment", "Seurat", "CellDataSet", "loom"),
                      meta.data = NULL,
                      species) {
   type <- match.arg(type)
@@ -45,9 +44,9 @@ readData <- function(data,
         stop("Please check the 'type' argument, class(data) is not 'Seurat'")
       }
       SeuratObj <- data
-    } else if (type == "AnnData") {
-      # message("We use the Seurat function 'ReadH5AD' to read the data from the H5AD files that AnnData uses.")
-      SeuratObj <- ReadH5AD(file = data)
+    # } else if (type == "AnnData") {
+    #   # message("We use the Seurat function 'ReadH5AD' to read the data from the H5AD files that AnnData uses.")
+    #   SeuratObj <- ReadH5AD(file = data) # only compatible with Seurat V3
     } else {
       if (!inherits(x = data, what = type)) {
         stop("Wrong 'type' argument")
