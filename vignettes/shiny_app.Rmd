@@ -9,7 +9,7 @@ vignette: >
 ---
 
 
-First, please make sure that you have previously performed the pre-processing, GSEA and topic-modelling steps, see [Pre-processing](Pre-processing.html) and [topic-modelling](topicModel_visualization.html).
+First, please make sure that you have previously performed the pre-processing, GSEA and topic-modelling steps, see [Pre-processing](pre-processing.html) and [topic-modelling](topicmodel_visualization.html).
 
 The GSEA and topic modelling results can be explored interactively in the built-in Shiny web application.
 

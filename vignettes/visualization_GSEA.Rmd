@@ -25,7 +25,7 @@ options(width = 80)
 library(CellFunTopic)
 ```
 
-First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](Pre-processing.html).
+First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](pre-processing.html).
 
 ```{r, echo = FALSE}
 SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
@@ -36,6 +36,11 @@ SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
 ```{r, fig.height=8, fig.width=7}
 # Heatmap of GSEA result
 gseaHeatmap(SeuratObj, by = "GO", toshow = "-logFDR", topPath = 5, colour = "Greens", fontsize_row = 7)
+```
+
+```{r, fig.height=8, fig.width=7}
+# Heatmap showing unique and shared pathways of clusters.
+pathway_unique_shared(SeuratObj, by = "GO", toshow = "-logFDR", topPath = 5, colour = "Greens", fontsize_row = 7)
 ```
 
 ```{r, fig.height=7, fig.width=7}

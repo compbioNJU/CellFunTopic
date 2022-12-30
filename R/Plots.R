@@ -65,6 +65,92 @@ gseaHeatmap <- function(SeuratObj, by = "GO", pathwayIDs = NULL, toshow = "-logF
 }
 
 
+#' Heatmap showing unique and shared pathways of clusters.
+#'
+#' @param SeuratObj Seurat object
+#' @param by which GSEA result to show, one of "GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"
+#' @param toshow which GSEA score to show, "-logFDR", "enrichmentScore", "NES", "pvalue", "p.adjust"
+#' @param topPath number of top pathways of each cluster to show
+#' @param colour color of heatmap, see \code{RColorBrewer::brewer.pal.info}
+#' @param scale if the values should be centered and scaled in either the row direction or the column direction, or none.
+#' Corresponding values are "row", "column" and "none"
+#' @param fontsize_row fontsize for rownames
+#' @param cluster_rows boolean values determining if rows should be clustered.
+#' @param cluster_cols boolean values determining if columns should be clustered.
+#'
+#' @importFrom ComplexHeatmap `%v%`
+#'
+#' @return A Heatmap-class object.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' pathway_unique_shared(SeuratObj, by = "GO", toshow = "-logFDR", topPath = 5, colour = "Greens")
+#' }
+#'
+#'
+pathway_unique_shared <- function(SeuratObj, by = "GO", toshow = "-logFDR", topPath = 5,
+                                  colour = "Greens", scale = "none", fontsize_row = 10,
+                                  cluster_rows = TRUE, cluster_cols = TRUE) {
+
+  by <- match.arg(by, choices = c("GO", "KEGG", "Reactome", "MSigDb", "WikiPathways", "DO", "NCG", "DGN"))
+  GSEAresult <- slot(object = SeuratObj, name = 'misc')[[paste0("GSEAresult_", by)]] %>% dplyr::mutate(`-logFDR`=-log10(p.adjust))
+
+  mat <- reshape2::acast(GSEAresult, Description~cluster, value.var=toshow)
+  mat[is.na(mat)] <- 0
+
+  uniqPaths <- c() # unique pathways
+  sharedPaths <- c() # shared pathways
+  for (pp in rownames(mat)) {
+    scores <- sort(mat[pp, , drop=T], decreasing = T)
+    if (scores[2] < scores[1]/5) {
+      uniqPaths <- c(uniqPaths, pp)
+    } else if (scores[2] > scores[1]*4/5) {
+      sharedPaths <- c(sharedPaths, pp)
+    }
+  }
+
+  # heatmap of unique pathways
+  topath <- GSEAresult %>% dplyr::filter(Description %in% uniqPaths) %>%
+    dplyr::group_by(cluster) %>%
+    dplyr::arrange(desc(toshow), .by_group = TRUE) %>%
+    dplyr::slice_head(n = topPath)
+
+  mm1 <- mat[unique(topath$Description), ]
+  rownames(mm1) <- ifelse(nchar(rownames(mm1)) > 60, paste(strtrim(rownames(mm1), 60), "..."), rownames(mm1))
+
+  if (scale == "row") {
+    mm1 <- t(scale(t(mm1), center = T, scale=T))
+  } else if (scale == "column") {
+    mm1 <- scale(mm1, center = T, scale=T)
+  }
+  col_fun = circlize::colorRamp2(seq(min(mm1), max(mm1), length.out = 8), c("white", brewer.pal(n = 7, name = colour)))
+  ht1 <- ComplexHeatmap::Heatmap(mm1, name = ifelse(toshow == "-logFDR", "-log10(p.adjust)", toshow), row_title = "Unique pathways",
+                                 col = col_fun, column_names_rot = 90, row_names_gp = grid::gpar(fontsize = fontsize_row),
+                                 cluster_rows = cluster_rows, cluster_columns = cluster_cols, rect_gp = grid::gpar(col = "grey60"), border = TRUE)
+
+  # heatmap of shared pathways
+  topath <- GSEAresult %>% dplyr::filter(Description %in% sharedPaths) %>%
+    dplyr::group_by(cluster) %>%
+    dplyr::arrange(desc(toshow), .by_group = TRUE) %>%
+    dplyr::slice_head(n = topPath)
+
+  mm2 <- mat[unique(topath$Description), ]
+  rownames(mm2) <- ifelse(nchar(rownames(mm2)) > 60, paste(strtrim(rownames(mm2), 60), "..."), rownames(mm2))
+
+  if (scale == "row") {
+    mm2 <- t(scale(t(mm2), center = T, scale=T))
+  } else if (scale == "column") {
+    mm2 <- scale(mm2, center = T, scale=T)
+  }
+  col_fun2 = circlize::colorRamp2(seq(min(mm2), max(mm2), length.out = 8), c("white", brewer.pal(n = 7, name = colour)))
+  ht2 <- ComplexHeatmap::Heatmap(mm2, name = ifelse(toshow == "-logFDR", "-log10(p.adjust)", toshow), row_title = "Shared pathways",
+                                 col = col_fun2, column_names_rot = 90, row_names_gp = grid::gpar(fontsize = fontsize_row),
+                                 cluster_rows = cluster_rows, cluster_columns = cluster_cols, rect_gp = grid::gpar(col = "grey60"), border = TRUE)
+  # Vertical concatenation
+  ht1 %v% ht2
+}
+
 
 
 #' circle plot of clusters

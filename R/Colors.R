@@ -55,6 +55,29 @@ scPalette2 <- function(n) {
 
 
 
+#' Generate colors from a customed color palette
+#'
+#' @param n number of colors to generate
+#'
+#' @importFrom paletteer paletteer_d
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' scPalette3(8)
+#' pals::pal.bands(scPalette3(20))
+#'
+scPalette3 <- function (n) {
+  colorSpace <- c(paletteer_d("ggthemes::Tableau_20"), paletteer_d("ggthemes::hc_darkunica"), paletteer_d("ggthemes::Classic_10"))
+  if (n <= length(colorSpace)) {
+    colors <- colorSpace[1:n]
+  }
+  else {
+    colors <- (grDevices::colorRampPalette(colorSpace))(n)
+  }
+  return(colors)
+}
 
 
 

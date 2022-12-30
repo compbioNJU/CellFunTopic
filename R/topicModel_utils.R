@@ -348,8 +348,9 @@ topicNW3 <- function(betaDF, topn, pws) {
             symbolKeepAspect = T,
             focusNodeAdjacency = T,
             force = list(repulsion = 100),
-            edgeSymbol = list('none', 'arrow'),
-            edgeSymbolSize = 5,
+            edgeSymbol = list('none', 'none'),
+            # edgeSymbol = list('none', 'arrow'),
+            # edgeSymbolSize = 0.1,
             lineStyle = list(color = 'source'),
             label = list(show = T, color = "#000000", fontWeight = "normal", fontSize = 5)
     ) %>%

@@ -19,12 +19,14 @@ reference:
   - GOboxplot
   - GOcircleplot
   - gseaHeatmap
+  - pathway_unique_shared
   - hierarchyplot_tree
   - pathwayScatterplot
   - ID2Description
   - simplifyEnrichmentplot
   - scPalette
   - scPalette2
+  - scPalette3
 - title: Topic modeling and visualization
   desc:  Functions used for topic modeling and visualization.
 - contents:

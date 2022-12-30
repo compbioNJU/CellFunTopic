@@ -25,7 +25,7 @@ devtools::install_github("compbioNJU/CellFunTopic")
 
 ## Example
 
-See website: https://compbioNJU.github.io/CellFunTopic
+Please see website: https://compbioNJU.github.io/CellFunTopic
 
 
 

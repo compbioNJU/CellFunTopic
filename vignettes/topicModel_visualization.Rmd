@@ -25,7 +25,7 @@ library(CellFunTopic)
 library(magrittr)
 ```
 
-First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](Pre-processing.html).
+First, please make sure that you have previously performed the pre-processing and GSEA steps, see [Pre-processing](pre-processing.html).
 
 ```{r, echo = FALSE}
 SeuratObj <- readRDS(file = "../vignette_data/pbmc3k_SeuratObj.rds")
