@@ -234,9 +234,15 @@ QCfun <- function(SeuratObj,
   if (is.null(maxPercent.mt)) {
     maxPercent.mt <- 20
   }
-  cells <- meta.data %>% dplyr::filter(nCount_RNA > minCountsPerCell, nCount_RNA < maxCountsPerCell,
-                                nFeature_RNA > minFeaturesPerCell, nFeature_RNA < maxFeaturesPerCell,
-                                percent.mt < maxPercent.mt) %>% rownames()
+  if ('percent.mt' %in% colnames(meta.data)) {
+    cells <- meta.data %>% dplyr::filter(nCount_RNA > minCountsPerCell, nCount_RNA < maxCountsPerCell,
+                                         nFeature_RNA > minFeaturesPerCell, nFeature_RNA < maxFeaturesPerCell,
+                                         percent.mt < maxPercent.mt) %>% rownames()
+  } else {
+    cells <- meta.data %>% dplyr::filter(nCount_RNA > minCountsPerCell, nCount_RNA < maxCountsPerCell,
+                                         nFeature_RNA > minFeaturesPerCell, nFeature_RNA < maxFeaturesPerCell) %>% rownames()
+  }
+
   # Filter features
   counts <- GetAssayData(object = SeuratObj)
   CellsPerGene <- Matrix::rowSums(counts > 0)
