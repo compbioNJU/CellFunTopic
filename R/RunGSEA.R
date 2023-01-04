@@ -88,7 +88,7 @@ RunGSEA_sub <- function(SeuratObj,
   if (!is.null(TERM2GENE)) {
     out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
       submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-      geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+      geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
       res <- GSEA(geneList     = geneList,
                   TERM2GENE    = TERM2GENE,
                   pvalueCutoff = pvalueCutoff,
@@ -101,7 +101,7 @@ RunGSEA_sub <- function(SeuratObj,
       OrgDb <- getOrgDb(species)
       out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
         submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-        geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+        geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
         res <- gseGO(geneList     = geneList,
                      OrgDb        = OrgDb,
                      ont          = "ALL",
@@ -120,7 +120,7 @@ RunGSEA_sub <- function(SeuratObj,
       kegg_code <- get_kegg_code(species)
       out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
         submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-        geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+        geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
         res <- gseKEGG(geneList          = geneList,
                        organism          = kegg_code,
                        keyType           = 'ncbi-geneid',
@@ -140,7 +140,7 @@ RunGSEA_sub <- function(SeuratObj,
       organism <- speToOrg(species)
       out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
         submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-        geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+        geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
         res <- ReactomePA::gsePathway(geneList     = geneList,
                           organism     = organism,
                           nPerm        = 1000,
@@ -162,7 +162,7 @@ RunGSEA_sub <- function(SeuratObj,
       if (!is.null(TERM2GENE)) {
         out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
           submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-          geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+          geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
           res <- GSEA(geneList     = geneList,
                       TERM2GENE    = TERM2GENE,
                       pvalueCutoff = pvalueCutoff,
@@ -185,7 +185,7 @@ RunGSEA_sub <- function(SeuratObj,
       wpid2name <- wp2gene %>% dplyr::select(wpid, name) #TERM2NAME
       out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
         submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-        geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+        geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
         res <- GSEA(geneList     = geneList,
                     TERM2GENE    = wpid2gene,
                     TERM2NAME    = wpid2name,
@@ -199,7 +199,7 @@ RunGSEA_sub <- function(SeuratObj,
     if (by == 'DO') {
       out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
         submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-        geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+        geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
         res <- gseDO(geneList,
                      nPerm         = 100,
                      minGSSize     = 120,
@@ -214,7 +214,7 @@ RunGSEA_sub <- function(SeuratObj,
     if (by == 'NCG') {
       out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
         submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-        geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+        geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
         res <- gseNCG(geneList,
                       nPerm         = 100,
                       minGSSize     = 120,
@@ -229,7 +229,7 @@ RunGSEA_sub <- function(SeuratObj,
     if (by == 'DGN') {
       out <- foreach(cls=unique(Allmarkers$cluster)) %do% {
         submarkers <- Allmarkers %>% dplyr::filter(cluster==cls & pct.1 >= minpct)
-        geneList <- sort(setNames(submarkers$avg_logFC, submarkers$ENTREZID), decreasing = T)
+        geneList <- sort(setNames(submarkers$avg_log2FC, submarkers$ENTREZID), decreasing = T)
         res <- gseDGN(geneList,
                       nPerm         = 100,
                       minGSSize     = 120,
