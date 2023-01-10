@@ -81,15 +81,17 @@ RunSeurat <- function(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE) {
 
   # Finding differentially expressed features (cluster biomarkers)
   # find markers for every cluster compared to all remaining cells, report only the positive ones
-  SeuratObj.markers <- FindAllMarkers(SeuratObj, only.pos = TRUE, min.pct = 0.0001, logfc.threshold = 0.0001, return.thresh=0.9)
-  top10 <- SeuratObj.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+  Allmarkers <- FindAllMarkers(SeuratObj, only.pos = TRUE, min.pct = 0.0001, logfc.threshold = 0.0001, return.thresh=0.9)
+  Allmarkers$pct.diff <- Allmarkers$pct.1 - Allmarkers$pct.2
+
+  top10 <- Allmarkers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
   if (plot) {
     pdf(file = "./CellFunMap_output/plots/RunSeurat/top10Markers.pdf")
     print(DoHeatmap(SeuratObj, features = top10$gene) + NoLegend())
     dev.off()
   }
 
-  slot(object = SeuratObj, name = 'misc')[["Allmarkers"]] <- SeuratObj.markers
+  slot(object = SeuratObj, name = 'misc')[["Allmarkers"]] <- Allmarkers
   slot(object = SeuratObj, name = 'misc')[["top10markers"]] <- top10
 
   return(SeuratObj)
