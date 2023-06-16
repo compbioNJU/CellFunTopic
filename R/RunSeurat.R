@@ -26,11 +26,11 @@ RunSeurat <- function(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE) {
   SeuratObj <- FindVariableFeatures(SeuratObj, selection.method = "vst", nfeatures = 2000)
   # Visualize  the 10 most highly variable genes
   top10 <- head(VariableFeatures(SeuratObj), 10)
-  if (plot & !dir.exists(paths = "./CellFunMap_output/plots/RunSeurat")) {
-    dir.create("./CellFunMap_output/plots/RunSeurat", recursive = TRUE)
+  if (plot & !dir.exists(paths = "./CellFunTopic_output/plots/RunSeurat")) {
+    dir.create("./CellFunTopic_output/plots/RunSeurat", recursive = TRUE)
   }
   if (plot) {
-    pdf(file = "./CellFunMap_output/plots/RunSeurat/VariableFeaturePlot.pdf")
+    pdf(file = "./CellFunTopic_output/plots/RunSeurat/VariableFeaturePlot.pdf")
     plot1 <- VariableFeaturePlot(SeuratObj)
     plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
     print(plot1 + plot2)
@@ -43,7 +43,7 @@ RunSeurat <- function(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE) {
   # Perform linear dimensional reduction
   SeuratObj <- RunPCA(SeuratObj, features = VariableFeatures(object = SeuratObj))
   if (plot) {
-    pdf(file = "./CellFunMap_output/plots/RunSeurat/PCA.pdf")
+    pdf(file = "./CellFunTopic_output/plots/RunSeurat/PCA.pdf")
     print(VizDimLoadings(SeuratObj, dims = 1:2, reduction = "pca"))
     print(DimPlot(SeuratObj, reduction = "pca"))
     print(DimHeatmap(SeuratObj, dims = 1, cells = 500, balanced = TRUE))
@@ -57,7 +57,7 @@ RunSeurat <- function(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE) {
   # SeuratObj <- ScoreJackStraw(SeuratObj, dims = 1:20)
   # JackStrawPlot(SeuratObj, dims = 1:15)
   if (plot) {
-    pdf(file = "./CellFunMap_output/plots/RunSeurat/ElbowPlot.pdf")
+    pdf(file = "./CellFunTopic_output/plots/RunSeurat/ElbowPlot.pdf")
     print(ElbowPlot(SeuratObj))
     dev.off()
   }
@@ -71,10 +71,10 @@ RunSeurat <- function(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE) {
   SeuratObj <- RunTSNE(SeuratObj, dims = 1:nPCs)
 
   if (plot) {
-    pdf(file = "./CellFunMap_output/plots/RunSeurat/UMAP.pdf")
+    pdf(file = "./CellFunTopic_output/plots/RunSeurat/UMAP.pdf")
     print(DimPlot(SeuratObj, reduction = "umap"))
     dev.off()
-    pdf(file = "./CellFunMap_output/plots/RunSeurat/TSNE.pdf")
+    pdf(file = "./CellFunTopic_output/plots/RunSeurat/TSNE.pdf")
     print(DimPlot(SeuratObj, reduction = "tsne"))
     dev.off()
   }
@@ -86,7 +86,7 @@ RunSeurat <- function(SeuratObj, nPCs = 10, resolution = 0.5, plot = FALSE) {
 
   top10 <- Allmarkers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
   if (plot) {
-    pdf(file = "./CellFunMap_output/plots/RunSeurat/top10Markers.pdf")
+    pdf(file = "./CellFunTopic_output/plots/RunSeurat/top10Markers.pdf")
     print(DoHeatmap(SeuratObj, features = top10$gene) + NoLegend())
     dev.off()
   }

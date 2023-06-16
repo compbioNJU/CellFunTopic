@@ -204,11 +204,11 @@ QCfun <- function(SeuratObj,
                   plot = FALSE) {
 
   # Visualization before QC
-  if (plot & !dir.exists(paths = "./CellFunMap_output/plots")) {
-    dir.create("./CellFunMap_output/plots", recursive = TRUE)
+  if (plot & !dir.exists(paths = "./CellFunTopic_output/plots")) {
+    dir.create("./CellFunTopic_output/plots", recursive = TRUE)
   }
   if (plot) {
-    pdf(file = "./CellFunMap_output/plots/beforeQC.pdf")
+    pdf(file = "./CellFunTopic_output/plots/beforeQC.pdf")
     vp <- VlnPlot(SeuratObj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
     print(vp)
     plot1 <- FeatureScatter(SeuratObj, feature1 = "nCount_RNA", feature2 = "percent.mt")
@@ -259,7 +259,7 @@ QCfun <- function(SeuratObj,
 
   # Visualization after QC
   if (plot) {
-    pdf(file = "./CellFunMap_output/plots/afterQC.pdf")
+    pdf(file = "./CellFunTopic_output/plots/afterQC.pdf")
     vp <- VlnPlot(SeuratObj, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
     print(vp)
     dev.off()

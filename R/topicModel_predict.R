@@ -481,18 +481,18 @@ predictFun <- function(query_SeuratObj, reference_SeuratObj,
   ct <- unique(reference_SeuratObj@meta.data[, c(cluster_by, group_by)]) %>% tibble::deframe()
   training$Class <- factor(ct[rownames(training)], levels=unique(ct[rownames(training)]))
   # train a svm classifier
-  ctrl <- trainControl(method = "repeatedcv", number=10, repeats = 3, search = "random")
+  ctrl <- trainControl(method = "repeatedcv", number=10, repeats = 3) # , search = "random"
   set.seed(123)
-  svm_Radial <- train(
+  svm_Linear <- train(
     Class ~ .,
     data = training,
-    method = "svmRadial",
+    method = "svmLinear",
     preProc = c("center", "scale"),
     tuneLength = 30,
     trControl = ctrl
   )
   message("predicting cell types of the query data......")
-  prediction <- predict(svm_Radial, newdata = testing)
+  prediction <- predict(svm_Linear, newdata = testing)
   df <- data.frame(query = rownames(testing), prediction = as.character(prediction), stringsAsFactors = F)
   return(df)
 }

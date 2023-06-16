@@ -9,6 +9,10 @@ Cell-Type Inference and Functional Annotation for Single-Cell Transcriptomics Us
 
 CellFunTopic enables rapid, automated, effective cell type annotation transfer across datasets and species. In addition, CellFunTopic provides a variety of meaningful visualization methods for functional annotation of single-cell transcriptomics, most of which can be explored interactively in the built-in shiny app.
 
+
+<img src="./vignettes/images/workflow.jpg" width="100%" />
+
+
 ## Installation
 
 First, install devtools (for installing GitHub packages) if it isn’t already installed:
