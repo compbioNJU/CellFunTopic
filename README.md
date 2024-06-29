@@ -31,7 +31,7 @@ devtools::install_github("compbioNJU/CellFunTopic")
 
 Please see website: https://compbioNJU.github.io/CellFunTopic
 
-## Citation:
+## Citation
 
 Please cite this paper if you use CellFunTopic: 
 
